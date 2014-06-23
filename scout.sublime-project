@@ -1,0 +1,13 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "base"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "scout"
+		}
+	]
+}
