@@ -3,10 +3,9 @@ package main
 import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
+	"github.com/Opioid/scout/core/rendering"
 	"fmt"
 	"os"
-	"image"
-	"image/color"
 	"image/png"
 )
 
@@ -27,6 +26,11 @@ func main() {
 
 	fmt.Printf("c.Length == %f\n", c.SquaredLength())
 
+	dimensions := math.Vector2{320, 240}
+	buffer := rendering.NewPixelBuffer(dimensions)
+
+	buffer.Set(0, 0, math.Vector4{0.5, 0.3, 0.2, 1.0})
+
 	fo, err := os.Create("output.png")
 
 	if err != nil {
@@ -41,19 +45,19 @@ func main() {
 
 //	out.WriteString("Umpa lumpa")
 
-	width := 320
-	height := 240
 
-	image := image.NewRGBA(image.Rect(0, 0, width, height))
+//	image := image.NewRGBA(image.Rect(0, 0, dimensions.X, dimensions.Y))
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			r := uint8(255.0 * (float32(y) / float32(height)))
-			g := uint8(255.0 * (float32(x) / float32(width)))
+	for y := 0; y < dimensions.Y; y++ {
+		for x := 0; x < dimensions.X; x++ {
+			r := float32(y) / float32(dimensions.Y)
+			g := float32(x) / float32(dimensions.X)
 
-			image.Set(x, y, color.RGBA{r, g, 127, 255})
+			buffer.Set(x, y, math.Vector4{r, g, 0.5, 1.0})
 		}
 	}
+	
+	image := buffer.RGBA()
 
 	png.Encode(fo, image)
 }
