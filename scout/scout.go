@@ -26,10 +26,12 @@ func main() {
 
 	fmt.Printf("c.Length == %f\n", c.SquaredLength())
 
-	dimensions := math.Vector2{320, 240}
+	dimensions := math.Vector2{1280, 720}
 	buffer := rendering.NewPixelBuffer(dimensions)
 
-	buffer.Set(0, 0, math.Vector4{0.5, 0.3, 0.2, 1.0})
+	renderer := rendering.Renderer{}
+
+	renderer.Render(buffer)
 
 	fo, err := os.Create("output.png")
 
@@ -44,18 +46,6 @@ func main() {
 //	defer out.Flush()
 
 //	out.WriteString("Umpa lumpa")
-
-
-//	image := image.NewRGBA(image.Rect(0, 0, dimensions.X, dimensions.Y))
-
-	for y := 0; y < dimensions.Y; y++ {
-		for x := 0; x < dimensions.X; x++ {
-			r := float32(y) / float32(dimensions.Y)
-			g := float32(x) / float32(dimensions.X)
-
-			buffer.Set(x, y, math.Vector4{r, g, 0.5, 1.0})
-		}
-	}
 	
 	image := buffer.RGBA()
 
