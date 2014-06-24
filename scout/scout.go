@@ -15,7 +15,7 @@ func main() {
 	a := math.Vector3{1.0, 2.0,  3.0}
 	b := math.Vector3{4.0, 4.0, -8.0}
 
-	c := math.V3Add(a, b)
+	c := a.Add(b)
 
 	s := bounding.Sphere{c, 2.0}
 
@@ -23,7 +23,9 @@ func main() {
 
 	fmt.Printf("The result is %v, that's a vector\n", c)
 
-	fmt.Printf("dot(a, b) == %f\n", math.V3Dot(a, b))
+	fmt.Printf("a.Dot(b) == %f\n", a.Dot(b))
+
+	fmt.Printf("c.Length == %f\n", c.SquaredLength())
 
 	fo, err := os.Create("output.png")
 
