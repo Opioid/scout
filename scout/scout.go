@@ -42,9 +42,9 @@ func main() {
 	dimensions := math.Vector2{1280, 720}
 	buffer := rendering.NewPixelBuffer(dimensions)
 
-//	renderer := rendering.Renderer{}
+	renderer := rendering.Renderer{}
 
-//	renderer.Render(buffer)
+	renderer.Render(buffer)
 
 	fo, err := os.Create("output.png")
 
