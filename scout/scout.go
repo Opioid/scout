@@ -4,12 +4,25 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	"github.com/Opioid/scout/core/rendering"
+	"github.com/Opioid/scout/core/scene"
 	"fmt"
 	"os"
 	"image/png"
 )
 
 func main() {
+
+	scene := new(scene.Scene)
+
+	if !scene.Load("Test.scene") {
+		fmt.Println("Scne could not be loaded")
+	}
+
+	fmt.Println("Here come the shapes")
+
+	for _, shape := range scene.Shapes {
+		fmt.Println(shape.TypeName())
+	}
 
 	a := math.Vector3{1.0, 2.0,  3.0}
 	b := math.Vector3{4.0, 4.0, -8.0}
@@ -29,9 +42,9 @@ func main() {
 	dimensions := math.Vector2{1280, 720}
 	buffer := rendering.NewPixelBuffer(dimensions)
 
-	renderer := rendering.Renderer{}
+//	renderer := rendering.Renderer{}
 
-	renderer.Render(buffer)
+//	renderer.Render(buffer)
 
 	fo, err := os.Create("output.png")
 
