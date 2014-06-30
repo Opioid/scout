@@ -13,5 +13,13 @@
 			"follow_symlinks": true,
 			"path": "core"
 		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "go-project",
+			"shell_cmd": "go run $project_path/scout/scout.go",
+			"working_dir": "$project_path/../../../../scout/system"
+		}
 	]
 }

@@ -4,7 +4,8 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	"github.com/Opioid/scout/core/rendering"
-	"github.com/Opioid/scout/core/scene"
+	scenepkg "github.com/Opioid/scout/core/scene"
+	takepkg "github.com/Opioid/scout/core/take"
 	"fmt"
 	"os"
 	"image/png"
@@ -12,17 +13,20 @@ import (
 
 func main() {
 
-	scene := new(scene.Scene)
+	take := takepkg.Take{}
 
-	if !scene.Load("Test.scene") {
-		fmt.Println("Scne could not be loaded")
+	if !take.Load("../data/takes/test.take") {
+		fmt.Println("Take could not be loaded")
 	}
 
-	fmt.Println("Here come the shapes")
+	fmt.Println(take)
 
-	for _, shape := range scene.Shapes {
-		fmt.Println(shape.TypeName())
+	scene := scenepkg.Scene{}
+
+	if !scene.Load(take.Scene) {
+		fmt.Println("Scene could not be loaded")
 	}
+
 
 	a := math.Vector3{1.0, 2.0,  3.0}
 	b := math.Vector3{4.0, 4.0, -8.0}
@@ -39,12 +43,16 @@ func main() {
 
 	fmt.Printf("c.Length == %f\n", c.SquaredLength())
 
-	dimensions := math.Vector2{1280, 720}
+	dimensions := take.Camera.Film().Dimensions
 	buffer := rendering.NewPixelBuffer(dimensions)
+
+	context := &rendering.Context{}
+	context.Camera = take.Camera
+	context.Target = buffer;
 
 	renderer := rendering.Renderer{}
 
-	renderer.Render(buffer)
+	renderer.Render(&scene, context)
 
 	fo, err := os.Create("output.png")
 

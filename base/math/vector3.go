@@ -21,5 +21,5 @@ func (a Vector3) SquaredLength() float32 {
 }
 
 func (a Vector3) Length() float32 {
-	return sqrt(a.SquaredLength())
+	return Sqrt(a.SquaredLength())
 }

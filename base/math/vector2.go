@@ -1,5 +1,5 @@
 package math
 
-type Vector2 struct {
+type Vector2i struct {
 	X, Y int
 }

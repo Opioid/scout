@@ -1,5 +1,9 @@
 package shape
 
+import (
+	"github.com/Opioid/scout/base/math"
+)
+
 type Shape interface {
-	TypeName() string
+	Intersect(ray *math.Ray, thit *float32) bool
 }

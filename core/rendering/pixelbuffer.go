@@ -7,19 +7,19 @@ import (
 )
 
 type PixelBuffer struct {
-	dimensions math.Vector2
+	dimensions math.Vector2i
 
 	pixels []math.Vector4
 }
 
-func NewPixelBuffer(dimensions math.Vector2) *PixelBuffer {
+func NewPixelBuffer(dimensions math.Vector2i) *PixelBuffer {
 	buffer := new(PixelBuffer)
 	buffer.dimensions = dimensions
 	buffer.pixels = make([]math.Vector4, dimensions.X * dimensions.Y)
 	return buffer 
 }
 
-func (r *PixelBuffer) Dimensions() math.Vector2 {
+func (r *PixelBuffer) Dimensions() math.Vector2i {
 	return r.dimensions
 }
 
