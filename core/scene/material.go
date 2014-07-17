@@ -4,6 +4,6 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type Entity struct {
-	Transformation math.Transformation
+type Material struct {
+	Color math.Vector3
 }

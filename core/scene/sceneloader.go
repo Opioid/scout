@@ -5,78 +5,89 @@ import (
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
 	"encoding/json"
-	"fmt"
 )
 
-func (scene *Scene) Load(filename string) bool {
+func (scene *Scene) Load(filename string, resourceManager *ResourceManager) error {
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
-		return false
+		return err
 	}
 
 	var document interface{}
 	if err = json.Unmarshal(data, &document); err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
 
 	root := document.(map[string]interface{})
 
 	for key, value := range root {
-		if "shapes" == key {
-			scene.loadShapes(value)
+		if "props" == key {
+			scene.loadProps(value)
 		}
 	} 
 
-	return true
+	return nil
 }
 
-func (scene *Scene) loadShapes(s interface{}) {
-	shapes, isArray := s.([]interface{})
+func (scene *Scene) loadProps(i interface{}) {
+	props, isArray := i.([]interface{})
 
 	if !isArray {
 		return 
 	}
 
-	for _, shape := range shapes {
-		scene.loadShape(shape)
+	for _, prop := range props {
+		scene.loadProp(prop)
 	}
 }
 
-func (scene *Scene) loadShape(s interface{}) {
-	shapeNode, isMap := s.(map[string]interface{})
+func (scene *Scene) loadProp(i interface{}) {
+	propNode, isMap := i.(map[string]interface{})
 
 	if !isMap {
 		return
 	}
 
+	s, hasShape := propNode["shape"]
+
+	if !hasShape {
+		return
+	}
+
+	prop := NewProp(loadShape(s))
+
+	for key, value := range propNode {
+		switch key {
+		case "position":
+			prop.Transformation.Position = pkgjson.ParseVector3(value)
+		case "scale":
+			prop.Transformation.Scale = pkgjson.ParseVector3(value)
+		}
+	}
+
+	scene.Props = append(scene.Props, prop)
+}
+
+func loadShape(i interface{}) shape.Shape {
+	shapeNode, isMap := i.(map[string]interface{})
+
+	if !isMap {
+		return nil
+	}
+
 	t, hasType := shapeNode["type"]
 
 	if !hasType {
-		return
+		return nil
 	}
 
 	switch t {
 	case "Sphere":
-		sphere := loadSphere(shapeNode)
-		scene.Shapes = append(scene.Shapes, sphere)
+		return new(shape.Sphere)
 	case "Plane":
-		scene.Shapes = append(scene.Shapes, new(shape.Plane))
+		return new(shape.Plane)
+	default:
+		return nil
 	}
-}
-
-func loadSphere(s map[string]interface{}) *shape.Sphere {
-	sphere := new(shape.Sphere)
-
-	for key, value := range s {
-		switch key {
-		case "position":
-			sphere.Position = pkgjson.ParseVector3(value)
-		case "radius":
-			sphere.Radius = float32(value.(float64))
-		}
-	}
-
-	return sphere
 }

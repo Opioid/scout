@@ -1,11 +1,9 @@
 package main
 
 import (
-	"github.com/Opioid/scout/base/math"
-	"github.com/Opioid/scout/base/math/bounding"
 	"github.com/Opioid/scout/core/rendering"
-	scenepkg "github.com/Opioid/scout/core/scene"
-	takepkg "github.com/Opioid/scout/core/take"
+	"github.com/Opioid/scout/core/scene"
+	"github.com/Opioid/scout/core/take"
 	"fmt"
 	"os"
 	"image/png"
@@ -13,7 +11,7 @@ import (
 
 func main() {
 
-	take := takepkg.Take{}
+	take := take.Take{}
 
 	if !take.Load("../data/takes/test.take") {
 		fmt.Println("Take could not be loaded")
@@ -21,27 +19,13 @@ func main() {
 
 	fmt.Println(take)
 
-	scene := scenepkg.Scene{}
+	resourceManager := scene.NewResourceManager()
 
-	if !scene.Load(take.Scene) {
-		fmt.Println("Scene could not be loaded")
+	scene := scene.Scene{}
+
+	if err := scene.Load(take.Scene, resourceManager); err != nil {
+		fmt.Printf("Scene could not be loaded: %s\n",err)
 	}
-
-
-	a := math.Vector3{1.0, 2.0,  3.0}
-	b := math.Vector3{4.0, 4.0, -8.0}
-
-	c := a.Add(b)
-
-	s := bounding.Sphere{c, 2.0}
-
-	fmt.Printf("Sphere %v\n", s)
-
-	fmt.Printf("The result is %v, that's a vector\n", c)
-
-	fmt.Printf("a.Dot(b) == %f\n", a.Dot(b))
-
-	fmt.Printf("c.Length == %f\n", c.SquaredLength())
 
 	dimensions := take.Camera.Film().Dimensions
 	buffer := rendering.NewPixelBuffer(dimensions)
@@ -61,12 +45,6 @@ func main() {
 	}
 
 	defer fo.Close()
-
-//	out := bufio.NewWriter(fo)
-
-//	defer out.Flush()
-
-//	out.WriteString("Umpa lumpa")
 	
 	image := buffer.RGBA()
 

@@ -6,7 +6,11 @@ import (
 )
 
 type Sample struct {
-	Coordinates math.Vector2i
+	Coordinates math.Vector2
+}
+
+func NewSample(x, y float32) *Sample {
+	return &Sample{math.Vector2{x, y}}
 }
 
 type Camera interface {

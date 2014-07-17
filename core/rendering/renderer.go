@@ -4,6 +4,7 @@ import (
 	"github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
+	"fmt"
 )
 
 type Renderer struct {
@@ -14,12 +15,15 @@ func (r *Renderer) Render(scene *scene.Scene, context *Context) {
 	target := context.Target
 	dimensions := target.Dimensions()
 
+	for _, prop := range scene.Props {
+		fmt.Println(prop.Transformation.Position)
+	}
+
 	var ray math.Ray
 
 	for y := 0; y < dimensions.Y; y++ {
 		for x := 0; x < dimensions.X; x++ {
-
-			context.Camera.GenerateRay(&camera.Sample{math.Vector2i{x, y}}, &ray)
+			context.Camera.GenerateRay(camera.NewSample(float32(x), float32(y)), &ray)
 
 			r := float32(y) / float32(dimensions.Y)
 			g := float32(x) / float32(dimensions.X)

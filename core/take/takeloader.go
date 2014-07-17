@@ -44,15 +44,18 @@ func (take *Take) loadCamera(s interface{}) {
 	}
 
 	var position math.Vector3
-	var dimensions math.Vector2i
+	var rotation *math.Quaternion
+	var dimensions math.Vector2
 	var film camera.Film
 
 	for key, value := range cameraNode {
 		switch key {
 		case "position":
 			position = pkgjson.ParseVector3(value)
+		case "rotation":
+			rotation = pkgjson.ParseRotationQuaternion(value)
 		case "dimensions":
-			dimensions = pkgjson.ParseVector2i(value)
+			dimensions = pkgjson.ParseVector2(value)
 		case "film":
 			if filmNode, ok := value.(map[string]interface{}); ok {
 				film.Dimensions = pkgjson.ReadVector2i(filmNode, "dimensions", math.Vector2i{0, 0})
@@ -61,7 +64,8 @@ func (take *Take) loadCamera(s interface{}) {
 	}
 	
 	camera := camera.NewOrthographic(dimensions, film)
-	camera.Entity.Position = position
+	camera.Entity.Transformation.Position = position
+	camera.Entity.Transformation.Rotation = rotation
 
 	take.Camera = camera
 }

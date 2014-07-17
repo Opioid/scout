@@ -4,19 +4,19 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
+func ParseVector2(value interface{}) math.Vector2 {
+	if floats, ok := value.([]interface{}); ok {
+		return math.Vector2{float32(floats[0].(float64)), float32(floats[1].(float64))}
+	} else {
+		return math.Vector2{}
+	}
+}
+
 func ParseVector2i(value interface{}) math.Vector2i {
 	if ints, ok := value.([]interface{}); ok {
 		return math.Vector2i{int(ints[0].(float64)), int(ints[1].(float64))}
 	} else {
 		return math.Vector2i{}
-	}
-}
-
-func ParseVector3(value interface{}) math.Vector3 {
-	if floats, ok := value.([]interface{}); ok {
-		return math.Vector3{float32(floats[0].(float64)), float32(floats[1].(float64)), float32(floats[2].(float64))}
-	} else {
-		return math.Vector3{}
 	}
 }
 
@@ -28,4 +28,31 @@ func ReadVector2i(value map[string]interface{}, name string, defaultValue math.V
 	}
 
 	return defaultValue
+}
+
+func ParseVector3(value interface{}) math.Vector3 {
+	if floats, ok := value.([]interface{}); ok {
+		return math.Vector3{float32(floats[0].(float64)), float32(floats[1].(float64)), float32(floats[2].(float64))}
+	} else {
+		return math.Vector3{}
+	}
+}
+
+func ParseRotationMatrix(value interface{}) *math.Matrix3x3 {
+	rotation := ParseVector3(value)
+
+	rotationX := &math.Matrix3x3{}
+	rotationX.SetRotationX(math.DegreesToRadians(rotation.X))
+
+	rotationY := &math.Matrix3x3{}
+	rotationY.SetRotationY(math.DegreesToRadians(rotation.X))
+
+	rotationZ := &math.Matrix3x3{}
+	rotationZ.SetRotationZ(math.DegreesToRadians(rotation.X))
+
+	return rotationZ.Multiply(rotationX).Multiply(rotationY)
+}
+
+func ParseRotationQuaternion(value interface{}) *math.Quaternion {
+	return &math.Quaternion{1.0, 2.0, 3.0, 4.0}
 }

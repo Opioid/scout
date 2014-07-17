@@ -5,15 +5,14 @@ import (
 )
 
 type Sphere struct {
-	Position math.Vector3
-	Radius float32
 }
 
 // Won't work from the inside!
-func (s *Sphere) Intersect(ray *math.Ray, thit *float32) bool {
-	v := ray.Origin.Sub(s.Position)
+func (s *Sphere) Intersect(transformation *math.Transformation, ray *math.Ray, thit *float32) bool {
+	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
-	det := (b * b) - v.Dot(v) + (s.Radius * s.Radius)
+	radius := transformation.Scale.X
+	det := (b * b) - v.Dot(v) + (radius * radius)
 
 	if det > 0.0 {
 		*thit = b - math.Sqrt(det)

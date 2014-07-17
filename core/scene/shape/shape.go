@@ -5,5 +5,5 @@ import (
 )
 
 type Shape interface {
-	Intersect(ray *math.Ray, thit *float32) bool
+	Intersect(transformation *math.Transformation, ray *math.Ray, thit *float32) bool
 }
