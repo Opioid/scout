@@ -10,8 +10,8 @@ type Plane struct {
 }
 
 // works from both sides of the plane
-func (plane *Plane) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool {
-	normal := transformation.Matrix.Row(2).Vector3()// math.Vector3{0.0, 0.0, -1.0}
+func (plane *Plane) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+	normal := transformation.Matrix.Row(2).Vector3()
 
 	d := -normal.Dot(transformation.Position)
 
@@ -21,7 +21,12 @@ func (plane *Plane) Intersect(transformation *entity.ComposedTransformation, ray
 
 	*thit = -(numer / denom)
 	
-	if *thit >= 0.0 && *thit < ray.MaxT {
+	if *thit >= ray.MinT && *thit < ray.MaxT {
+		*epsilon = 5e-4 * *thit
+
+		dg.P = ray.Point(*thit)
+		dg.Nn = normal
+
 		return true
 	} 
 
@@ -29,8 +34,8 @@ func (plane *Plane) Intersect(transformation *entity.ComposedTransformation, ray
 }
 
 // works from both sides of the plane
-func (plane *Plane) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool {
-	normal := transformation.Matrix.Row(2).Vector3()// math.Vector3{0.0, 0.0, -1.0}
+func (plane *Plane) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
+	normal := transformation.Matrix.Row(2).Vector3()
 
 	d := -normal.Dot(transformation.Position)
 
@@ -38,9 +43,9 @@ func (plane *Plane) IntersectP(transformation *entity.ComposedTransformation, ra
 
 	numer := normal.Dot(ray.Origin) + d
 
-	*thit = -(numer / denom)
+	thit := -(numer / denom)
 	
-	if *thit >= 0.0 && *thit < ray.MaxT {
+	if thit >= ray.MinT && thit < ray.MaxT {
 		return true
 	} 
 

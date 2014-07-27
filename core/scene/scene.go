@@ -8,8 +8,6 @@ import (
 type Scene struct {
 	StaticProps []*StaticProp
 	Lights []*light.Light
-
-	Epsilon float32
 }
 
 func (scene *Scene) Compile() {
@@ -20,35 +18,25 @@ func (scene *Scene) Compile() {
 
 func (scene *Scene) Intersect(ray *math.Ray, intersection *Intersection) bool {
 	hit := false
-	var thit float32
 
 	for _, prop := range scene.StaticProps {
-		if prop.Intersect(ray, &thit) {
-			ray.MaxT = thit
+		if prop.Intersect(ray, intersection) {
 			intersection.Prop = &prop.Prop
 			hit = true
 		}
-	}
-
-	if hit {
-		intersection.Dg.Point = ray.Origin.Add(ray.Direction.Scale(ray.MaxT - scene.Epsilon))
 	}
 
 	return hit
 }
 
 func (scene *Scene) IntersectP(ray *math.Ray) bool {
-	hit := false
-	var thit float32
-
 	for _, prop := range scene.StaticProps {
-		if prop.IntersectP(ray, &thit) {
-			ray.MaxT = thit
-			hit = true
+		if prop.IntersectP(ray) {
+			return true
 		}
 	}
 
-	return hit
+	return false
 }
 
 func (scene *Scene) CreateLight(lightType light.Type) *light.Light {

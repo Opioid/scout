@@ -1,14 +1,11 @@
 package scene
 
 import (
-	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/core/scene/shape"
 )
 
 type Intersection struct {
 	Prop *Prop
-	Dg DifferentialGeometry
-}
-
-type DifferentialGeometry struct {
-	Point math.Vector3
+	Dg shape.DifferentialGeometry
+	Epsilon float32
 }

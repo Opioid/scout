@@ -39,3 +39,11 @@ func (a Vector3) Length() float32 {
 func (a Vector3) Normalized() Vector3 {
 	return a.Div(a.Length())
 }
+
+func (a Vector3) Saturated() Vector3 {
+	return Vector3{Clamp(a.X, 0.0, 1.0), Clamp(a.Y, 0.0, 1.0), Clamp(a.Z, 0.0, 1.0)}
+}
+
+func (a Vector3) Reflect(b Vector3) Vector3 {
+	return b.Sub(a.Scale(2.0 * b.Dot(a)))
+}

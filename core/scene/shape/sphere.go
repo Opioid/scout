@@ -9,7 +9,7 @@ type Sphere struct {
 }
 
 // Won't work from the inside!
-func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool {
+func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
 	radius := transformation.Scale.X
@@ -18,7 +18,12 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 	if det > 0.0 {
 		*thit = b - math.Sqrt(det)
 
-		if *thit >= 0.0 && *thit < ray.MaxT {
+		if *thit >= ray.MinT && *thit < ray.MaxT {
+			*epsilon = 5e-4 * *thit
+
+			dg.P = ray.Point(*thit)
+			dg.Nn = dg.P.Sub(transformation.Position).Div(radius)
+
 			return true
 		} 
 	}
@@ -27,16 +32,16 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 }
 
 // Won't work from the inside!
-func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool {
+func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
 	radius := transformation.Scale.X
 	det := (b * b) - v.Dot(v) + (radius * radius)
 
 	if det > 0.0 {
-		*thit = b - math.Sqrt(det)
+		thit := b - math.Sqrt(det)
 
-		if *thit >= 0.0 && *thit < ray.MaxT {
+		if thit >= ray.MinT && thit < ray.MaxT {
 			return true
 		} 
 	}

@@ -6,4 +6,5 @@ import (
 
 type Material struct {
 	Color math.Vector3
+	Roughness float32
 }

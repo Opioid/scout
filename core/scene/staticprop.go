@@ -19,12 +19,21 @@ func NewStaticProp(shape shape.Shape, material *Material) *StaticProp {
 	return p
 }
 
-func (p *StaticProp) Intersect(ray *math.Ray, thit *float32) bool {
-	return p.Shape.Intersect(&p.WorldTransformation, ray, thit)
+func (p *StaticProp) Intersect(ray *math.Ray, intersection *Intersection) bool {
+	var thit, epsilon float32
+	
+	if !p.Shape.Intersect(&p.WorldTransformation, ray, &thit, &epsilon, &intersection.Dg) {
+		return false
+	}
+
+	intersection.Epsilon = epsilon
+	ray.MaxT = thit
+
+	return true
 }
 
-func (p *StaticProp) IntersectP(ray *math.Ray, thit *float32) bool {
-	return p.Shape.IntersectP(&p.WorldTransformation, ray, thit)
+func (p *StaticProp) IntersectP(ray *math.Ray) bool {
+	return p.Shape.IntersectP(&p.WorldTransformation, ray) 
 }
 
 func (p *StaticProp) WorldPosition() math.Vector3 {

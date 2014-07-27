@@ -6,7 +6,7 @@ import (
 )
 
 type Shape interface {
-	Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool
+	Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool
 
-	IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool
+	IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool
 }

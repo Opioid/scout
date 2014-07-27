@@ -36,7 +36,7 @@ func main() {
 	context.Camera = take.Camera
 	context.Target = buffer;
 
-	renderer := rendering.Renderer{}
+	renderer := rendering.Renderer{BounceDepth: 1}
 
 	renderer.Render(&scene, context)
 

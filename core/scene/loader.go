@@ -45,8 +45,6 @@ func (loader *Loader) Load(filename string) error {
 		} 
 	} 
 
-	loader.scene.Epsilon = 0.0003
-
 	loader.scene.Compile()
 
 	return nil
