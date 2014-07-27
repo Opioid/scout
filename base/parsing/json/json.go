@@ -38,21 +38,23 @@ func ParseVector3(value interface{}) math.Vector3 {
 	}
 }
 
-func ParseRotationMatrix(value interface{}) *math.Matrix3x3 {
+func ParseRotationMatrix(value interface{}) math.Matrix3x3 {
 	rotation := ParseVector3(value)
 
-	rotationX := &math.Matrix3x3{}
+	rotationX := math.Matrix3x3{}
 	rotationX.SetRotationX(math.DegreesToRadians(rotation.X))
 
-	rotationY := &math.Matrix3x3{}
-	rotationY.SetRotationY(math.DegreesToRadians(rotation.X))
+	rotationY := math.Matrix3x3{}
+	rotationY.SetRotationY(math.DegreesToRadians(rotation.Y))
 
-	rotationZ := &math.Matrix3x3{}
-	rotationZ.SetRotationZ(math.DegreesToRadians(rotation.X))
+	rotationZ := math.Matrix3x3{}
+	rotationZ.SetRotationZ(math.DegreesToRadians(rotation.Z))
 
-	return rotationZ.Multiply(rotationX).Multiply(rotationY)
+	t := rotationZ.Multiply(&rotationX)
+	return t.Multiply(&rotationY)
 }
 
-func ParseRotationQuaternion(value interface{}) *math.Quaternion {
-	return &math.Quaternion{1.0, 2.0, 3.0, 4.0}
+func ParseRotationQuaternion(value interface{}) math.Quaternion {
+	m := ParseRotationMatrix(value)
+	return math.MakeQuaternionFromMatrix3x3(&m)
 }

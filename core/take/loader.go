@@ -37,23 +37,29 @@ func (take *Take) Load(filename string) bool {
 }
 
 func (take *Take) loadCamera(s interface{}) {
-	cameraNode, isMap := s.(map[string]interface{})
+	cameraNode, ok := s.(map[string]interface{})
 
-	if !isMap {
+	if !ok {
 		return
 	}
 
+	var typestring string
 	var position math.Vector3
-	var rotation *math.Quaternion
+	var rotation math.Quaternion
+	var fov float32
 	var dimensions math.Vector2
 	var film camera.Film
 
 	for key, value := range cameraNode {
 		switch key {
+		case "type":
+			typestring = value.(string)
 		case "position":
 			position = pkgjson.ParseVector3(value)
 		case "rotation":
 			rotation = pkgjson.ParseRotationQuaternion(value)
+		case "fov":
+			fov = math.DegreesToRadians(float32(value.(float64)))
 		case "dimensions":
 			dimensions = pkgjson.ParseVector2(value)
 		case "film":
@@ -62,10 +68,20 @@ func (take *Take) loadCamera(s interface{}) {
 			}
 		}
 	}
-	
-	camera := camera.NewOrthographic(dimensions, film)
-	camera.Entity.Transformation.Position = position
-	camera.Entity.Transformation.Rotation = rotation
 
-	take.Camera = camera
+	if "Orthographic" == typestring {
+		camera := camera.NewOrthographic(dimensions, film)
+		camera.Entity.Transformation.Position = position
+		camera.Entity.Transformation.Rotation = rotation
+
+		take.Camera = camera
+	} else if "Perspective" == typestring {
+		camera := camera.NewPerspective(fov, dimensions, film)
+		camera.Entity.Transformation.Position = position
+		camera.Entity.Transformation.Rotation = rotation
+
+		take.Camera = camera
+	}
+
+	take.Camera.UpdateView()
 }

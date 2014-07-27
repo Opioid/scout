@@ -1,27 +1,27 @@
 package camera
 
 import (
+	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
 )
 
 type Orthographic struct {
 	genericCamera
-	extent math.Vector2
 }
 
 func NewOrthographic(dimensions math.Vector2, film Film) *Orthographic {
 	o := new(Orthographic)
 	o.film = film
 	
-	if 0.0 == dimensions.X {
-		o.extent = math.Vector2{dimensions.Y * (float32(film.Dimensions.X) / float32(film.Dimensions.Y)), dimensions.Y}
-	} else if 0.0 == dimensions.Y {
-		o.extent = math.Vector2{dimensions.X, dimensions.X * (float32(film.Dimensions.Y) / float32(film.Dimensions.X))}
-	} else {
-		o.extent = dimensions
-	}
+	o.dimensions = calculateDimensions(dimensions, film)
 
 	return o
+}
+
+func (o *Orthographic) UpdateView() {}
+
+func (o *Orthographic) Transformation() *entity.ComposedTransformation {
+	return &o.Entity.Transformation
 }
 
 func (o *Orthographic) Position() math.Vector3 {
@@ -36,9 +36,13 @@ func (o *Orthographic) GenerateRay(sample *Sample, ray *math.Ray) {
 	x := sample.Coordinates.X / float32(o.film.Dimensions.X)
 	y := sample.Coordinates.Y / float32(o.film.Dimensions.Y)
 
-	offset := math.Vector3{x * o.extent.X - 0.5 * o.extent.X, 0.5 * o.extent.Y - y * o.extent.Y, 0.0}
+	offset := math.Vector3{x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0}
+
+	rotation := math.NewMatrix3x3FromQuaternion(o.Entity.Transformation.Rotation)
+
+	offset = rotation.TransformVector3(offset)
 
 	ray.Origin    = o.Entity.Transformation.Position.Add(offset)
-	ray.Direction = math.Vector3{0.0, 0.0, 1.0}
+	ray.Direction = rotation.Row(2)
 	ray.MaxT      = 1000.0
 }

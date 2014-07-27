@@ -1,9 +1,12 @@
 package shape
 
 import (
+	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
 )
 
 type Shape interface {
-	Intersect(transformation *math.Transformation, ray *math.Ray, thit *float32) bool
+	Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool
+
+	IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32) bool
 }

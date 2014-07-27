@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Opioid/scout/core/rendering"
-	"github.com/Opioid/scout/core/scene"
+	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/take"
 	"fmt"
 	"os"
@@ -19,11 +19,13 @@ func main() {
 
 	fmt.Println(take)
 
-	resourceManager := scene.NewResourceManager()
+	resourceManager := pkgscene.NewResourceManager()
 
-	scene := scene.Scene{}
+	scene := pkgscene.Scene{}
 
-	if err := scene.Load(take.Scene, resourceManager); err != nil {
+	sceneLoader := pkgscene.NewLoader(&scene, resourceManager)
+
+	if err := sceneLoader.Load(take.Scene); err != nil {
 		fmt.Printf("Scene could not be loaded: %s\n",err)
 	}
 
