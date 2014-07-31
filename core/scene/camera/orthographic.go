@@ -2,6 +2,8 @@ package camera
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/rendering/film"
+	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -9,7 +11,7 @@ type Orthographic struct {
 	genericCamera
 }
 
-func NewOrthographic(dimensions math.Vector2, film Film) *Orthographic {
+func NewOrthographic(dimensions math.Vector2, film film.Film) *Orthographic {
 	o := new(Orthographic)
 	o.film = film
 	
@@ -28,13 +30,13 @@ func (o *Orthographic) Position() math.Vector3 {
 	return o.Entity.Transformation.Position
 }
 
-func (o *Orthographic) Film() Film {
+func (o *Orthographic) Film() film.Film {
 	return o.film
 }
 
-func (o *Orthographic) GenerateRay(sample *Sample, ray *math.Ray) {
-	x := sample.Coordinates.X / float32(o.film.Dimensions.X)
-	y := sample.Coordinates.Y / float32(o.film.Dimensions.Y)
+func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.Ray) {
+	x := sample.Coordinates.X / float32(o.film.Dimensions().X)
+	y := sample.Coordinates.Y / float32(o.film.Dimensions().Y)
 
 	offset := math.Vector3{x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0}
 

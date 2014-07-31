@@ -1,10 +1,10 @@
 package take
 
 import (
-	"github.com/Opioid/scout/core/scene/camera"
+	"github.com/Opioid/scout/core/rendering"
 )
 
 type Take struct {
 	Scene  string
-	Camera camera.Camera
+	Context rendering.Context
 }

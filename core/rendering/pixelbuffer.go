@@ -19,24 +19,24 @@ func NewPixelBuffer(dimensions math.Vector2i) *PixelBuffer {
 	return buffer 
 }
 
-func (r *PixelBuffer) Dimensions() math.Vector2i {
-	return r.dimensions
+func (b *PixelBuffer) Dimensions() math.Vector2i {
+	return b.dimensions
 }
 
-func (r *PixelBuffer) At(x, y int) math.Vector4 {
-	return r.pixels[r.dimensions.X * y + x]
+func (b *PixelBuffer) At(x, y int) math.Vector4 {
+	return b.pixels[b.dimensions.X * y + x]
 }
 
-func (r *PixelBuffer) Set(x, y int, color math.Vector4) {
-	r.pixels[r.dimensions.X * y + x] = color
+func (b *PixelBuffer) Set(x, y int, color math.Vector4) {
+	b.pixels[b.dimensions.X * y + x] = color
 }
 
-func (r *PixelBuffer) RGBA() *image.RGBA {
-	image := image.NewRGBA(image.Rect(0, 0, r.dimensions.X, r.dimensions.Y))
+func (b *PixelBuffer) RGBA() *image.RGBA {
+	image := image.NewRGBA(image.Rect(0, 0, b.dimensions.X, b.dimensions.Y))
 
-	for y := 0; y < r.dimensions.Y; y++ {
-		for x := 0; x < r.dimensions.X; x++ {
-			pixel := r.At(x, y)
+	for y := 0; y < b.dimensions.Y; y++ {
+		for x := 0; x < b.dimensions.X; x++ {
+			pixel := b.At(x, y)
 			r := uint8(255.0 * pixel.X)
 			g := uint8(255.0 * pixel.Y)
 			b := uint8(255.0 * pixel.Z)

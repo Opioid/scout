@@ -4,12 +4,16 @@ import (
 	"github.com/Opioid/scout/core/rendering"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/take"
-	"fmt"
+	"runtime"
 	"os"
+	"time"
+	"fmt"
 	"image/png"
 )
 
 func main() {
+	fmt.Printf("#Cores %d\n", runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	take := take.Take{}
 
@@ -17,11 +21,12 @@ func main() {
 		fmt.Println("Take could not be loaded")
 	}
 
-	fmt.Println(take)
-
 	resourceManager := pkgscene.NewResourceManager()
 
 	scene := pkgscene.Scene{}
+
+	fmt.Printf("Loading...")
+	loadStart := time.Now()
 
 	sceneLoader := pkgscene.NewLoader(&scene, resourceManager)
 
@@ -29,16 +34,25 @@ func main() {
 		fmt.Printf("Scene could not be loaded: %s\n",err)
 	}
 
-	dimensions := take.Camera.Film().Dimensions
-	buffer := rendering.NewPixelBuffer(dimensions)
-
-	context := &rendering.Context{}
-	context.Camera = take.Camera
-	context.Target = buffer;
+	loadDuration := time.Since(loadStart)
+	seconds := float64(loadDuration.Nanoseconds()) / 1000000000.0
+	fmt.Printf("     (%fs)\n", seconds)
 
 	renderer := rendering.Renderer{BounceDepth: 1}
 
-	renderer.Render(&scene, context)
+	fmt.Printf("Rendering...")
+	renderStart := time.Now()
+
+	renderer.Render(&scene, &take.Context)
+
+	renderDuration := time.Since(renderStart)
+	seconds = float64(renderDuration.Nanoseconds()) / 1000000000.0
+	fmt.Printf("   (%fs)\n", seconds)
+
+	fmt.Printf("Saving...")
+	saveStart := time.Now()
+
+	image := take.Context.Camera.Film().RGBA()
 
 	fo, err := os.Create("output.png")
 
@@ -47,8 +61,10 @@ func main() {
 	}
 
 	defer fo.Close()
-	
-	image := buffer.RGBA()
 
 	png.Encode(fo, image)
+
+	saveDuration := time.Since(saveStart)
+	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
+	fmt.Printf("      (%fs)\n", seconds)
 }

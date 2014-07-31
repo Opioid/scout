@@ -1,34 +1,61 @@
 package rendering
 
 import (
+	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
+	"sync"
 	_ "fmt"
 )
 
 type Renderer struct {
 	BounceDepth int
+
+	samplerDimensions math.Vector2i
+	currentSampler, numSamplers math.Vector2i
 }
 
 func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
-	target := context.Target
-	dimensions := target.Dimensions()
+	dimensions := context.Camera.Film().Dimensions()
 
-	var ray math.Ray
+	r.samplerDimensions = math.Vector2i{16, 16}
+	r.numSamplers = math.Vector2i{dimensions.X / r.samplerDimensions.X, dimensions.Y / r.samplerDimensions.Y}
 
-	for y := 0; y < dimensions.Y; y++ {
-		for x := 0; x < dimensions.X; x++ {
-			context.Camera.GenerateRay(camera.NewSample(float32(x), float32(y)), &ray)
+	wg := sync.WaitGroup{}
 
-			color := r.render(scene, &ray, 0) 
+	for {
+		sampler := r.NewSubSampler(context.Sampler)
 
-			target.Set(x, y, math.Vector4{color.X, color.Y, color.Z, 1.0})
+		if sampler == nil {
+			break
 		}
+
+		wg.Add(1)
+		go r.render(scene, context.Camera, sampler, &wg)
 	}
+
+	wg.Wait()
 }
 
-func (r *Renderer) render(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vector3 {
+func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler, wg *sync.WaitGroup) {
+	film := camera.Film()
+
+	var ray math.Ray
+	var sample pkgsampler.Sample
+
+	for sampler.GenerateNewSample(&sample) {
+		camera.GenerateRay(&sample, &ray)
+
+		color := r.li(scene, &ray, 0) 
+
+		film.AddSample(&sample, color)
+	}
+
+	wg.Done()
+}
+
+func (r *Renderer) li(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vector3 {
 	var intersection pkgscene.Intersection
 
 	if scene.Intersect(ray, &intersection) {
@@ -64,9 +91,28 @@ func (r *Renderer) shade(scene *pkgscene.Scene, eyeDirection math.Vector3, inter
 
 			secondaryRay := math.Ray{Origin: intersection.Dg.P, Direction: reflection, MinT: intersection.Epsilon, MaxT: 1000.0}
 
-			result = r.render(scene, &secondaryRay, depth + 1).Mul(color)
+			result = r.li(scene, &secondaryRay, depth + 1).Mul(color)
 		}
 	}
 
 	return result
+}
+
+func (r *Renderer) NewSubSampler(s pkgsampler.Sampler) pkgsampler.Sampler {
+	if r.currentSampler.X >= r.numSamplers.X {
+		r.currentSampler.X = 0
+		r.currentSampler.Y++
+	}
+
+	if r.currentSampler.Y >= r.numSamplers.Y {
+		return nil
+	}
+
+	start := math.Vector2i{r.currentSampler.X * r.samplerDimensions.X, r.currentSampler.Y * r.samplerDimensions.Y}
+
+	sampler := s.SubSampler(start, start.Add(r.samplerDimensions))
+
+	r.currentSampler.X++
+
+	return sampler
 }

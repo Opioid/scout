@@ -8,6 +8,13 @@ func (a Vector3) Add(b Vector3) Vector3 {
 	return Vector3{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }
 
+func (a* Vector3) AddAssign(b Vector3) Vector3 {
+	a.X += b.X
+	a.Y += b.Y
+	a.Z += b.Z
+	return *a
+}
+
 func (a Vector3) Sub(b Vector3) Vector3 {
 	return Vector3{a.X - b.X, a.Y - b.Y, a.Z - b.Z}
 }

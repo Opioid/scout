@@ -12,6 +12,14 @@ func (a Vector4) Add(b Vector4) Vector4 {
 	return Vector4{a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W}
 }
 
+func (a* Vector4) AddAssign(b Vector4) Vector4 {
+	a.X += b.X
+	a.Y += b.Y
+	a.Z += b.Z
+	a.W += b.W
+	return *a
+}
+
 func (a Vector4) Sub(b Vector4) Vector4 {
 	return Vector4{a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W}
 }
