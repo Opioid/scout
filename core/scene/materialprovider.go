@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"github.com/Opioid/scout/core/rendering/material"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"github.com/Opioid/scout/base/math"
 	"io/ioutil"
@@ -13,7 +14,7 @@ type MaterialProvider struct {
 
 }
 
-func (p *MaterialProvider) Load(filename string) *Material {
+func (p *MaterialProvider) Load(filename string) Material {
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -40,16 +41,21 @@ func (p *MaterialProvider) Load(filename string) *Material {
 		return nil
 	}
 
-	material := &Material{Color: math.Vector3{0.75, 0.75, 0.75}, Roughness: 0.9 }
+//	material := &Material{Color: math.Vector3{0.75, 0.75, 0.75}, Roughness: 0.9 }
+
+//	material := new(material.Substitute_ColorOnly)
+
+	var color math.Vector3
+	var roughness float32
 
 	for key, value := range renderingNode {
 		switch key {
 		case "color":
-			material.Color = pkgjson.ParseVector3(value)
+			color = pkgjson.ParseVector3(value)
 		case "roughness":
-			material.Roughness = float32(value.(float64))
+			roughness = float32(value.(float64))
 		}
 	}
 
-	return material
+	return material.NewSubstitute_ColorOnly(color, roughness)
 }

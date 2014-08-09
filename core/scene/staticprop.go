@@ -12,7 +12,7 @@ type StaticProp struct {
 	WorldTransformation entity.ComposedTransformation
 }
 
-func NewStaticProp(shape shape.Shape, material *Material) *StaticProp {
+func NewStaticProp(shape shape.Shape, material Material) *StaticProp {
 	p := new(StaticProp)
 	p.Shape = shape
 	p.Material = material

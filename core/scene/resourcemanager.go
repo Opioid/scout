@@ -22,6 +22,6 @@ func (m *ResourceManager) LoadShape(filename string) shape.Shape {
 	return m.shapeProvider.Load(filename)
 }
 
-func (m *ResourceManager) LoadMaterial(filename string) *Material {
+func (m *ResourceManager) LoadMaterial(filename string) Material {
 	return m.materialProvider.Load(filename)
 }

@@ -5,12 +5,12 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type Plane struct {
+type plane struct {
 	
 }
 
 // works from both sides of the plane
-func (plane *Plane) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+func (p *plane) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
 	normal := transformation.Matrix.Row(2).Vector3()
 
 	d := -normal.Dot(transformation.Position)
@@ -34,7 +34,7 @@ func (plane *Plane) Intersect(transformation *entity.ComposedTransformation, ray
 }
 
 // works from both sides of the plane
-func (plane *Plane) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
+func (p *plane) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
 	normal := transformation.Matrix.Row(2).Vector3()
 
 	d := -normal.Dot(transformation.Position)

@@ -6,5 +6,5 @@ import (
 
 type Prop struct {
 	Shape shape.Shape
-	Material *Material
+	Material Material
 }

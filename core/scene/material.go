@@ -4,7 +4,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type Material struct {
-	Color math.Vector3
-	Roughness float32
+type Material interface {
+	Evaluate(n, l, v math.Vector3) math.Vector3
+	IsMirror() bool
 }
