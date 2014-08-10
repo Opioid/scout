@@ -2,6 +2,7 @@ package scene
 
 import (
 	"github.com/Opioid/scout/core/rendering/material"
+	"github.com/Opioid/scout/core/rendering/texture"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"github.com/Opioid/scout/base/math"
 	"io/ioutil"
@@ -14,7 +15,7 @@ type MaterialProvider struct {
 
 }
 
-func (p *MaterialProvider) Load(filename string) Material {
+func (p *MaterialProvider) Load(filename string, m *ResourceManager) Material {
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -47,9 +48,23 @@ func (p *MaterialProvider) Load(filename string) Material {
 
 	var color math.Vector3
 	var roughness float32
+	var colorMap texture.Sampler2D
 
 	for key, value := range renderingNode {
 		switch key {
+		case "textures":
+			textures, ok := value.([]interface{})
+
+			if !ok {
+				break 
+			}
+
+			for _, t := range textures {
+				filename = readFilename(t)
+				colorTexture := m.LoadTexture2D(filename)
+				colorMap = texture.NewSampler_nearest(colorTexture)
+			}
+
 		case "color":
 			color = pkgjson.ParseVector3(value)
 		case "roughness":
@@ -57,5 +72,21 @@ func (p *MaterialProvider) Load(filename string) Material {
 		}
 	}
 
-	return material.NewSubstitute_ColorOnly(color, roughness)
+	if colorMap != nil {
+		return material.NewSubstitute_ColorMap(color, roughness, colorMap)
+	} else {
+		return material.NewSubstitute_ColorConstant(color, roughness)
+	}
+}
+
+func readFilename(i interface{}) string {
+	node, ok := i.(map[string]interface{})
+
+	if !ok {
+		return ""
+	}
+
+	filename := node["file"].(string)
+
+	return filename
 }

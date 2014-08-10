@@ -86,7 +86,7 @@ func (r *Renderer) shade(scene *pkgscene.Scene, eyeDirection math.Vector3, inter
 
 		if !scene.IntersectP(&ray) {
 		//	diffuse := color.Mul(l.Color).Scale(cos)
-			color := material.Evaluate(intersection.Dg.Nn, lightVector, v).Mul(l.Color)
+			color := material.Evaluate(&intersection.Dg, lightVector, v).Mul(l.Color)
 
 			result = result.Add(color)
 		}

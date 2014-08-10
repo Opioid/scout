@@ -7,4 +7,5 @@ import (
 type DifferentialGeometry struct {
 	P math.Vector3
 	Nn math.Vector3
+	UV math.Vector2
 }

@@ -5,50 +5,6 @@ import (
 	gomath "math"
 )
 
-type Substitute_ColorOnly struct {
-	color math.Vector3
-	// roughness float32
-	a2 float32
-}
-
-func NewSubstitute_ColorOnly(color math.Vector3, roughness float32) *Substitute_ColorOnly {
-	m := new(Substitute_ColorOnly)
-	m.color = color
-	a := roughness * roughness
-	m.a2 = a * a
-	return m
-}
-
-func (m *Substitute_ColorOnly) Evaluate(n, l, v math.Vector3) math.Vector3 {
-	n_dot_l := math.Max(n.Dot(l), 0.00001)
-	n_dot_v := math.Max(n.Dot(v), 0.0)
-
-	h := v.Add(l).Normalized()
-
-	n_dot_h := n.Dot(h)
-	v_dot_h := v.Dot(h)
-
-	f0 := math.Vector3{0.03, 0.03, 0.03}
-
-//	a := m.Roughness * m.Roughness
-//	a2 := a * a
-
-	specular := specular_f(v_dot_h, f0).Scale(specular_d(n_dot_h, m.a2)).Scale(specular_g(n_dot_l, n_dot_v, m.a2))
-
-	return m.color.Add(specular).Scale(n_dot_l)
-
-	
-/*
-	n_dot_l := math.Max(n.Dot(l), 0.0)
-
-	return m.Color.Scale(n_dot_l)
-	*/
-}
-
-func (m *Substitute_ColorOnly) IsMirror() bool {
-	return m.a2 == 0.0
-}
-
 func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
 	return f0.Add(math.Vector3{1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z}.Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
 }
