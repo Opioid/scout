@@ -57,19 +57,19 @@ func loadTriangleMesh(i interface{}) *triangleMesh {
 	m.setIndex(4, 1)
 	m.setIndex(5, 3)
 
-	m.setPosition(0, math.Vector3{-0.4, 1.8, 2.0})
+	m.setPosition(0, math.Vector3{-0.5, 0.5, 0.0})
 	m.setNormal(0, math.Vector3{0.0, 0.0, -1.0})
 	m.setUV(0, math.Vector2{0.0, 0.0})
 
-	m.setPosition(1, math.Vector3{ 0.4, 1.8, 2.0})
+	m.setPosition(1, math.Vector3{ 0.5, 0.5, 0.0})
 	m.setNormal(1, math.Vector3{0.0, 0.0, -1.0})
 	m.setUV(1, math.Vector2{1.0, 0.0})
 
-	m.setPosition(2, math.Vector3{-0.4, 1.0, 2.0})
+	m.setPosition(2, math.Vector3{-0.5, -0.5, 0.0})
 	m.setNormal(2, math.Vector3{0.0, 0.0, -1.0})
 	m.setUV(2, math.Vector2{0.0, 1.0})
 
-	m.setPosition(3, math.Vector3{ 0.4, 1.0, 2.0})
+	m.setPosition(3, math.Vector3{ 0.5, -0.5, 0.0})
 	m.setNormal(3, math.Vector3{0.0, 0.0, -1.0})
 	m.setUV(3, math.Vector2{1.0, 1.0})
 

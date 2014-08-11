@@ -11,9 +11,10 @@ type Scene struct {
 }
 
 func (scene *Scene) Compile() {
+	/*
 	for _, light := range scene.Lights {
 		light.Entity.Transformation.Update()
-	}
+	}*/
 }
 
 func (scene *Scene) Intersect(ray *math.Ray, intersection *Intersection) bool {

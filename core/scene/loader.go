@@ -99,20 +99,24 @@ func (loader *Loader) loadLight(i interface{}) {
 		l = loader.scene.CreateLight(light.Directional)
 	}
 
+	var position, scale math.Vector3
+	var rotation math.Quaternion
+
 	for key, value := range lightNode {
 		switch key {
 		case "color":
 			l.Color = pkgjson.ParseVector3(value)
 
 		case "position":
-			l.Transformation.Position = pkgjson.ParseVector3(value)
+			position = pkgjson.ParseVector3(value)
 		case "scale":
-			l.Transformation.Scale = pkgjson.ParseVector3(value)
+			scale = pkgjson.ParseVector3(value)
 		case "rotation":
-			l.Transformation.Rotation = pkgjson.ParseRotationQuaternion(value)
+			rotation = pkgjson.ParseRotationQuaternion(value)
 		}
 	}
 
+	l.Transformation.Set(position, scale, rotation)
 /*
 	s, ok := propNode["shape"]
 
@@ -204,9 +208,8 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 		return
 	}
 
-	var position math.Vector3
-	var scale math.Vector3
-	rotation := math.MakeIdentityMatrix3x3()
+	var position, scale math.Vector3
+	rotation := math.MakeIdentityQuaterion()
 
 	for key, value := range propNode {
 		switch key {
@@ -215,13 +218,13 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 		case "scale":
 			scale = pkgjson.ParseVector3(value)
 		case "rotation":
-			rotation = pkgjson.ParseRotationMatrix(value)
+			rotation = pkgjson.ParseRotationQuaternion(value)
 		}
 	}
 
 	prop := NewStaticProp(shape, material)
 
-	prop.SetWorldTransformation(position, scale, &rotation)
+	prop.Transformation.Set(position, scale, rotation)
 
 	loader.scene.StaticProps = append(loader.scene.StaticProps, prop)
 }

@@ -80,7 +80,7 @@ func (r *Renderer) shade(scene *pkgscene.Scene, eyeDirection math.Vector3, inter
 	v := eyeDirection.Scale(-1.0)
 
 	for _, l := range scene.Lights {
-		lightVector := l.Entity.Transformation.Matrix.Row(2).Vector3().Scale(-1.0)
+		lightVector := l.Entity.Transformation.Rotation.Row(2).Scale(-1.0)
 
 		ray.Direction = lightVector
 

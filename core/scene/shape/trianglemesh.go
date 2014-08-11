@@ -3,6 +3,7 @@ package shape
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
+	_ "fmt"
 )
 
 type vertex struct {
@@ -24,6 +25,12 @@ func NewTriangleMesh(numIndices, numVertices uint32) *triangleMesh {
 }
 
 func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+	oray := *ray
+	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
+	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
+
+//	fmt.Println(transformation.WorldToObject)
+
 	type intersectionResult struct {
 		t, u, v float32
 		index uint32
@@ -33,7 +40,7 @@ func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, 
 	hasHit := false
 	for i, len := uint32(0), uint32(len(m.indices)); i < len; i += 3 {
 		hit := intersectionResult{index: i}
-		if intersectTriangle(m.vertices[m.indices[i + 0]].p, m.vertices[m.indices[i + 1]].p, m.vertices[m.indices[i + 2]].p, ray, &hit.t, &hit.u, &hit.v) {
+		if intersectTriangle(m.vertices[m.indices[i + 0]].p, m.vertices[m.indices[i + 1]].p, m.vertices[m.indices[i + 2]].p, &oray, &hit.t, &hit.u, &hit.v) {
 			if hit.t <= closestHit.t {
 				closestHit = hit
 				hasHit = true
@@ -60,8 +67,12 @@ func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, 
 }
 
 func (m *triangleMesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
+	oray := *ray
+	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
+	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
+
 	for i, len := uint32(0), uint32(len(m.indices)); i < len; i += 3 {
-		if intersectTriangleP(m.vertices[m.indices[i + 0]].p, m.vertices[m.indices[i + 1]].p, m.vertices[m.indices[i + 2]].p, ray) {
+		if intersectTriangleP(m.vertices[m.indices[i + 0]].p, m.vertices[m.indices[i + 1]].p, m.vertices[m.indices[i + 2]].p, &oray) {
 			return true
 		}
 	}

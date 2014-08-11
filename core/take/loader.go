@@ -78,13 +78,11 @@ func (take *Take) loadCamera(s interface{}) {
 
 	if "Orthographic" == typestring {
 		camera := camera.NewOrthographic(dimensions, film)
-		camera.Entity.Transformation.Position = position
-		camera.Entity.Transformation.Rotation = rotation
+		camera.Entity.Transformation.Set(position, math.Vector3{1.0, 1.0, 1.0}, rotation)
 		take.Context.Camera = camera
 	} else if "Perspective" == typestring {
 		camera := camera.NewPerspective(fov, dimensions, film)
-		camera.Entity.Transformation.Position = position
-		camera.Entity.Transformation.Rotation = rotation
+		camera.Entity.Transformation.Set(position, math.Vector3{1.0, 1.0, 1.0}, rotation)
 		take.Context.Camera = camera
 	}
 

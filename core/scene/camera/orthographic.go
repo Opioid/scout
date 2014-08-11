@@ -14,9 +14,8 @@ type Orthographic struct {
 func NewOrthographic(dimensions math.Vector2, film film.Film) *Orthographic {
 	o := new(Orthographic)
 	o.film = film
-	
 	o.dimensions = calculateDimensions(dimensions, film)
-
+	o.Entity.Transformation.ObjectToWorld.SetIdentity()
 	return o
 }
 
@@ -40,11 +39,9 @@ func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.Ray) {
 
 	offset := math.Vector3{x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0}
 
-	rotation := math.NewMatrix3x3FromQuaternion(o.Entity.Transformation.Rotation)
-
-	offset = rotation.TransformVector3(offset)
+	offset = o.Entity.Transformation.Rotation.TransformVector3(offset)
 
 	ray.Origin    = o.Entity.Transformation.Position.Add(offset)
-	ray.Direction = rotation.Row(2)
+	ray.Direction = o.Entity.Transformation.Rotation.Row(2)
 	ray.MaxT      = 1000.0
 }

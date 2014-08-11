@@ -47,6 +47,21 @@ func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 	*/
 }
 
+func (m *Matrix3x3) SetFromQuaternion(q Quaternion) {
+	d := q.Dot(q)
+
+	s := 2.0 / d
+
+	xs, ys, zs := q.X * s,  q.Y * s,  q.Z * s
+	wx, wy, wz := q.W * xs, q.W * ys, q.W * zs
+	xx, xy, xz := q.X * xs, q.X * ys, q.X * zs
+	yy, yz, zz := q.Y * ys, q.Y * zs, q.Z * zs
+
+	m.m[0] = 1.0 - (yy + zz); m.m[1] = xy - wz;         m.m[2] = xz + wy
+	m.m[3] = xy + wz;         m.m[4] = 1.0 - (xx + zz); m.m[5] = yz - wx
+	m.m[6] = xz - wy;         m.m[7] = yz + wx;         m.m[8] = 1.0 - (xx + yy)
+}
+
 func (m *Matrix3x3) Row(i int) Vector3 {
 	return Vector3{m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2]}
 }

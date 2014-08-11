@@ -4,6 +4,10 @@ type Quaternion struct {
 	X, Y, Z, W float32
 }
 
+func MakeIdentityQuaterion() Quaternion {
+	return Quaternion{0.0, 0.0, 0.0, 1.0}
+}
+
 func MakeQuaternionFromMatrix3x3(m *Matrix3x3) Quaternion {
 	trace := m.m[0] + m.m[4] + m.m[8]
 	var temp [4]float32

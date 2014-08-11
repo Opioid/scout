@@ -5,18 +5,25 @@ import (
 )
 
 type ComposedTransformation struct {
-	math.Transformation
-	Matrix math.Matrix4x4
+	Position math.Vector3
+	Scale math.Vector3
+	Rotation math.Matrix3x3
+	ObjectToWorld math.Matrix4x4
+	WorldToObject math.Matrix4x4
 }
 
-/*
-func (t *ComposedTransformation) Update(transformation *math.Transformation) {
-	t.Transformation = *transformation
-}
-*/
+func (t *ComposedTransformation) Set(position, scale math.Vector3, rotation math.Quaternion) {
+	t.Position = position
+	t.Scale = scale
+	t.Rotation.SetFromQuaternion(rotation)
 
-func (t *ComposedTransformation) Update() {
-	rotation := math.NewMatrix3x3FromQuaternion(t.Rotation)
-	t.Matrix.SetBasis(rotation)
-	t.Matrix.SetOrigin(t.Position)
+	t.ObjectToWorld.SetBasis(&t.Rotation)
+	t.ObjectToWorld.Scale(scale)
+	t.ObjectToWorld.SetOrigin(t.Position)
+
+	t.WorldToObject = t.ObjectToWorld.Inverted()
+}
+
+func (t *ComposedTransformation) SetFromTransformation(transformation *math.Transformation) {
+	t.Set(transformation.Position, transformation.Scale, transformation.Rotation)
 }

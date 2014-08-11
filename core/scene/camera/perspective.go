@@ -19,18 +19,14 @@ type Perspective struct {
 func NewPerspective(fov float32, dimensions math.Vector2, film film.Film) *Perspective {
 	p := new(Perspective)
 	p.film = film
-
 	p.dimensions = calculateDimensions(dimensions, film)
-
 	p.fov = fov
-
-	p.Entity.Transformation.Matrix.SetIdentity()
-
+	p.Entity.Transformation.ObjectToWorld.SetIdentity()
 	return p
 }
 
 func (p *Perspective) UpdateView() {
-	p.Entity.Transformation.Update()
+//	p.Entity.Transformation.Update()
 
 	ratio := p.dimensions.X / p.dimensions.Y
 
@@ -42,9 +38,9 @@ func (p *Perspective) UpdateView() {
 		math.Vector3{-ratio, -1.0, z},
 	}
 
-	p.leftTop   = p.Entity.Transformation.Matrix.TransformPoint(corners[0])
-	rightTop   := p.Entity.Transformation.Matrix.TransformPoint(corners[1])
-	leftBottom := p.Entity.Transformation.Matrix.TransformPoint(corners[2])
+	p.leftTop   = p.Entity.Transformation.ObjectToWorld.TransformPoint(corners[0])
+	rightTop   := p.Entity.Transformation.ObjectToWorld.TransformPoint(corners[1])
+	leftBottom := p.Entity.Transformation.ObjectToWorld.TransformPoint(corners[2])
 
 	p.dx = rightTop.Sub(p.leftTop)
 	p.dy = leftBottom.Sub(p.leftTop)
