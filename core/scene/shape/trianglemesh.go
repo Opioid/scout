@@ -60,6 +60,8 @@ func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, 
 			           		closestHit.u, closestHit.v,
 			           		&dg.Nn, &dg.UV)
 
+		dg.Nn = transformation.WorldToObject.TransposedTransformVector(dg.Nn)
+
 		return true
 	}
 

@@ -70,6 +70,14 @@ func (m *Matrix4x4) TransformVector(v Vector3) Vector3 {
 	}
 }
 
+func (m *Matrix4x4) TransposedTransformVector(v Vector3) Vector3 {
+	return Vector3{
+		v.X * m.m[0] + v.Y * m.m[1] + v.Z * m.m[2],
+		v.X * m.m[4] + v.Y * m.m[5] + v.Z * m.m[6],
+		v.X * m.m[8] + v.Y * m.m[9] + v.Z * m.m[10],
+	}
+}
+
 /*
 template<typename T>
 inline T det(const Matrix4x4<T>& m)

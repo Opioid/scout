@@ -30,6 +30,10 @@ func Abs(x float32) float32 {
 	return float32(math.Abs(float64(x)))
 }
 
+func Floor(x float32) float32 {
+	return float32(math.Floor(float64(x)))
+}
+
 func Min(x, min float32) float32 {
 	if x > min {
 		return min

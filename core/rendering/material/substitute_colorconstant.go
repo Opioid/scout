@@ -30,19 +30,9 @@ func (m *Substitute_ColorConstant) Evaluate(dg *shape.DifferentialGeometry, l, v
 
 	f0 := math.Vector3{0.03, 0.03, 0.03}
 
-//	a := m.Roughness * m.Roughness
-//	a2 := a * a
-
 	specular := specular_f(v_dot_h, f0).Scale(specular_d(n_dot_h, m.a2)).Scale(specular_g(n_dot_l, n_dot_v, m.a2))
 
 	return m.color.Add(specular).Scale(n_dot_l)
-
-	
-/*
-	n_dot_l := math.Max(n.Dot(l), 0.0)
-
-	return m.Color.Scale(n_dot_l)
-	*/
 }
 
 func (m *Substitute_ColorConstant) IsMirror() bool {

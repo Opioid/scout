@@ -27,6 +27,12 @@ func (p *plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 		dg.P = ray.Point(*thit)
 		dg.Nn = normal
 
+		u := transformation.ObjectToWorld.Row(0).Vector3().Dot(dg.P)
+		dg.UV.X = u - math.Floor(u)
+
+		v := transformation.ObjectToWorld.Row(1).Vector3().Dot(dg.P)
+		dg.UV.Y = v - math.Floor(v)
+
 		return true
 	} 
 
