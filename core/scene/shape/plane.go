@@ -6,18 +6,18 @@ import (
 	"github.com/Opioid/scout/base/math/bounding"
 )
 
-type plane struct {
+type Plane struct {
 	aabb bounding.AABB
 }
 
-func NewPlane() *plane {
-	p := new(plane)
+func NewPlane() *Plane {
+	p := new(Plane)
 	p.aabb = bounding.AABB{math.Vector3{0.0, 0.0, 0.0}, math.Vector3{0.0, 0.0, 0.0}}
 	return p
 }
 
 // works from both sides of the plane
-func (p *plane) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
 	normal := transformation.Rotation.Row(2)
 
 	d := -normal.Dot(transformation.Position)
@@ -47,7 +47,7 @@ func (p *plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 }
 
 // works from both sides of the plane
-func (p *plane) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
+func (p *Plane) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
 	normal := transformation.Rotation.Row(2)
 
 	d := -normal.Dot(transformation.Position)
@@ -65,10 +65,10 @@ func (p *plane) IntersectP(transformation *entity.ComposedTransformation, ray *m
 	return false
 }
 
-func (p *plane) AABB() *bounding.AABB {
+func (p *Plane) AABB() *bounding.AABB {
 	return &p.aabb
 }
 
-func (p *plane) IsComplex() bool {
+func (p *Plane) IsComplex() bool {
 	return false
 }

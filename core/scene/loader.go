@@ -2,6 +2,7 @@ package scene
 
 import (
 	"github.com/Opioid/scout/core/scene/light"
+	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
@@ -12,6 +13,10 @@ import (
 type Loader struct {
 	scene *Scene
 	resourceManager *ResourceManager
+
+	disk   *shape.Disk
+	plane  *shape.Plane
+	sphere *shape.Sphere
 }
 
 func NewLoader(scene *Scene, resourceManager *ResourceManager) *Loader {
@@ -190,7 +195,7 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 		return
 	}
 
-	shape := loader.resourceManager.LoadShape(s.(string))
+	shape := loader.loadShape(s)
 
 	if shape == nil {
 		return
@@ -227,4 +232,38 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 	prop.SetTransformation(position, scale, rotation)
 
 	loader.scene.StaticProps = append(loader.scene.StaticProps, prop)
+}
+
+func (loader *Loader) loadShape(i interface{}) shape.Shape {
+	shapeNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	if t, ok := shapeNode["type"]; ok {
+		typename := t.(string)
+		switch typename {
+		case "Disk":
+			if loader.disk == nil {
+				loader.disk = shape.NewDisk()
+			} 
+			return loader.disk
+		case "Plane":
+			if loader.plane == nil {
+				loader.plane = shape.NewPlane()
+			} 
+			return loader.plane
+		case "Sphere":
+			if loader.sphere == nil {
+				loader.sphere = shape.NewSphere()
+			}
+			return loader.sphere
+		}
+	} else if f, ok := shapeNode["file"]; ok {
+		file := f.(string)
+		return loader.resourceManager.LoadShape(file)
+	}
+
+	return nil
 }
