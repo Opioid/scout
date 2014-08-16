@@ -6,6 +6,6 @@ import (
 )
 
 type Material interface {
-	Evaluate(dg *shape.DifferentialGeometry, l, v math.Vector3) math.Vector3
+	Evaluate(dg *shape.DifferentialGeometry, l, v math.Vector3) (math.Vector3, float32)
 	IsMirror() bool
 }

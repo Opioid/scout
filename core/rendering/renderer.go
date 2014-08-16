@@ -64,36 +64,47 @@ func (r *Renderer) li(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vect
 	var intersection pkgscene.Intersection
 
 	if scene.Intersect(ray, &intersection) {
-		return r.shade(scene, ray.Direction, &intersection, depth)
+		return r.shade(scene, ray, &intersection, depth)
 	} else {
 		return math.Vector3{0.0, 0.0, 0.0}
 	}
 }
 
-func (r *Renderer) shade(scene *pkgscene.Scene, eyeDirection math.Vector3, intersection *pkgscene.Intersection, depth int) math.Vector3 {
+func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.Ray, intersection *pkgscene.Intersection, depth int) math.Vector3 {
 	result := math.Vector3{0.0, 0.0, 0.0}
 
 	material := intersection.Prop.Material
 
-	ray := math.Ray{Origin: intersection.Dg.P, MinT: intersection.Epsilon, MaxT: 1000.0}
+	shadowRay := math.Ray{Origin: intersection.Dg.P, MinT: intersection.Epsilon, MaxT: 1000.0}
 
-	v := eyeDirection.Scale(-1.0)
+	v := ray.Direction.Scale(-1.0)
 
 	for _, l := range scene.Lights {
 		lightVector := l.Entity.Transformation.Rotation.Row(2).Scale(-1.0)
 
-		ray.Direction = lightVector
+		shadowRay.Direction = lightVector
 
-		if !scene.IntersectP(&ray) {
-		//	diffuse := color.Mul(l.Color).Scale(cos)
-			color := material.Evaluate(&intersection.Dg, lightVector, v).Mul(l.Color)
+		if !scene.IntersectP(&shadowRay) {
+			color, opacity := material.Evaluate(&intersection.Dg, lightVector, v)
 
-			result = result.Add(color)
+			result = result.Add(color.Scale(opacity).Mul(l.Color))
+
+/*
+			if opacity < 1.0 {
+				secondaryRay := *ray
+				secondaryRay.MinT = ray.MaxT + intersection.Epsilon
+				secondaryRay.MaxT = 1000.0
+				
+				secondaryColor := r.li(scene, &secondaryRay, depth)
+	
+				result = result.Add(secondaryColor.Scale(1.0 - opacity))
+			}
+			*/
 		}
 	}
 
 	if material.IsMirror() && depth < r.BounceDepth {
-		reflection := intersection.Dg.Nn.Reflect(eyeDirection)
+		reflection := intersection.Dg.Nn.Reflect(ray.Direction)
 
 		secondaryRay := math.Ray{Origin: intersection.Dg.P, Direction: reflection, MinT: intersection.Epsilon, MaxT: 1000.0}
 

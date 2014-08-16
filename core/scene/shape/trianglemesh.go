@@ -3,6 +3,8 @@ package shape
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/bounding"
+	gomath "math"
 	_ "fmt"
 )
 
@@ -15,6 +17,8 @@ type triangleMesh struct {
 	indices []uint32
 
 	vertices []vertex
+
+	aabb bounding.AABB
 }
 
 func NewTriangleMesh(numIndices, numVertices uint32) *triangleMesh {
@@ -82,6 +86,14 @@ func (m *triangleMesh) IntersectP(transformation *entity.ComposedTransformation,
 	return false
 }
 
+func (m *triangleMesh) AABB() *bounding.AABB {
+	return &m.aabb
+}
+
+func (m *triangleMesh) IsComplex() bool {
+	return true
+}
+
 func (m *triangleMesh) setIndex(index, value uint32) {
 	m.indices[index] = value
 }
@@ -96,6 +108,18 @@ func (m *triangleMesh) setNormal(index uint32, n math.Vector3) {
 
 func (m *triangleMesh) setUV(index uint32, uv math.Vector2) {
 	m.vertices[index].uv = uv
+}
+
+func (m *triangleMesh) compile() {
+	min := math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
+	max := math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
+	
+	for _, v := range m.vertices {
+		min = v.p.Min(min)
+		max = v.p.Max(max)
+	}
+
+	m.aabb = bounding.AABB{min, max}
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.Ray, thit, u, v *float32) bool {

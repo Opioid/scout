@@ -3,10 +3,17 @@ package shape
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/bounding"
 )
 
 type plane struct {
-	
+	aabb bounding.AABB
+}
+
+func NewPlane() *plane {
+	p := new(plane)
+	p.aabb = bounding.AABB{math.Vector3{0.0, 0.0, 0.0}, math.Vector3{0.0, 0.0, 0.0}}
+	return p
 }
 
 // works from both sides of the plane
@@ -55,5 +62,13 @@ func (p *plane) IntersectP(transformation *entity.ComposedTransformation, ray *m
 		return true
 	} 
 
+	return false
+}
+
+func (p *plane) AABB() *bounding.AABB {
+	return &p.aabb
+}
+
+func (p *plane) IsComplex() bool {
 	return false
 }

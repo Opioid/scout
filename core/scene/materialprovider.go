@@ -61,8 +61,9 @@ func (p *MaterialProvider) Load(filename string, m *ResourceManager) Material {
 
 			for _, t := range textures {
 				filename = readFilename(t)
-				colorTexture := m.LoadTexture2D(filename)
-				colorMap = texture.NewSampler_nearest(colorTexture)
+				if colorTexture := m.LoadTexture2D(filename); colorTexture != nil {
+					colorMap = texture.NewSampler_nearest(colorTexture, new(texture.AddressMode_repeat))
+				}
 			}
 
 		case "color":

@@ -3,9 +3,17 @@ package shape
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/bounding"
 )
 
 type sphere struct {
+	aabb bounding.AABB
+}
+
+func NewSphere() *sphere {
+	s := new(sphere)
+	s.aabb = bounding.AABB{math.Vector3{-1.0, -1.0, -1.0}, math.Vector3{1.0, 1.0, 1.0}}
+	return s
 }
 
 // Won't work from the inside!
@@ -46,5 +54,13 @@ func (s *sphere) IntersectP(transformation *entity.ComposedTransformation, ray *
 		} 
 	}
 
+	return false
+}
+
+func (s *sphere) AABB() *bounding.AABB {
+	return &s.aabb
+}
+
+func (s *sphere) IsComplex() bool {
 	return false
 }

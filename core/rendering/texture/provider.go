@@ -17,6 +17,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 	fi, err := os.Open(filename)
 
 	if err != nil {
+		fmt.Printf("%s could not be loaded", filename)
 		return nil
 	}
 

@@ -34,30 +34,16 @@ func Floor(x float32) float32 {
 	return float32(math.Floor(float64(x)))
 }
 
-func Min(x, min float32) float32 {
-	if x > min {
-		return min
-	} else {
-		return x
-	}
+func Min(x, y float32) float32 {
+	return float32(math.Min(float64(x), float64(y)))
 }
 
-func Max(x, max float32) float32 {
-	if x < max {
-		return max
-	} else {
-		return x
-	}
+func Max(x, y float32) float32 {
+	return float32(math.Max(float64(x), float64(y)))
 }
 
 func Clamp(x, min, max float32) float32 {
-	if x < min {
-		return min
-	} else if x > max {
-		return max
-	} else {
-		return x
-	}
+	return float32(math.Min(math.Max(float64(x), float64(min)), float64(max)))
 }
 
 func DegreesToRadians(x float32) float32 {

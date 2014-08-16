@@ -224,7 +224,7 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 
 	prop := NewStaticProp(shape, material)
 
-	prop.Transformation.Set(position, scale, rotation)
+	prop.SetTransformation(position, scale, rotation)
 
 	loader.scene.StaticProps = append(loader.scene.StaticProps, prop)
 }
