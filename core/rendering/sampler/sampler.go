@@ -11,7 +11,7 @@ type Sampler interface {
 	GenerateNewSample(sample *Sample) bool
 }
 
-type base struct {
+type sampler struct {
 	start math.Vector2i
 	end   math.Vector2i
 }

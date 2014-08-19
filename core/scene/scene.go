@@ -7,7 +7,7 @@ import (
 
 type Scene struct {
 	StaticProps []*StaticProp
-	Lights []*light.Light
+	Lights []light.Light
 }
 
 func (scene *Scene) Compile() {
@@ -40,10 +40,6 @@ func (scene *Scene) IntersectP(ray *math.Ray) bool {
 	return false
 }
 
-func (scene *Scene) CreateLight(lightType light.Type) *light.Light {
-	l := &light.Light{Type: lightType}
-
+func (scene *Scene) AddLight(l light.Light) {
 	scene.Lights = append(scene.Lights, l)
-
-	return l
 }

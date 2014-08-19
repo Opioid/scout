@@ -80,14 +80,16 @@ func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.Ray, intersection *pkg
 	v := ray.Direction.Scale(-1.0)
 
 	for _, l := range scene.Lights {
-		lightVector := l.Entity.Transformation.Rotation.Row(2).Scale(-1.0)
+		lightVector := l.Vector(intersection.Dg.P)
 
 		shadowRay.Direction = lightVector
 
 		if !scene.IntersectP(&shadowRay) {
 			color, opacity := material.Evaluate(&intersection.Dg, lightVector, v)
 
-			result = result.Add(color.Scale(opacity).Mul(l.Color))
+		//	result = result.Add(color.Scale(opacity).Mul(l.Color))
+
+			result.AddAssign(l.Light(intersection.Dg.P, color.Scale(opacity)))
 
 /*
 			if opacity < 1.0 {

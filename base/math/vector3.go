@@ -4,6 +4,10 @@ type Vector3 struct {
 	X, Y, Z float32
 }
 
+func MakeIdentityVector3() Vector3 {
+	return Vector3{1.0, 1.0, 1.0}
+}
+
 func (a Vector3) Add(b Vector3) Vector3 {
 	return Vector3{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }

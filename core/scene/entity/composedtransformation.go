@@ -19,7 +19,7 @@ func (t *ComposedTransformation) Set(position, scale math.Vector3, rotation math
 
 	t.ObjectToWorld.SetBasis(&t.Rotation)
 	t.ObjectToWorld.Scale(scale)
-	t.ObjectToWorld.SetOrigin(t.Position)
+	t.ObjectToWorld.SetOrigin(position)
 
 	t.WorldToObject = t.ObjectToWorld.Inverted()
 }

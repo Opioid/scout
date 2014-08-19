@@ -4,6 +4,10 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
+func ParseFloat32(value interface{}) float32 {
+	return float32(value.(float64))
+}
+
 func ParseVector2(value interface{}) math.Vector2 {
 	if floats, ok := value.([]interface{}); ok {
 		return math.Vector2{float32(floats[0].(float64)), float32(floats[1].(float64))}

@@ -11,17 +11,13 @@ import (
 )
 
 type Unfiltered struct {
-	base
+	film
 }
 
 func NewUnfiltered(dimensions math.Vector2i) *Unfiltered {
 	f := new(Unfiltered)
 	f.resize(dimensions)
 	return f
-}
-
-func (f *Unfiltered) Dimensions() math.Vector2i {
-	return f.dimensions
 }
 
 func (f *Unfiltered) AddSample(sample *sampler.Sample, color math.Vector3) {

@@ -98,20 +98,25 @@ func (loader *Loader) loadLight(i interface{}) {
 
 	typeName := typeNode.(string)
 
-	var l *light.Light
+	var l light.Light
 
-	if "Directional" == typeName {
-		l = loader.scene.CreateLight(light.Directional)
+	switch typeName {
+	case "Directional":
+		l = light.NewDirectional()
+	case "Point":
+		l = light.NewPoint()
 	}
 
-	var position, scale math.Vector3
-	var rotation math.Quaternion
+	var position math.Vector3
+	scale := math.MakeIdentityVector3()
+	rotation := math.MakeIdentityQuaterion()
 
 	for key, value := range lightNode {
 		switch key {
 		case "color":
-			l.Color = pkgjson.ParseVector3(value)
-
+			l.SetColor(pkgjson.ParseVector3(value))
+		case "lumen":
+			l.SetLumen(pkgjson.ParseFloat32(value))
 		case "position":
 			position = pkgjson.ParseVector3(value)
 		case "scale":
@@ -121,53 +126,9 @@ func (loader *Loader) loadLight(i interface{}) {
 		}
 	}
 
-	l.Transformation.Set(position, scale, rotation)
-/*
-	s, ok := propNode["shape"]
+	l.Entity().Transformation.Set(position, scale, rotation)
 
-	if !ok {
-		return
-	}
-
-	shape := loader.resourceManager.LoadShape(s.(string))
-
-	if shape == nil {
-		return
-	}
-
-	m, ok := propNode["material"]
-
-	if !ok {
-		return
-	}
-
-	material := loader.resourceManager.LoadMaterial(m.(string))
-
-	if material == nil {
-		return
-	}
-
-	var position math.Vector3
-	var scale math.Vector3
-	rotation := math.MakeIdentityMatrix3x3()
-
-	for key, value := range propNode {
-		switch key {
-		case "position":
-			position = pkgjson.ParseVector3(value)
-		case "scale":
-			scale = pkgjson.ParseVector3(value)
-		case "rotation":
-			rotation = pkgjson.ParseRotationMatrix(value)
-		}
-	}
-
-	prop := NewStaticProp(shape, material)
-
-	prop.SetWorldTransformation(position, scale, &rotation)
-
-	loader.scene.StaticProps = append(loader.scene.StaticProps, prop)
-	*/
+	loader.scene.AddLight(l)
 }
 
 func (loader *Loader) loadStaticProps(i interface{}) {
@@ -213,7 +174,8 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 		return
 	}
 
-	var position, scale math.Vector3
+	var position math.Vector3
+	scale := math.MakeIdentityVector3()
 	rotation := math.MakeIdentityQuaterion()
 
 	for key, value := range propNode {

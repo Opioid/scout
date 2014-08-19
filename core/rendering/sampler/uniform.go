@@ -6,7 +6,7 @@ import (
 )
 
 type Uniform struct {
-	base
+	sampler
 	samplesPerPixel math.Vector2i
 	currentPixel math.Vector2i
 	currentSample int
