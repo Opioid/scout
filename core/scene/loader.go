@@ -77,8 +77,11 @@ func (loader *Loader) loadEntities(i interface{}) {
 
 		className := classNode.(string)
 
-		if "Light" == className {
+		switch className {
+		case "Light":
 			loader.loadLight(entityNode)
+		case "Complex":
+			loader.loadComplex(entityNode)
 		}
 	}
 }
@@ -96,11 +99,11 @@ func (loader *Loader) loadLight(i interface{}) {
 		return
 	}
 
-	typeName := typeNode.(string)
+	typename := typeNode.(string)
 
 	var l light.Light
 
-	switch typeName {
+	switch typename {
 	case "Directional":
 		l = light.NewDirectional()
 	case "Point":
@@ -129,6 +132,26 @@ func (loader *Loader) loadLight(i interface{}) {
 	l.Entity().Transformation.Set(position, scale, rotation)
 
 	loader.scene.AddLight(l)
+}
+
+func (loader *Loader) loadComplex(i interface{}) {
+	complexNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return
+	}
+
+	typeNode, ok := complexNode["type"]
+
+	if !ok {
+		return
+	}
+
+	typename := typeNode.(string)
+
+	c := loader.scene.CreateComplex(typename)
+
+	c.Init(loader.scene)
 }
 
 func (loader *Loader) loadStaticProps(i interface{}) {

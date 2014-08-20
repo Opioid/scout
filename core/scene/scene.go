@@ -8,6 +8,13 @@ import (
 type Scene struct {
 	StaticProps []*StaticProp
 	Lights []light.Light
+	Complexes []Complex
+
+	ComplexProvider ComplexProvider
+}
+
+func (scene *Scene) Init() {
+	scene.ComplexProvider.Init()
 }
 
 func (scene *Scene) Compile() {
@@ -42,4 +49,12 @@ func (scene *Scene) IntersectP(ray *math.Ray) bool {
 
 func (scene *Scene) AddLight(l light.Light) {
 	scene.Lights = append(scene.Lights, l)
+}
+
+func (scene *Scene) CreateComplex(typename string) Complex {
+	c := scene.ComplexProvider.NewComplex(typename)
+
+	scene.Complexes = append(scene.Complexes, c)
+
+	return c
 }

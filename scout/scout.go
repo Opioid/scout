@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Opioid/scout/scout/complex"
 	"github.com/Opioid/scout/core/rendering"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/take"
@@ -24,6 +25,9 @@ func main() {
 	resourceManager := pkgscene.NewResourceManager()
 
 	scene := pkgscene.Scene{}
+	scene.Init()
+	
+	complex.Init(&scene)
 
 	fmt.Printf("Loading...")
 	loadStart := time.Now()
