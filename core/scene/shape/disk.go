@@ -88,3 +88,7 @@ func (d *Disk) AABB() *bounding.AABB {
 func (d *Disk) IsComplex() bool {
 	return false
 }
+
+func (d *Disk) IsFinite() bool {
+	return true
+}

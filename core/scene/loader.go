@@ -3,6 +3,7 @@ package scene
 import (
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/scene/shape"
+	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
@@ -12,14 +13,14 @@ import (
 
 type Loader struct {
 	scene *Scene
-	resourceManager *ResourceManager
+	resourceManager *resource.Manager
 
 	disk   *shape.Disk
 	plane  *shape.Plane
 	sphere *shape.Sphere
 }
 
-func NewLoader(scene *Scene, resourceManager *ResourceManager) *Loader {
+func NewLoader(scene *Scene, resourceManager *resource.Manager) *Loader {
 	loader := new(Loader)
 
 	loader.scene = scene
@@ -112,7 +113,7 @@ func (loader *Loader) loadLight(i interface{}) {
 
 	var position math.Vector3
 	scale := math.MakeIdentityVector3()
-	rotation := math.MakeIdentityQuaterion()
+	rotation := math.MakeIdentityQuaternion()
 
 	for key, value := range lightNode {
 		switch key {
@@ -151,7 +152,7 @@ func (loader *Loader) loadComplex(i interface{}) {
 
 	c := loader.scene.CreateComplex(typename)
 
-	c.Init(loader.scene)
+	c.Init(loader.scene, loader.resourceManager)
 }
 
 func (loader *Loader) loadStaticProps(i interface{}) {
@@ -199,7 +200,7 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 
 	var position math.Vector3
 	scale := math.MakeIdentityVector3()
-	rotation := math.MakeIdentityQuaterion()
+	rotation := math.MakeIdentityQuaternion()
 
 	for key, value := range propNode {
 		switch key {
@@ -212,11 +213,10 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 		}
 	}
 
-	prop := NewStaticProp(shape, material)
-
+	prop := loader.scene.CreateStaticProp()
+	prop.Shape = shape
+	prop.Material = material
 	prop.SetTransformation(position, scale, rotation)
-
-	loader.scene.StaticProps = append(loader.scene.StaticProps, prop)
 }
 
 func (loader *Loader) loadShape(i interface{}) shape.Shape {

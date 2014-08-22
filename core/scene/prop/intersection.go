@@ -1,4 +1,4 @@
-package scene
+package prop
 
 import (
 	"github.com/Opioid/scout/core/scene/shape"

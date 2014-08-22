@@ -72,3 +72,7 @@ func (p *Plane) AABB() *bounding.AABB {
 func (p *Plane) IsComplex() bool {
 	return false
 }
+
+func (p *Plane) IsFinite() bool {
+	return false
+}

@@ -1,7 +1,11 @@
 package scene
 
+import (
+	"github.com/Opioid/scout/core/resource"
+)
+
 type Complex interface {
-	Init(scene *Scene)
+	Init(scene *Scene, resourceManager *resource.Manager)
 }
 
 type ComplexFactory interface {

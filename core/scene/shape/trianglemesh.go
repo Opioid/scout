@@ -94,6 +94,10 @@ func (m *triangleMesh) IsComplex() bool {
 	return true
 }
 
+func (m *triangleMesh) IsFinite() bool {
+	return true
+}
+
 func (m *triangleMesh) setIndex(index, value uint32) {
 	m.indices[index] = value
 }

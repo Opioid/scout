@@ -1,4 +1,4 @@
-package scene
+package material
 
 import (
 	"github.com/Opioid/scout/core/rendering/material"
@@ -11,11 +11,11 @@ import (
 )
 
 
-type MaterialProvider struct {
+type Provider struct {
 
 }
 
-func (p *MaterialProvider) Load(filename string, m *ResourceManager) Material {
+func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -61,7 +61,7 @@ func (p *MaterialProvider) Load(filename string, m *ResourceManager) Material {
 
 			for _, t := range textures {
 				filename = readFilename(t)
-				if colorTexture := m.LoadTexture2D(filename); colorTexture != nil {
+				if colorTexture := tp.Load2D(filename); colorTexture != nil {
 					colorMap = texture.NewSampler_nearest(colorTexture, new(texture.AddressMode_repeat))
 				}
 			}

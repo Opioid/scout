@@ -14,4 +14,5 @@ type Shape interface {
 	AABB() *bounding.AABB
 
 	IsComplex() bool
+	IsFinite() bool
 }

@@ -1,8 +1,7 @@
-package scene
+package prop
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
-	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/base/math"
 	_ "github.com/Opioid/scout/base/math/bounding"
 	_ "fmt"
@@ -13,10 +12,8 @@ type StaticProp struct {
 	transformation entity.ComposedTransformation
 }
 
-func NewStaticProp(shape shape.Shape, material Material) *StaticProp {
+func NewStaticProp() *StaticProp {
 	p := new(StaticProp)
-	p.Shape = shape
-	p.Material = material
 	p.transformation.ObjectToWorld.SetIdentity()
 	return p
 }

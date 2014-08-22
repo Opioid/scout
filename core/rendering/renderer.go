@@ -3,6 +3,7 @@ package rendering
 import (
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
+	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
 	"sync"
@@ -56,12 +57,10 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 
 		film.AddSample(&sample, color)
 	}
-
-	
 }
 
 func (r *Renderer) li(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vector3 {
-	var intersection pkgscene.Intersection
+	var intersection prop.Intersection
 
 	if scene.Intersect(ray, &intersection) {
 		return r.shade(scene, ray, &intersection, depth)
@@ -70,7 +69,7 @@ func (r *Renderer) li(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vect
 	}
 }
 
-func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.Ray, intersection *pkgscene.Intersection, depth int) math.Vector3 {
+func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.Ray, intersection *prop.Intersection, depth int) math.Vector3 {
 	result := math.Vector3{0.0, 0.0, 0.0}
 
 	material := intersection.Prop.Material

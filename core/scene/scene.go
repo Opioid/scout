@@ -1,12 +1,16 @@
 package scene
 
 import (
+	"github.com/Opioid/scout/core/scene/bvh"
+	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 )
 
 type Scene struct {
-	StaticProps []*StaticProp
+	bvh bvh.Tree
+
+	StaticProps []*prop.StaticProp
 	Lights []light.Light
 	Complexes []Complex
 
@@ -18,14 +22,11 @@ func (scene *Scene) Init() {
 }
 
 func (scene *Scene) Compile() {
-	/*
-	for _, light := range scene.Lights {
-		light.Entity.Transformation.Update()
-	}*/
+	scene.bvh.Split(scene.StaticProps)
 }
 
-func (scene *Scene) Intersect(ray *math.Ray, intersection *Intersection) bool {
-	hit := false
+func (scene *Scene) Intersect(ray *math.Ray, intersection *prop.Intersection) bool {
+/*	hit := false
 
 	for _, prop := range scene.StaticProps {
 		if prop.Intersect(ray, intersection) {
@@ -35,16 +36,28 @@ func (scene *Scene) Intersect(ray *math.Ray, intersection *Intersection) bool {
 	}
 
 	return hit
+	*/
+	return scene.bvh.Intersect(ray, intersection)
 }
 
 func (scene *Scene) IntersectP(ray *math.Ray) bool {
-	for _, prop := range scene.StaticProps {
+/*	for _, prop := range scene.StaticProps {
 		if prop.IntersectP(ray) {
 			return true
 		}
 	}
 
 	return false
+	*/
+	return scene.bvh.IntersectP(ray)
+}
+
+func (scene *Scene) CreateStaticProp() *prop.StaticProp {
+	p := prop.NewStaticProp()
+
+	scene.StaticProps = append(scene.StaticProps, p)
+
+	return p
 }
 
 func (scene *Scene) AddLight(l light.Light) {

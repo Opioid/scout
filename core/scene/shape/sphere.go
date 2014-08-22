@@ -64,3 +64,7 @@ func (s *Sphere) AABB() *bounding.AABB {
 func (s *Sphere) IsComplex() bool {
 	return false
 }
+
+func (s *Sphere) IsFinite() bool {
+	return true
+}

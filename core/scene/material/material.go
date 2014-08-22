@@ -1,4 +1,4 @@
-package scene
+package material
 
 import (
 	"github.com/Opioid/scout/core/scene/shape"

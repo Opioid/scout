@@ -4,7 +4,7 @@ type Quaternion struct {
 	X, Y, Z, W float32
 }
 
-func MakeIdentityQuaterion() Quaternion {
+func MakeIdentityQuaternion() Quaternion {
 	return Quaternion{0.0, 0.0, 0.0, 1.0}
 }
 
