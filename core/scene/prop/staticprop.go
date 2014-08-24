@@ -18,7 +18,7 @@ func NewStaticProp() *StaticProp {
 	return p
 }
 
-func (p *StaticProp) Intersect(ray *math.Ray, intersection *Intersection) bool {
+func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersection) bool {
 	if p.Shape.IsComplex() && !p.AABB.Intersect(ray) {
 		return false
 	}
@@ -35,7 +35,7 @@ func (p *StaticProp) Intersect(ray *math.Ray, intersection *Intersection) bool {
 	return true
 }
 
-func (p *StaticProp) IntersectP(ray *math.Ray) bool {
+func (p *StaticProp) IntersectP(ray *math.OptimizedRay) bool {
 	if p.Shape.IsComplex() && !p.AABB.Intersect(ray) {
 		return false
 	}

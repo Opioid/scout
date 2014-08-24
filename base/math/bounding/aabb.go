@@ -2,11 +2,27 @@ package bounding
 
 import (
 	"github.com/Opioid/scout/base/math"
+    gomath "math"
 	_ "fmt"
 )
 
 type AABB struct {
 	Min, Max math.Vector3
+}
+
+func MakeAABB() AABB {
+    min := math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
+    max := math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
+
+    return AABB{min, max}
+}
+
+func (b *AABB) Position() math.Vector3 {
+    return b.Min.Add(b.Max).Scale(0.5)
+}
+
+func (b *AABB) Halfsize() math.Vector3 {
+    return b.Max.Sub(b.Min).Scale(0.5)
 }
 
 func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
@@ -43,26 +59,28 @@ func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
     other.Max = xa.Max(xb).Add(ya.Max(yb)).Add(za.Max(zb)).Add(translation)
 }
 
-func (b *AABB) Intersect(ray *math.Ray) bool {
-	idx, idy, idz := 1.0 / ray.Direction.X, 1.0 / ray.Direction.Y, 1.0 / ray.Direction.Z
+func (b *AABB) Intersect(ray *math.OptimizedRay) bool {
+    tx1 := (b.Min.X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tx2 := (b.Max.X - ray.Origin.X) * ray.ReciprocalDirection.X
 
-	tx1 := (b.Min.X - ray.Origin.X) * idx
-	tx2 := (b.Max.X - ray.Origin.X) * idx
+    tmin := math.Max(ray.MinT, math.Min(tx1, tx2))
+    tmax := math.Min(ray.MaxT, math.Max(tx1, tx2))
 
-	tmin := math.Max(ray.MinT, math.Min(tx1, tx2))
-	tmax := math.Min(ray.MaxT, math.Max(tx1, tx2))
+    ty1 := (b.Min.Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    ty2 := (b.Max.Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
 
-	ty1 := (b.Min.Y - ray.Origin.Y) * idy
-	ty2 := (b.Max.Y - ray.Origin.Y) * idy
+    tmin = math.Max(tmin, math.Min(ty1, ty2))
+    tmax = math.Min(tmax, math.Max(ty1, ty2))
 
-	tmin = math.Max(tmin, math.Min(ty1, ty2))
-	tmax = math.Min(tmax, math.Max(ty1, ty2))
+    tz1 := (b.Min.Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tz2 := (b.Max.Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
 
-	tz1 := (b.Min.Z - ray.Origin.Z) * idz
-	tz2 := (b.Max.Z - ray.Origin.Z) * idz
+    tmin = math.Max(tmin, math.Min(tz1, tz2))
+    tmax = math.Min(tmax, math.Max(tz1, tz2))
 
-	tmin = math.Max(tmin, math.Min(tz1, tz2))
-	tmax = math.Min(tmax, math.Max(tz1, tz2))
+    return tmax >= math.Max(0.0, tmin) 
+}
 
-	return tmax >= math.Max(0.0, tmin)
+func (b *AABB) Merge(other *AABB) AABB {
+    return AABB{b.Min.Min(other.Min), b.Max.Max(other.Max)}
 }

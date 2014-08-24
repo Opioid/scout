@@ -22,33 +22,14 @@ func (scene *Scene) Init() {
 }
 
 func (scene *Scene) Compile() {
-	scene.bvh.Split(scene.StaticProps)
+	scene.bvh.Assign(scene.StaticProps)
 }
 
-func (scene *Scene) Intersect(ray *math.Ray, intersection *prop.Intersection) bool {
-/*	hit := false
-
-	for _, prop := range scene.StaticProps {
-		if prop.Intersect(ray, intersection) {
-			intersection.Prop = &prop.Prop
-			hit = true
-		}
-	}
-
-	return hit
-	*/
+func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
 	return scene.bvh.Intersect(ray, intersection)
 }
 
-func (scene *Scene) IntersectP(ray *math.Ray) bool {
-/*	for _, prop := range scene.StaticProps {
-		if prop.IntersectP(ray) {
-			return true
-		}
-	}
-
-	return false
-	*/
+func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
 	return scene.bvh.IntersectP(ray)
 }
 

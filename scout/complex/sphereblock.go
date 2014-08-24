@@ -19,7 +19,7 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 	scale := math.Vector3{0.5, 0.5, 0.5}
 	spacing := math.Vector3{1.3, 1.3, 1.3}
 
-	numX, numY, numZ := 10, 10, 10
+	numX, numY, numZ := 16, 10, 16
 
 	offset := math.Vector3{-0.5 * float32(numX), 0.006, 0.0}.Add(scale.Mul(spacing))
 

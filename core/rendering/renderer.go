@@ -47,7 +47,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
 func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {
 	film := camera.Film()
 
-	var ray math.Ray
+	var ray math.OptimizedRay
 	var sample pkgsampler.Sample
 
 	for sampler.GenerateNewSample(&sample) {
@@ -59,7 +59,7 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	}
 }
 
-func (r *Renderer) li(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vector3 {
+func (r *Renderer) li(scene *pkgscene.Scene, ray *math.OptimizedRay, depth int) math.Vector3 {
 	var intersection prop.Intersection
 
 	if scene.Intersect(ray, &intersection) {
@@ -69,19 +69,22 @@ func (r *Renderer) li(scene *pkgscene.Scene, ray *math.Ray, depth int) math.Vect
 	}
 }
 
-func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.Ray, intersection *prop.Intersection, depth int) math.Vector3 {
+func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection, depth int) math.Vector3 {
 	result := math.Vector3{0.0, 0.0, 0.0}
 
 	material := intersection.Prop.Material
 
-	shadowRay := math.Ray{Origin: intersection.Dg.P, MinT: intersection.Epsilon, MaxT: 1000.0}
+	shadowRay := math.OptimizedRay{}
+	shadowRay.Origin = intersection.Dg.P
+	shadowRay.MinT = intersection.Epsilon
+	shadowRay.MaxT = 1000.0
 
 	v := ray.Direction.Scale(-1.0)
 
 	for _, l := range scene.Lights {
 		lightVector := l.Vector(intersection.Dg.P)
 
-		shadowRay.Direction = lightVector
+		shadowRay.SetDirection(lightVector)
 
 		if !scene.IntersectP(&shadowRay) {
 			color, opacity := material.Evaluate(&intersection.Dg, lightVector, v)
@@ -107,7 +110,7 @@ func (r *Renderer) shade(scene *pkgscene.Scene, ray *math.Ray, intersection *pro
 	if material.IsMirror() && depth < r.BounceDepth {
 		reflection := intersection.Dg.Nn.Reflect(ray.Direction)
 
-		secondaryRay := math.Ray{Origin: intersection.Dg.P, Direction: reflection, MinT: intersection.Epsilon, MaxT: 1000.0}
+		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0)
 
 		result = result.Add(r.li(scene, &secondaryRay, depth + 1))
 	}

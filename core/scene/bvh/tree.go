@@ -7,52 +7,66 @@ import (
 )
 
 type Tree struct {
-	staticProps []*prop.StaticProp
+	root node
+	props []*prop.StaticProp
 }
 
-func (t *Tree) Split(staticProps []*prop.StaticProp) {
+func (t *Tree) Assign(props []*prop.StaticProp) {
 
 	numFinitShapes := 0
 
-	for _, p := range staticProps {
+	for _, p := range props {
 		if p.Shape.IsFinite() {
 			numFinitShapes++
 		}
 	}
 
-	t.staticProps = make([]*prop.StaticProp, len(staticProps) - numFinitShapes)
+	t.props = make([]*prop.StaticProp, len(props) - numFinitShapes)
 
 	i := 0
-	for _, p := range staticProps {
+	for _, p := range props {
 		if !p.Shape.IsFinite() {
-			t.staticProps[i] = p
+			t.props[i] = p
 			i++
 		}
 	}
 
-//	t.staticProps = staticProps
+	finiteProps := make([]*prop.StaticProp, numFinitShapes)
 
+	i = 0
+	for _, p := range props {
+		if p.Shape.IsFinite() {
+			finiteProps[i] = p
+			i++
+		}
+	}
+
+	t.root.split(finiteProps)
 }
 
-func (t *Tree) Intersect(ray *math.Ray, intersection *prop.Intersection) bool {
+func (t *Tree) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
 	hit := false
 
-	for _, prop := range t.staticProps {
-		if prop.Intersect(ray, intersection) {
-			intersection.Prop = &prop.Prop
+	for _, p := range t.props {
+		if p.Intersect(ray, intersection) {
+			intersection.Prop = &p.Prop
 			hit = true
 		}
+	}
+
+	if t.root.intersect(ray, intersection) {
+		hit = true
 	}
 
 	return hit
 }
 
-func (t *Tree) IntersectP(ray *math.Ray) bool {
-	for _, prop := range t.staticProps {
-		if prop.IntersectP(ray) {
+func (t *Tree) IntersectP(ray *math.OptimizedRay) bool {
+	for _, p := range t.props {
+		if p.IntersectP(ray) {
 			return true
 		}
 	}
 
-	return false
+	return t.root.intersectP(ray)
 }

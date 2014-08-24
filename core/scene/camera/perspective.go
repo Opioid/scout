@@ -58,14 +58,14 @@ func (p *Perspective) Film() film.Film {
 	return p.film
 }
 
-func (p *Perspective) GenerateRay(sample *sampler.Sample, ray *math.Ray) {
+func (p *Perspective) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay) {
 	x := sample.Coordinates.X / float32(p.film.Dimensions().X)
 	y := sample.Coordinates.Y / float32(p.film.Dimensions().Y)
 
 	ray.Origin = p.Position()
 
 	direction := p.leftTop.Add(p.dx.Scale(x)).Add(p.dy.Scale(y)).Sub(ray.Origin)
+	ray.SetDirection(direction.Normalized())
 
-	ray.Direction = direction.Normalized()
 	ray.MaxT      = 1000.0
 }

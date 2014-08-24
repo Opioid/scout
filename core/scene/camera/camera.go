@@ -12,7 +12,7 @@ type Camera interface {
 	Transformation() *entity.ComposedTransformation
 	Position() math.Vector3
 	Film() film.Film
-	GenerateRay(sample *sampler.Sample, ray *math.Ray)
+	GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay)
 }
 
 type genericCamera struct {

@@ -28,7 +28,7 @@ func NewTriangleMesh(numIndices, numVertices uint32) *triangleMesh {
 	return m
 }
 
-func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, ray *math.Ray, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
@@ -72,7 +72,7 @@ func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, 
 	return false
 }
 
-func (m *triangleMesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.Ray) bool {
+func (m *triangleMesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
@@ -126,7 +126,7 @@ func (m *triangleMesh) compile() {
 	m.aabb = bounding.AABB{min, max}
 }
 
-func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.Ray, thit, u, v *float32) bool {
+func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {
 	e1 := v1.Sub(v0)
 	e2 := v2.Sub(v0)
 
@@ -158,7 +158,7 @@ func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.Ray, thit, u, v *float
 	return false
 }
 
-func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.Ray) bool {
+func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 	e1 := v1.Sub(v0)
 	e2 := v2.Sub(v0)
 

@@ -55,6 +55,10 @@ func (a Vector3) Length() float32 {
 	return Sqrt(a.SquaredLength())
 }
 
+func (a Vector3) SquaredDistance(b Vector3) float32 {
+	return b.Sub(a).SquaredLength()
+}
+
 func (a Vector3) Normalized() Vector3 {
 	return a.Div(a.Length())
 }

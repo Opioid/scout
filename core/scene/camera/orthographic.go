@@ -33,7 +33,7 @@ func (o *Orthographic) Film() film.Film {
 	return o.film
 }
 
-func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.Ray) {
+func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay) {
 	x := sample.Coordinates.X / float32(o.film.Dimensions().X)
 	y := sample.Coordinates.Y / float32(o.film.Dimensions().Y)
 
@@ -41,7 +41,9 @@ func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.Ray) {
 
 	offset = o.Entity.Transformation.Rotation.TransformVector3(offset)
 
-	ray.Origin    = o.Entity.Transformation.Position.Add(offset)
-	ray.Direction = o.Entity.Transformation.Rotation.Row(2)
-	ray.MaxT      = 1000.0
+	ray.Origin = o.Entity.Transformation.Position.Add(offset)
+
+	ray.SetDirection(o.Entity.Transformation.Rotation.Row(2))
+
+	ray.MaxT = 1000.0
 }
