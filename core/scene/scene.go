@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"github.com/Opioid/scout/core/scene/surrounding"
 	"github.com/Opioid/scout/core/scene/bvh"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
@@ -8,6 +9,8 @@ import (
 )
 
 type Scene struct {
+	Surrounding surrounding.Surrounding
+
 	bvh bvh.Tree
 
 	StaticProps []*prop.StaticProp
@@ -22,15 +25,16 @@ func (scene *Scene) Init() {
 }
 
 func (scene *Scene) Compile() {
-	scene.bvh.Assign(scene.StaticProps)
+	builder := bvh.Builder{}
+	builder.Build(scene.StaticProps, 32, &scene.bvh)
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
-	return scene.bvh.Intersect(ray, intersection)
+	return scene.bvh.Intersect(ray, scene.StaticProps, intersection)
 }
 
 func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
-	return scene.bvh.IntersectP(ray)
+	return scene.bvh.IntersectP(ray, scene.StaticProps)
 }
 
 func (scene *Scene) CreateStaticProp() *prop.StaticProp {

@@ -6,6 +6,59 @@ import (
 	"github.com/Opioid/scout/base/math/bounding"
 )
 
+const hasChildrenFlag uint32 = 0x80000000
+
+type miniNode struct {
+	aabb bounding.AABB
+
+	indices []uint32
+
+	offset uint32
+}
+
+/*
+func (n *node) intersectP(ray *math.OptimizedRay) bool {
+	if !n.aabb.Intersect(ray) {
+		return false
+	}
+
+	if n.children[0] != nil {
+		if n.children[0].intersectP(ray) {
+			return true
+		} 
+
+		return n.children[1].intersectP(ray)
+	}
+
+	for _, p := range n.props {
+		if p.IntersectP(ray) {
+			return true
+		}
+	}
+
+	return false
+}*/
+
+func (n *miniNode) hasChildren() bool {
+	return (n.offset & hasChildrenFlag) == hasChildrenFlag
+}
+
+func (n *miniNode) setHasChildren(children bool) {
+	if children {
+		n.offset |= hasChildrenFlag;
+	} else {
+		n.offset &= ^hasChildrenFlag;
+	}
+}
+
+func (n *miniNode) skipOffset() uint32 {
+	return n.offset & ^hasChildrenFlag
+}
+
+func (n *miniNode) setSkipOffset(offset uint32) {
+	n.offset |= offset
+}
+
 type node struct {
 	aabb bounding.AABB
 
@@ -121,17 +174,4 @@ func aabb(props []*prop.StaticProp) bounding.AABB {
 	}
 
 	return b
-}
-
-func chooseSplittingPlane(aabb *bounding.AABB) math.Plane {
-	position := aabb.Position()
-	halfsize := aabb.Halfsize()
-
-	if halfsize.X >= halfsize.Y && halfsize.X >= halfsize.Z {
-		return math.MakePlane(math.Vector3{1.0, 0.0, 0.0}, position)
-	} else if halfsize.Y >= halfsize.X && halfsize.Y >= halfsize.Z {
-		return math.MakePlane(math.Vector3{0.0, 1.0, 0.0}, position)
-	} else {
-		return math.MakePlane(math.Vector3{0.0, 0.0, 1.0}, position)
-	}
 }

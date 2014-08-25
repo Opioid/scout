@@ -43,7 +43,8 @@ func main() {
 	seconds := float64(loadDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
 
-	renderer := rendering.Renderer{BounceDepth: 1}
+	renderer := rendering.Renderer{}
+	renderer.Integrator = take.Integrator
 
 	fmt.Printf("Rendering...\n")
 	renderStart := time.Now()

@@ -7,66 +7,121 @@ import (
 )
 
 type Tree struct {
-	root node
-	props []*prop.StaticProp
+	root buildNode
+	infiniteProps []*prop.StaticProp
+
+//	nodes []miniNode
 }
 
-func (t *Tree) Assign(props []*prop.StaticProp) {
-
-	numFinitShapes := 0
-
-	for _, p := range props {
-		if p.Shape.IsFinite() {
-			numFinitShapes++
-		}
-	}
-
-	t.props = make([]*prop.StaticProp, len(props) - numFinitShapes)
-
-	i := 0
-	for _, p := range props {
-		if !p.Shape.IsFinite() {
-			t.props[i] = p
-			i++
-		}
-	}
-
-	finiteProps := make([]*prop.StaticProp, numFinitShapes)
-
-	i = 0
-	for _, p := range props {
-		if p.Shape.IsFinite() {
-			finiteProps[i] = p
-			i++
-		}
-	}
-
-	t.root.split(finiteProps)
-}
-
-func (t *Tree) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
+func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, intersection *prop.Intersection) bool {
 	hit := false
 
-	for _, p := range t.props {
+	for _, p := range t.infiniteProps {
 		if p.Intersect(ray, intersection) {
 			intersection.Prop = &p.Prop
 			hit = true
 		}
 	}
 
-	if t.root.intersect(ray, intersection) {
+	if t.root.intersect(ray, props, intersection) {
 		hit = true
 	}
 
+/*
+	currentNode := uint32(0)
+	n := &t.nodes[currentNode]
+
+	for n != nil {
+		if !n.aabb.Intersect(ray) {
+			currentNode = n.skipOffset()
+			if currentNode == 0 {
+				return hit
+			} else {
+				n = &t.nodes[currentNode]
+			}
+
+			continue
+		}
+
+		if !n.hasChildren() {
+			for _, i := range n.indices {
+				p := props[i]
+				if p.Intersect(ray, intersection) {
+					intersection.Prop = &p.Prop
+					hit = true
+				}
+			}
+
+			currentNode = n.skipOffset()
+			if currentNode == 0 {
+				return hit
+			} else {
+				n = &t.nodes[currentNode]
+			}
+
+		} else {
+			currentNode++
+			n = &t.nodes[currentNode]
+		}
+	}
+*/
 	return hit
 }
 
-func (t *Tree) IntersectP(ray *math.OptimizedRay) bool {
-	for _, p := range t.props {
+func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.StaticProp) bool {
+	for _, p := range t.infiniteProps {
 		if p.IntersectP(ray) {
 			return true
 		}
 	}
 
-	return t.root.intersectP(ray)
+	return t.root.intersectP(ray, props)
+/*
+	currentNode := uint32(0)
+	n := &t.nodes[currentNode]
+
+	for n != nil {
+		if !n.aabb.Intersect(ray) {
+			currentNode = n.skipOffset()
+			if currentNode == 0 {
+				return false
+			} else {
+				n = &t.nodes[currentNode]
+			}
+
+			continue
+		}
+
+		if !n.hasChildren() {
+			for _, i := range n.indices {
+				if props[i].IntersectP(ray) {
+					return true
+				}
+			}
+
+			currentNode = n.skipOffset()
+			if currentNode == 0 {
+				return false
+			} else {
+				n = &t.nodes[currentNode]
+			}
+
+		} else {
+			currentNode++
+			n = &t.nodes[currentNode]
+		}
+	}
+
+	return false
+	*/
 }
+
+/*
+func (t *Tree) allocateNodes(numNodes uint32) []miniNode {
+	if uint32(len(t.nodes)) < numNodes {
+		t.nodes = make([]miniNode, numNodes)
+	}
+
+	return t.nodes
+}
+*/

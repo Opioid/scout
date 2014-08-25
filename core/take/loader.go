@@ -2,6 +2,7 @@ package take
 
 import (
 	pkgfilm "github.com/Opioid/scout/core/rendering/film"
+	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
@@ -34,8 +35,14 @@ func (take *Take) Load(filename string) bool {
 			take.loadCamera(value)
 		case "sampler" == key:
 			take.loadSampler(value)
+		case "integrator" == key:
+			take.loadIntegrator(value)
 		}
 	} 
+
+	if (take.Integrator == nil) {
+		take.Integrator = integrator.NewWhitted(1)
+	}
 
 	take.Context.Sampler.Resize(math.Vector2i{0, 0}, take.Context.Camera.Film().Dimensions())
 
@@ -110,5 +117,29 @@ func (take *Take) loadSampler(s interface{}) {
 
 	if "Uniform" == typestring {
 		take.Context.Sampler = sampler.NewUniform(math.Vector2i{}, math.Vector2i{}, samplesPerPixel)
+	}
+}
+
+func (take *Take) loadIntegrator(s interface{}) {
+	integratorNode, ok := s.(map[string]interface{})
+
+	if !ok {
+		return
+	}
+
+	var typestring string
+	var bounceDepth int
+
+	for key, value := range integratorNode {
+		switch key {
+		case "type":
+			typestring = value.(string)
+		case "samples_per_pixel":
+			bounceDepth = int(value.(float64))
+		}
+	}
+
+	if "Whitted" == typestring {
+		take.Integrator = integrator.NewWhitted(bounceDepth)
 	}
 }

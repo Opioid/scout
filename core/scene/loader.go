@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"github.com/Opioid/scout/core/scene/surrounding"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/resource"
@@ -44,7 +45,9 @@ func (loader *Loader) Load(filename string) error {
 	root := document.(map[string]interface{})
 
 	for key, value := range root {
-		if "entities" == key {
+		if "surrounding" == key {
+			loader.loadSurrounding(value)
+		} else if "entities" == key {
 			loader.loadEntities(value)
 		} else if "static_props" == key {
 			loader.loadStaticProps(value)
@@ -54,6 +57,28 @@ func (loader *Loader) Load(filename string) error {
 	loader.scene.Compile()
 
 	return nil
+}
+
+func (loader *Loader) loadSurrounding(i interface{}) {
+	surroundingNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return
+	}
+
+	typeNode, ok := surroundingNode["type"]
+
+	if !ok {
+		return
+	}
+
+	typename := typeNode.(string)
+
+	switch typename {
+		case "Uniform": 
+		color := pkgjson.ReadVector3(surroundingNode, "color", math.Vector3{0.0, 0.0, 0.0})
+		loader.scene.Surrounding = surrounding.NewUniform(color)
+	}
 }
 
 func (loader *Loader) loadEntities(i interface{}) {
