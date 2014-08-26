@@ -45,14 +45,19 @@ func (loader *Loader) Load(filename string) error {
 	root := document.(map[string]interface{})
 
 	for key, value := range root {
-		if "surrounding" == key {
+		switch key {
+		case "surrounding":
 			loader.loadSurrounding(value)
-		} else if "entities" == key {
+		case "entities":
 			loader.loadEntities(value)
-		} else if "static_props" == key {
+		case "static_props":
 			loader.loadStaticProps(value)
 		} 
 	} 
+
+	if loader.scene.Surrounding == nil {
+		loader.scene.Surrounding = surrounding.NewUniform(math.Vector3{0.0, 0.0, 0.0})
+	}
 
 	loader.scene.Compile()
 

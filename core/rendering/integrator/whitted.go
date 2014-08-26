@@ -4,6 +4,7 @@ import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/random"
 )
 
 type whitted struct {
@@ -14,11 +15,11 @@ func NewWhitted(bounceDepth int) *whitted {
 	return &whitted{bounceDepth}
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, ray *math.OptimizedRay) math.Vector3 {
+func (w *whitted) Li(scene *pkgscene.Scene, ray *math.OptimizedRay, rng *random.Generator) math.Vector3 {
 	return w.render(scene, ray, 0)
 }
 
-func (w whitted) render(scene *pkgscene.Scene, ray *math.OptimizedRay, depth int) math.Vector3 {
+func (w *whitted) render(scene *pkgscene.Scene, ray *math.OptimizedRay, depth int) math.Vector3 {
 	var intersection prop.Intersection
 
 	if scene.Intersect(ray, &intersection) {

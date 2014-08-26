@@ -6,6 +6,7 @@ import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/random"
 	"sync"
 	_ "fmt"
 )
@@ -26,6 +27,8 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
 
 	wg := sync.WaitGroup{}
 
+	num := uint32(0)
+
 	for {
 		sampler := r.newSubSampler(context.Sampler, dimensions)
 
@@ -36,15 +39,20 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
 		wg.Add(1)
 
 		go func () {
-			r.render(scene, context.Camera, sampler)
+			r.render(scene, context.Camera, sampler, num)
 			wg.Done()
 		}()
+
+		num++
 	}
 
 	wg.Wait()
 }
 
-func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {
+func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler, num uint32) {
+	rng := random.Generator{}
+	rng.Seed(num + 0, num + 1, num + 2, num + 3)
+
 	film := camera.Film()
 
 	var ray math.OptimizedRay
@@ -53,7 +61,7 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	for sampler.GenerateNewSample(&sample) {
 		camera.GenerateRay(&sample, &ray)
 
-		color := r.Integrator.Li(scene, &ray) 
+		color := r.Integrator.Li(scene, &ray, &rng) 
 
 		film.AddSample(&sample, color)
 	}

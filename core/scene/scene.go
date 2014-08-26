@@ -26,7 +26,7 @@ func (scene *Scene) Init() {
 
 func (scene *Scene) Compile() {
 	builder := bvh.Builder{}
-	builder.Build(scene.StaticProps, 32, &scene.bvh)
+	builder.Build(scene.StaticProps, 24, &scene.bvh)
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {

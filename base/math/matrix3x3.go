@@ -62,6 +62,44 @@ func (m *Matrix3x3) SetFromQuaternion(q Quaternion) {
 	m.m[6] = xz - wy;         m.m[7] = yz + wx;         m.m[8] = 1.0 - (xx + yy)
 }
 
+/*
+template<typename T>
+inline void setBasis(Matrix3x3_t<T> &m, const Vector3_t<T> &v)
+{
+	m.rows[2] = v;
+
+	if (v.x < T(0.6) && v.x > -T(0.6)) 
+		m.rows[1] = Vector3_t<T>(T(1), T(0), T(0));
+	else if (v.y < T(0.6) && v.y > T(0.6)) 
+		m.rows[1] = Vector3_t<T>(T(0), T(1), T(0));
+	else 
+		m.rows[1] = Vector3_t<T>(T(0), T(0), T(1));
+	
+	m.rows[0] = normalize(cross(v, m.rows[1]));
+	m.rows[1] = cross(m.rows[0], m.rows[2]);
+}
+*/
+
+func (m *Matrix3x3) SetBasis(v Vector3) {
+	var r1 Vector3
+
+	if v.X < 0.6 && v.X > -0.6 {
+		r1 = Vector3{1.0, 0.0, 0.0}
+	} else if v.Y < 0.6 && v.Y > -0.6 {
+		r1 = Vector3{0.0, 1.0, 0.0}
+	} else {
+		r1 = Vector3{0.0, 0.0, 1.0}
+	}
+
+	r0 := v.Cross(r1).Normalized()
+	r1 = r0.Cross(v)
+
+	m.m[0] = r0.X; m.m[1] = r0.Y; m.m[2] = r0.Z
+	m.m[3] = r1.X; m.m[4] = r1.Y; m.m[5] = r1.Z
+	m.m[6] = v.X;  m.m[7] = v.Y;  m.m[8] = v.Z
+}
+
+
 func (m *Matrix3x3) Row(i int) Vector3 {
 	return Vector3{m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2]}
 }

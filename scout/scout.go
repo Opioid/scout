@@ -21,6 +21,7 @@ func main() {
 
 	if !take.Load("../data/takes/bvh_test.take") {
 		fmt.Println("Take could not be loaded")
+		return
 	}
 
 	resourceManager := resource.NewManager()

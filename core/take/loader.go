@@ -4,7 +4,7 @@ import (
 	pkgfilm "github.com/Opioid/scout/core/rendering/film"
 	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering/sampler"
-	"github.com/Opioid/scout/core/scene/camera"
+	pkgcamera "github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
@@ -44,29 +44,45 @@ func (take *Take) Load(filename string) bool {
 		take.Integrator = integrator.NewWhitted(1)
 	}
 
+	if take.Context.Camera == nil {
+		return false
+	}
+
 	take.Context.Sampler.Resize(math.Vector2i{0, 0}, take.Context.Camera.Film().Dimensions())
 
 	return true
 }
 
-func (take *Take) loadCamera(s interface{}) {
-	cameraNode, ok := s.(map[string]interface{})
+func (take *Take) loadCamera(c interface{}) {
+	cameraNode, ok := c.(map[string]interface{})
 
 	if !ok {
 		return
 	}
 
-	var typestring string
+	typestring := "Perspective"
+	var typevalue interface{}
+
+	for key, value := range cameraNode {
+		typestring = key
+		typevalue = value
+		break
+	}
+
+	settingsNode, ok := typevalue.(map[string]interface{})
+
+	if !ok {
+		return
+	}
+
 	var position math.Vector3
 	var rotation math.Quaternion
 	var fov float32
 	var dimensions math.Vector2
 	var film pkgfilm.Film
 
-	for key, value := range cameraNode {
+	for key, value := range settingsNode {
 		switch key {
-		case "type":
-			typestring = value.(string)
 		case "position":
 			position = pkgjson.ParseVector3(value)
 		case "rotation":
@@ -83,17 +99,18 @@ func (take *Take) loadCamera(s interface{}) {
 		}
 	}
 
-	if "Orthographic" == typestring {
-		camera := camera.NewOrthographic(dimensions, film)
-		camera.Entity.Transformation.Set(position, math.Vector3{1.0, 1.0, 1.0}, rotation)
-		take.Context.Camera = camera
-	} else if "Perspective" == typestring {
-		camera := camera.NewPerspective(fov, dimensions, film)
-		camera.Entity.Transformation.Set(position, math.Vector3{1.0, 1.0, 1.0}, rotation)
-		take.Context.Camera = camera
+	var camera pkgcamera.Camera
+
+	switch typestring {
+	case "Orthographic":
+		camera = pkgcamera.NewOrthographic(dimensions, film)
+	case "Perspective":
+		camera = pkgcamera.NewPerspective(fov, dimensions, film)
 	}
 
-	take.Context.Camera.UpdateView()
+	camera.Transformation().Set(position, math.Vector3{1.0, 1.0, 1.0}, rotation)
+	camera.UpdateView()
+	take.Context.Camera = camera
 }
 
 func (take *Take) loadSampler(s interface{}) {
@@ -103,43 +120,87 @@ func (take *Take) loadSampler(s interface{}) {
 		return
 	}
 
-	var typestring string
-	var samplesPerPixel math.Vector2i
+	for key, value := range samplerNode {
+		switch key {
+		case "Uniform":
+			take.Context.Sampler = loadUniformSampler(value)
+		}
+	}
+}
+
+func loadUniformSampler(s interface{}) sampler.Sampler {
+	samplerNode, ok := s.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	samplesPerPixel := math.Vector2i{1, 1}
 
 	for key, value := range samplerNode {
 		switch key {
-		case "type":
-			typestring = value.(string)
 		case "samples_per_pixel":
 			samplesPerPixel = pkgjson.ParseVector2i(value)
 		}
 	}
 
-	if "Uniform" == typestring {
-		take.Context.Sampler = sampler.NewUniform(math.Vector2i{}, math.Vector2i{}, samplesPerPixel)
-	}
+	return sampler.NewUniform(math.Vector2i{}, math.Vector2i{}, samplesPerPixel)
 }
 
-func (take *Take) loadIntegrator(s interface{}) {
-	integratorNode, ok := s.(map[string]interface{})
+func (take *Take) loadIntegrator(i interface{}) {
+	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {
 		return
 	}
 
-	var typestring string
-	var bounceDepth int
+	for key, value := range integratorNode {
+		switch key {
+		case "Whitted":
+			take.Integrator = loadWhittedIntegrator(value)
+		case "AO":
+			take.Integrator = loadAoIntegrator(value)
+		}
+	}
+}
+
+func loadWhittedIntegrator(i interface{}) integrator.Integrator {
+	integratorNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	bounceDepth := 1
 
 	for key, value := range integratorNode {
 		switch key {
-		case "type":
-			typestring = value.(string)
-		case "samples_per_pixel":
+		case "bounce_depth":
 			bounceDepth = int(value.(float64))
 		}
 	}
 
-	if "Whitted" == typestring {
-		take.Integrator = integrator.NewWhitted(bounceDepth)
+	return integrator.NewWhitted(bounceDepth)
+}
+
+func loadAoIntegrator(i interface{}) integrator.Integrator {
+	integratorNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return nil
 	}
+
+	numSamples := 1
+	radius := float32(1.0)
+
+	for key, value := range integratorNode {
+		switch key {
+		case "num_samples":
+			numSamples = int(value.(float64))
+		case "radius":
+			radius = float32(value.(float64))
+		}
+	}
+
+	return integrator.NewAo(numSamples, radius)
 }
