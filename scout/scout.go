@@ -19,7 +19,7 @@ func main() {
 
 	take := take.Take{}
 
-	if !take.Load("../data/takes/test.take") {
+	if !take.Load("../data/takes/bvh_test.take") {
 		fmt.Println("Take could not be loaded")
 		return
 	}

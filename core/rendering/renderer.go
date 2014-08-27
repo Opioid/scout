@@ -23,11 +23,9 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
 
 	r.currentPixel = math.Vector2i{0, 0}
 
-	r.samplerDimensions = math.Vector2i{16, 16}
+	r.samplerDimensions = math.Vector2i{32, 32}
 
 	wg := sync.WaitGroup{}
-
-	num := uint32(0)
 
 	for {
 		sampler := r.newSubSampler(context.Sampler, dimensions)
@@ -39,19 +37,19 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
 		wg.Add(1)
 
 		go func () {
-			r.render(scene, context.Camera, sampler, num)
+			r.render(scene, context.Camera, sampler)
 			wg.Done()
 		}()
-
-		num++
 	}
 
 	wg.Wait()
 }
 
-func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler, num uint32) {
+func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {
 	rng := random.Generator{}
-	rng.Seed(num + 0, num + 1, num + 2, num + 3)
+
+	start := sampler.Start()
+	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)
 
 	film := camera.Film()
 
