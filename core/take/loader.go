@@ -4,6 +4,7 @@ import (
 	pkgfilm "github.com/Opioid/scout/core/rendering/film"
 	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering/sampler"
+	"github.com/Opioid/scout/core/rendering"
 	pkgcamera "github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
@@ -164,7 +165,7 @@ func (take *Take) loadIntegrator(i interface{}) {
 	}
 }
 
-func loadWhittedIntegrator(i interface{}) integrator.Integrator {
+func loadWhittedIntegrator(i interface{}) rendering.Integrator {
 	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {
@@ -183,7 +184,7 @@ func loadWhittedIntegrator(i interface{}) integrator.Integrator {
 	return integrator.NewWhitted(bounceDepth)
 }
 
-func loadAoIntegrator(i interface{}) integrator.Integrator {
+func loadAoIntegrator(i interface{}) rendering.Integrator {
 	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {

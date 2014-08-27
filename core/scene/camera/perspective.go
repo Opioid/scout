@@ -67,5 +67,6 @@ func (p *Perspective) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay
 	direction := p.leftTop.Add(p.dx.Scale(x)).Add(p.dy.Scale(y)).Sub(ray.Origin)
 	ray.SetDirection(direction.Normalized())
 
-	ray.MaxT      = 1000.0
+	ray.MaxT  = 1000.0
+	ray.Depth = 0
 }

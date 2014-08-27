@@ -1,9 +1,9 @@
 package rendering
 
 import (
-	"github.com/Opioid/scout/core/rendering/integrator"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
+	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
@@ -12,7 +12,7 @@ import (
 )
 
 type Renderer struct {
-	Integrator integrator.Integrator
+	Integrator Integrator
 
 	samplerDimensions math.Vector2i
 	currentPixel math.Vector2i
@@ -61,9 +61,19 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	for sampler.GenerateNewSample(&sample) {
 		camera.GenerateRay(&sample, &ray)
 
-		color := r.Integrator.Li(scene, &ray, &rng) 
+		color := r.Li(scene, &ray, &rng) 
 
 		film.AddSample(&sample, color)
+	}
+}
+
+func (r *Renderer) Li(scene *pkgscene.Scene, ray *math.OptimizedRay, rng *random.Generator) math.Vector3 {
+	var intersection prop.Intersection
+
+	if scene.Intersect(ray, &intersection) {
+		return r.Integrator.Li(scene, r, ray, &intersection, rng) 
+	} else {
+		return scene.Surrounding.Sample(ray)
 	}
 }
 
