@@ -19,7 +19,6 @@ func (a *AddressMode_clamp) address2D(uv math.Vector2) math.Vector2 {
 }
 
 type AddressMode_repeat struct {
-
 }
 
 func (a *AddressMode_repeat) address2D(uv math.Vector2) math.Vector2 {

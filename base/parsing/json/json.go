@@ -8,20 +8,30 @@ func ParseFloat32(value interface{}) float32 {
 	return float32(value.(float64))
 }
 
+func ReadFloat32(value map[string]interface{}, name string, defaultValue float32) float32 {
+	if t, ok := value[name]; ok {
+		if f, isFloat := t.(float64); isFloat {
+			return float32(f)
+		}
+	}
+
+	return defaultValue
+}
+
 func ParseVector2(value interface{}) math.Vector2 {
 	if floats, ok := value.([]interface{}); ok {
 		return math.Vector2{float32(floats[0].(float64)), float32(floats[1].(float64))}
-	} else {
-		return math.Vector2{}
-	}
+	} 
+		
+	return math.Vector2{}
 }
 
 func ParseVector2i(value interface{}) math.Vector2i {
 	if ints, ok := value.([]interface{}); ok {
 		return math.Vector2i{int(ints[0].(float64)), int(ints[1].(float64))}
-	} else {
-		return math.Vector2i{}
-	}
+	} 
+		
+	return math.Vector2i{}
 }
 
 func ReadVector2i(value map[string]interface{}, name string, defaultValue math.Vector2i) math.Vector2i {
@@ -37,9 +47,9 @@ func ReadVector2i(value map[string]interface{}, name string, defaultValue math.V
 func ParseVector3(value interface{}) math.Vector3 {
 	if floats, ok := value.([]interface{}); ok {
 		return math.Vector3{float32(floats[0].(float64)), float32(floats[1].(float64)), float32(floats[2].(float64))}
-	} else {
-		return math.Vector3{}
-	}
+	} 
+		
+	return math.Vector3{}
 }
 
 func ReadVector3(value map[string]interface{}, name string, defaultValue math.Vector3) math.Vector3 {

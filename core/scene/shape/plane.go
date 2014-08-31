@@ -28,7 +28,7 @@ func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 
 	*thit = -(numer / denom)
 	
-	if *thit >= ray.MinT && *thit < ray.MaxT {
+	if *thit > ray.MinT && *thit < ray.MaxT {
 		*epsilon = 5e-4 * *thit
 
 		dg.P = ray.Point(*thit)
@@ -58,7 +58,7 @@ func (p *Plane) IntersectP(transformation *entity.ComposedTransformation, ray *m
 
 	thit := -(numer / denom)
 	
-	if thit >= ray.MinT && thit < ray.MaxT {
+	if thit > ray.MinT && thit < ray.MaxT {
 		return true
 	} 
 

@@ -151,7 +151,7 @@ func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u,
 
 	*thit = e2.Dot(qvec) * invDet
 
-	if *thit >= ray.MinT && *thit < ray.MaxT {
+	if *thit > ray.MinT && *thit < ray.MaxT {
 		return true
 	} 
 
@@ -183,7 +183,7 @@ func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 
 	thit := e2.Dot(qvec) * invDet
 
-	if thit >= ray.MinT && thit < ray.MaxT {
+	if thit > ray.MinT && thit < ray.MaxT {
 		return true
 	} 
 

@@ -8,6 +8,10 @@ func MakeIdentityVector3() Vector3 {
 	return Vector3{1.0, 1.0, 1.0}
 }
 
+func MakeVector3All(s float32) Vector3 {
+	return Vector3{s, s, s}
+}
+
 func (a Vector3) Add(b Vector3) Vector3 {
 	return Vector3{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }
@@ -19,8 +23,16 @@ func (a *Vector3) AddAssign(b Vector3) Vector3 {
 	return *a
 }
 
+func (a Vector3) AddS(s float32) Vector3 {
+	return Vector3{a.X + s, a.Y + s, a.Z + s}
+}
+
 func (a Vector3) Sub(b Vector3) Vector3 {
 	return Vector3{a.X - b.X, a.Y - b.Y, a.Z - b.Z}
+}
+
+func (a Vector3) SubS(s float32) Vector3 {
+	return Vector3{a.X - s, a.Y - s, a.Z - s}
 }
 
 func (a Vector3) Scale(s float32) Vector3 {
@@ -33,6 +45,10 @@ func (a Vector3) Mul(b Vector3) Vector3 {
 
 func (a Vector3) Div(s float32) Vector3 {
 	return a.Scale(1.0 / s)
+}
+
+func (a Vector3) DivV(b Vector3) Vector3 {
+	return Vector3{a.X / b.X, a.Y / b.Y, a.Z / b.Z}
 }
 
 func (a Vector3) Cross(b Vector3) Vector3 {

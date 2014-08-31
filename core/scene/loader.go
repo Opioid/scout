@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/resource"
+	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
@@ -80,9 +81,26 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 	typename := typeNode.(string)
 
 	switch typename {
-		case "Uniform": 
+	case "Uniform": 
 		color := pkgjson.ReadVector3(surroundingNode, "color", math.Vector3{0.0, 0.0, 0.0})
 		loader.scene.Surrounding = surrounding.NewUniform(color)
+	case "Textured":
+
+		t, ok := surroundingNode["texture"]
+
+		if !ok {
+			return
+		}
+
+		textureNode, ok := t.(map[string]interface{})
+
+		filename := textureNode["file"].(string)
+
+		if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
+			sampler := texture.NewSamplerSpherical_nearest(sphericalTexture)
+			loader.scene.Surrounding = surrounding.NewSphere(sampler)
+		}
+
 	}
 }
 

@@ -1,6 +1,7 @@
 package film
 
 import (
+	"github.com/Opioid/scout/core/rendering/film/tonemapping"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/rendering/color"
 	"github.com/Opioid/scout/base/math"
@@ -14,9 +15,11 @@ type Unfiltered struct {
 	film
 }
 
-func NewUnfiltered(dimensions math.Vector2i) *Unfiltered {
+func NewUnfiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapping.Tonemapper) *Unfiltered {
 	f := new(Unfiltered)
 	f.resize(dimensions)
+	f.exposure = exposure
+	f.tonemapper = tonemapper
 	return f
 }
 
@@ -41,10 +44,10 @@ func (f *Unfiltered) RGBA() *image.RGBA {
 	for i := 0; i < numTaks; i++ {
 		wg.Add(1)
 
-		go func (s, e math.Vector2i, t *image.RGBA) {
-			f.process(s, e, t)
+		go func (s, e math.Vector2i) {
+			f.process(s, e, target)
 			wg.Done()
-		}(start, end, target)
+		}(start, end)
 
 		start.Y += a
 
@@ -64,17 +67,13 @@ func (f *Unfiltered) process(start, end math.Vector2i, target *image.RGBA) {
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			pixel := f.at(x, y)
-			iw := 1.0 / pixel.weightSum
-			r := uint8(255.0 * color.LinearToSrgb(pixel.color.X * iw))
-			g := uint8(255.0 * color.LinearToSrgb(pixel.color.Y * iw))
-			b := uint8(255.0 * color.LinearToSrgb(pixel.color.Z * iw))
-/*
-			if pixel.weightSum > 1.0 {
-				r = 255
-				g = 127
-				b = 127
-			}
-*/
+			c := pixel.color.Div(pixel.weightSum)
+			exposed := expose(c, f.exposure)
+			tonemapped := f.tonemapper.Tonemap(exposed)
+			r := uint8(255.0 * color.LinearToSrgb(tonemapped.X))
+			g := uint8(255.0 * color.LinearToSrgb(tonemapped.Y))
+			b := uint8(255.0 * color.LinearToSrgb(tonemapped.Z))
+
 			target.Set(x, y, gocolor.RGBA{r, g, b, 255})
 		}
 	}

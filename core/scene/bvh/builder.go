@@ -137,10 +137,7 @@ func (n *buildNode) split(indices []uint32, props []*prop.StaticProp, maxShapes 
 			mab := sp.Behind(props[i].AABB.Max)
 			if mib && mab {
 				indices0 = append(indices0, uint32(i))
-			} else if !mib && !mab {
-				indices1 = append(indices1, uint32(i))
 			} else {
-				indices0 = append(indices0, uint32(i))
 				indices1 = append(indices1, uint32(i))
 			}
 		}

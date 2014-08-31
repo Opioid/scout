@@ -26,7 +26,7 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 	if det > 0.0 {
 		*thit = b - math.Sqrt(det)
 
-		if *thit >= ray.MinT && *thit < ray.MaxT {
+		if *thit > ray.MinT && *thit < ray.MaxT {
 			*epsilon = 5e-4 * *thit
 
 			dg.P = ray.Point(*thit)
@@ -39,7 +39,6 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 	return false
 }
 
-// Won't work from the inside!
 func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay) bool {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
@@ -47,14 +46,21 @@ func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *
 	det := (b * b) - v.Dot(v) + (radius * radius)
 
 	if det > 0.0 {
-		thit := b - math.Sqrt(det)
+		dist := math.Sqrt(det)
+		t0 := b - dist
+		t1 := b + dist
 
-		if thit >= ray.MinT && thit < ray.MaxT {
+		if t1 > ray.MinT && t0 < ray.MaxT {
 			return true
-		} 
+		}
+
+		if t0 > ray.MinT && t1 < ray.MaxT {
+			return true
+		}
+
 	}
 
-	return false
+	return false	
 }
 
 func (s *Sphere) AABB() *bounding.AABB {

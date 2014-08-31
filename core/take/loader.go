@@ -2,6 +2,7 @@ package take
 
 import (
 	pkgfilm "github.com/Opioid/scout/core/rendering/film"
+	"github.com/Opioid/scout/core/rendering/film/tonemapping"
 	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering"
@@ -95,7 +96,9 @@ func (take *Take) loadCamera(c interface{}) {
 		case "film":
 			if filmNode, ok := value.(map[string]interface{}); ok {
 				d := pkgjson.ReadVector2i(filmNode, "dimensions", math.Vector2i{0, 0})
-				film = pkgfilm.NewUnfiltered(d)
+				e := pkgjson.ReadFloat32(filmNode, "exposure", 0.0)
+				w := pkgjson.ReadVector3(filmNode, "linear_white", math.Vector3{1.0, 1.0, 1.0})
+				film = pkgfilm.NewUnfiltered(d, e, tonemapping.NewFilmic(w))
 			}
 		}
 	}

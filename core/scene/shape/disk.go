@@ -27,7 +27,7 @@ func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *
 
 	*thit = -(numer / denom)
 	
-	if *thit >= ray.MinT && *thit < ray.MaxT {
+	if *thit > ray.MinT && *thit < ray.MaxT {
 		p := ray.Point(*thit)
 		k := p.Sub(transformation.Position)
 		l := k.Dot(k)

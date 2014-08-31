@@ -1,6 +1,7 @@
 package film
 
 import (
+	"github.com/Opioid/scout/core/rendering/film/tonemapping"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	"image"
@@ -21,8 +22,11 @@ type pixel struct {
 
 type film struct {
 	dimensions math.Vector2i
+	exposure float32
 
 	pixels []pixel
+
+	tonemapper tonemapping.Tonemapper
 }
 
 func (f *film) Dimensions() math.Vector2i {
@@ -42,4 +46,8 @@ func (f *film) addPixel(x, y int, color math.Vector3) {
 	p := &f.pixels[f.dimensions.X * y + x]
 	p.color.AddAssign(color)
 	p.weightSum += 1.0
+}
+
+func expose(color math.Vector3, exposure float32) math.Vector3 {
+	return color.Scale(math.Exp2(exposure))
 }

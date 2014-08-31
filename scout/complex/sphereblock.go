@@ -17,7 +17,7 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 	material := resourceManager.LoadMaterial("../data/materials/green.material")
 
 	scale := math.Vector3{0.5, 0.5, 0.5}
-	spacing := math.Vector3{1.3, 1.3, 1.3}
+	spacing := math.Vector3{1.2, 1.2, 1.2}
 
 	numX, numY, numZ := 16, 10, 16
 
