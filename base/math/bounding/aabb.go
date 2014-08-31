@@ -7,22 +7,33 @@ import (
 )
 
 type AABB struct {
-	Min, Max math.Vector3
+	Bounds [2]math.Vector3
 }
 
-func MakeAABB() AABB {
-    min := math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
-    max := math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
+func MakeEmptyAABB() AABB {
+    b := AABB{}
+    // min
+    b.Bounds[0] = math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
+    
+    // max
+    b.Bounds[1] = math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
 
-    return AABB{min, max}
+    return b
+}
+
+func MakeAABB(min, max math.Vector3) AABB {
+    b := AABB{}
+    b.Bounds[0] = min
+    b.Bounds[1] = max
+    return b
 }
 
 func (b *AABB) Position() math.Vector3 {
-    return b.Min.Add(b.Max).Scale(0.5)
+    return b.Bounds[0].Add(b.Bounds[1]).Scale(0.5)
 }
 
 func (b *AABB) Halfsize() math.Vector3 {
-    return b.Max.Sub(b.Min).Scale(0.5)
+    return b.Bounds[1].Sub(b.Bounds[0]).Scale(0.5)
 }
 
 func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
@@ -43,44 +54,82 @@ func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
     );
 */
     right := m.Row(0).Vector3()
-    xa := right.Scale(b.Min.X)
-    xb := right.Scale(b.Max.X)
+    xa := right.Scale(b.Bounds[0].X)
+    xb := right.Scale(b.Bounds[1].X)
 
     up := m.Row(1).Vector3()
-    ya := up.Scale(b.Min.Y)
-    yb := up.Scale(b.Max.Y)
+    ya := up.Scale(b.Bounds[0].Y)
+    yb := up.Scale(b.Bounds[1].Y)
 
     dir := m.Row(2).Vector3()
-    za := dir.Scale(b.Min.Z)
-    zb := dir.Scale(b.Max.Z)
+    za := dir.Scale(b.Bounds[0].Z)
+    zb := dir.Scale(b.Bounds[1].Z)
 
     translation := m.Row(3).Vector3()
-    other.Min = xa.Min(xb).Add(ya.Min(yb)).Add(za.Min(zb)).Add(translation)
-    other.Max = xa.Max(xb).Add(ya.Max(yb)).Add(za.Max(zb)).Add(translation)
+    other.Bounds[0] = xa.Min(xb).Add(ya.Min(yb)).Add(za.Min(zb)).Add(translation)
+    other.Bounds[1] = xa.Max(xb).Add(ya.Max(yb)).Add(za.Max(zb)).Add(translation)
 }
 
 func (b *AABB) Intersect(ray *math.OptimizedRay) bool {
-    tx1 := (b.Min.X - ray.Origin.X) * ray.ReciprocalDirection.X
-    tx2 := (b.Max.X - ray.Origin.X) * ray.ReciprocalDirection.X
+/* 
+    txmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    txmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
 
-    tmin := math.Max(ray.MinT, math.Min(tx1, tx2))
-    tmax := math.Min(ray.MaxT, math.Max(tx1, tx2))
+    tmin := math.Max(ray.MinT, txmin)
+    tmax := math.Min(ray.MaxT, txmax)
 
-    ty1 := (b.Min.Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
-    ty2 := (b.Max.Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymin := (b.Bounds[    ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymax := (b.Bounds[1 - ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
 
-    tmin = math.Max(tmin, math.Min(ty1, ty2))
-    tmax = math.Min(tmax, math.Max(ty1, ty2))
+    tmin = math.Max(tmin, tymin)
+    tmax = math.Min(tmax, tymax)
 
-    tz1 := (b.Min.Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
-    tz2 := (b.Max.Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmin := (b.Bounds[    ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmax := (b.Bounds[1 - ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
 
-    tmin = math.Max(tmin, math.Min(tz1, tz2))
-    tmax = math.Min(tmax, math.Max(tz1, tz2))
+    tmin = math.Max(tmin, tzmin)
+    tmax = math.Min(tmax, tzmax)
 
-    return tmax >= math.Max(0.0, tmin) 
+    return tmax >= tmin
+    */
+
+    tmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+
+    tymin := (b.Bounds[    ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymax := (b.Bounds[1 - ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+
+    if tmin > tymax || tymin > tmax {
+        return false
+    }
+
+    if tymin > tmin {
+        tmin = tymin
+    }
+
+    if tymax < tmax {
+        tmax = tymax
+    }
+
+    tzmin := (b.Bounds[    ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmax := (b.Bounds[1 - ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+
+    if tmin > tzmax || tzmin > tmax {
+        return false
+    }
+
+    if tzmin > tmin {
+        tmin = tzmin
+    }
+
+    if tzmax < tmax {
+        tmax = tzmax
+    }
+
+    return tmin < ray.MaxT && tmax > ray.MinT
+    
 }
 
 func (b *AABB) Merge(other *AABB) AABB {
-    return AABB{b.Min.Min(other.Min), b.Max.Max(other.Max)}
+    return MakeAABB(b.Bounds[0].Min(other.Bounds[0]), b.Bounds[1].Max(other.Bounds[1]))
 }

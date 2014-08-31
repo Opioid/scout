@@ -83,8 +83,8 @@ func (n *node) split(props []*prop.StaticProp) {
 		sp := chooseSplittingPlane(&n.aabb)
 
 		for _, p := range props {
-			mib := sp.Behind(p.AABB.Min)
-			mab := sp.Behind(p.AABB.Max)
+			mib := sp.Behind(p.AABB.Bounds[0])
+			mab := sp.Behind(p.AABB.Bounds[1])
 			if mib && mab {
 				props0 = append(props0, p)
 			} else if !mib && !mab {
@@ -167,7 +167,7 @@ func (n *node) intersectP(ray *math.OptimizedRay) bool {
 }
 
 func aabb(props []*prop.StaticProp) bounding.AABB {
-	b := bounding.MakeAABB()
+	b := bounding.MakeEmptyAABB()
 
 	for _, p := range props {
 		b = b.Merge(&p.AABB)

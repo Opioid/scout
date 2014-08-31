@@ -12,7 +12,7 @@ type Plane struct {
 
 func NewPlane() *Plane {
 	p := new(Plane)
-	p.aabb = bounding.AABB{math.Vector3{0.0, 0.0, 0.0}, math.Vector3{0.0, 0.0, 0.0}}
+	p.aabb = bounding.MakeAABB(math.Vector3{0.0, 0.0, 0.0}, math.Vector3{0.0, 0.0, 0.0})
 	return p
 }
 

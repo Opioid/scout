@@ -123,7 +123,7 @@ func (m *triangleMesh) compile() {
 		max = v.p.Max(max)
 	}
 
-	m.aabb = bounding.AABB{min, max}
+	m.aabb = bounding.MakeAABB(min, max)
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

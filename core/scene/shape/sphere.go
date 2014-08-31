@@ -12,7 +12,7 @@ type Sphere struct {
 
 func NewSphere() *Sphere {
 	s := new(Sphere)
-	s.aabb = bounding.AABB{math.Vector3{-1.0, -1.0, -1.0}, math.Vector3{1.0, 1.0, 1.0}}
+	s.aabb = bounding.MakeAABB(math.Vector3{-1.0, -1.0, -1.0}, math.Vector3{1.0, 1.0, 1.0})
 	return s
 }
 

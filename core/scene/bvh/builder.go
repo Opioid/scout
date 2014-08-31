@@ -133,8 +133,8 @@ func (n *buildNode) split(indices []uint32, props []*prop.StaticProp, maxShapes 
 		sp := chooseSplittingPlane(&n.aabb)
 
 		for _, i := range indices {
-			mib := sp.Behind(props[i].AABB.Min)
-			mab := sp.Behind(props[i].AABB.Max)
+			mib := sp.Behind(props[i].AABB.Bounds[0])
+			mab := sp.Behind(props[i].AABB.Bounds[1])
 			if mib && mab {
 				indices0 = append(indices0, uint32(i))
 			} else {
@@ -224,7 +224,7 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp)
 }
 
 func miniaabb(indices []uint32, props []*prop.StaticProp) bounding.AABB {
-	b := bounding.MakeAABB()
+	b := bounding.MakeEmptyAABB()
 
 	for _, i := range indices {
 		b = b.Merge(&props[i].AABB)
