@@ -80,7 +80,7 @@ func (n *node) split(props []*prop.StaticProp) {
 		props0 := make([]*prop.StaticProp, 0, numProps)
 		props1 := make([]*prop.StaticProp, 0, numProps)
 
-		sp := chooseSplittingPlane(&n.aabb)
+		sp, _ := chooseSplittingPlane(&n.aabb)
 
 		for _, p := range props {
 			mib := sp.Behind(p.AABB.Bounds[0])

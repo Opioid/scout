@@ -4,7 +4,6 @@ import (
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
-	_ "fmt"
 )
 
 type Builder struct {
@@ -13,38 +12,12 @@ type Builder struct {
 }
 
 
-func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree) {
-	numFinitShapes := 0
-
-	for _, p := range props {
-		if p.Shape.IsFinite() {
-			numFinitShapes++
-		}
-	}
-
-	tree.infiniteProps = make([]*prop.StaticProp, len(props) - numFinitShapes)
-
-	i := 0
-	for _, p := range props {
-		if !p.Shape.IsFinite() {
-			tree.infiniteProps[i] = p
-			i++
-		}
-	}
-
-	indices := make([]uint32, numFinitShapes)
-
-	i = 0
-	for pi, p := range props {
-		if p.Shape.IsFinite() {
-			indices[i] = uint32(pi)
-			i++
-		}
-	}
+func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree, outProps *[]*prop.StaticProp) {
+	*outProps = make([]*prop.StaticProp, 0, len(props))
 
 	root := buildNode{}
 
-	root.split(indices, props, maxShapes)
+	root.split(props, maxShapes, outProps)
 /*
 	b.numNodes = 1
 	root.numSubNodes(&b.numNodes)
@@ -57,6 +30,16 @@ func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree) {
 	b.serialize(&root)
 */
 	tree.root = root
+
+	tree.infinitePropsBegin = uint32(len(*outProps))
+	tree.infinitePropsEnd   = uint32(len(props))
+
+	for _, p := range props {
+		if !p.Shape.IsFinite() {
+			*outProps = append(*outProps, p)
+		}
+	}
+
 }
 
 func (b *Builder) serialize(node *buildNode) {
@@ -112,43 +95,58 @@ func (b *Builder) skipOffset() uint32 {
 type buildNode struct {
 	aabb bounding.AABB
 
-	indices []uint32
+	axis int
+
+	offset   uint32
+	propsEnd uint32
 
 	children [2]*buildNode
 }
 
-func (n *buildNode) split(indices []uint32, props []*prop.StaticProp, maxShapes int) {
-	n.aabb = miniaabb(indices, props)
+func (n *buildNode) split(props []*prop.StaticProp, maxShapes int, outProps *[]*prop.StaticProp) {
+	n.aabb = miniaabb(props)
 
-	if len(indices) <= maxShapes {
-		n.assign(indices)
+	if len(props) <= maxShapes {
+		n.assign(props, outProps)
 	} else {
 		n.children[0] = new(buildNode)
 		n.children[1] = new(buildNode)
 
-		numProps := len(indices) / 2
-		indices0 := make([]uint32, 0, numProps)
-		indices1 := make([]uint32, 0, numProps)
+		numProps := len(props) / 2
+		props0 := make([]*prop.StaticProp, 0, numProps)
+		props1 := make([]*prop.StaticProp, 0, numProps)
 
-		sp := chooseSplittingPlane(&n.aabb)
+		sp, axis := chooseSplittingPlane(&n.aabb)
 
-		for _, i := range indices {
-			mib := sp.Behind(props[i].AABB.Bounds[0])
-			mab := sp.Behind(props[i].AABB.Bounds[1])
-			if mib && mab {
-				indices0 = append(indices0, uint32(i))
-			} else {
-				indices1 = append(indices1, uint32(i))
+		n.axis = axis
+
+		for _, p := range props {
+			if !p.Shape.IsFinite() {
+				continue
 			}
-		}
 
-		n.children[0].split(indices0, props, maxShapes)
-		n.children[1].split(indices1, props, maxShapes)
+			mib := sp.Behind(p.AABB.Bounds[0])
+			mab := sp.Behind(p.AABB.Bounds[1])
+			if mib && mab {
+				props0 = append(props0, p)
+			} else {
+				props1 = append(props1, p)
+			}
+		}		
+
+		n.children[0].split(props0, maxShapes, outProps)
+		n.children[1].split(props1, maxShapes, outProps)
 	}
 }
 
-func (n *buildNode) assign(indices []uint32) {
-	n.indices = indices
+func (n *buildNode) assign(props []*prop.StaticProp, outProps *[]*prop.StaticProp) {
+	n.offset = uint32(len(*outProps))
+
+	for _, p := range props {
+		*outProps = append(*outProps, p)
+	}	
+
+	n.propsEnd = uint32(len(*outProps))
 }
 
 func (n *buildNode) numSubNodes(num *uint32) {
@@ -168,15 +166,9 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 	hit := false
 
 	if n.children[0] != nil {
-		sd0 := n.children[0].aabb.Position().SquaredDistance(ray.Origin)
-		sd1 := n.children[1].aabb.Position().SquaredDistance(ray.Origin)
+		c0, c1 := 0, 1
 
-		var c0, c1 int
-
-		if sd0 <= sd1 {
-			c0 = 0
-			c1 = 1
-		} else {
+		if ray.DirIsNeg[n.axis] == 1 {
 			c0 = 1
 			c1 = 0
 		}
@@ -189,7 +181,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 			hit = true
 		}
 	} else {
-		for _, i := range n.indices {
+		for i := n.offset; i < n.propsEnd; i++ {
 			p := props[i]
 			if p.Intersect(ray, intersection) {
 				intersection.Prop = &p.Prop
@@ -214,7 +206,7 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp)
 		return n.children[1].intersectP(ray, props)
 	}
 
-	for _, i := range n.indices {
+	for i := n.offset; i < n.propsEnd; i++ {
 		if props[i].IntersectP(ray) {
 			return true
 		}
@@ -223,25 +215,25 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp)
 	return false
 }
 
-func miniaabb(indices []uint32, props []*prop.StaticProp) bounding.AABB {
+func miniaabb(props []*prop.StaticProp) bounding.AABB {
 	b := bounding.MakeEmptyAABB()
 
-	for _, i := range indices {
-		b = b.Merge(&props[i].AABB)
+	for _, p := range props {
+		b = b.Merge(&p.AABB)
 	}
 
 	return b
 }
 
-func chooseSplittingPlane(aabb *bounding.AABB) math.Plane {
+func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int) {
 	position := aabb.Position()
 	halfsize := aabb.Halfsize()
 
 	if halfsize.X >= halfsize.Y && halfsize.X >= halfsize.Z {
-		return math.MakePlane(math.Vector3{1.0, 0.0, 0.0}, position)
+		return math.MakePlane(math.Vector3{1.0, 0.0, 0.0}, position), 0
 	} else if halfsize.Y >= halfsize.X && halfsize.Y >= halfsize.Z {
-		return math.MakePlane(math.Vector3{0.0, 1.0, 0.0}, position)
+		return math.MakePlane(math.Vector3{0.0, 1.0, 0.0}, position), 1
 	} else {
-		return math.MakePlane(math.Vector3{0.0, 0.0, 1.0}, position)
+		return math.MakePlane(math.Vector3{0.0, 0.0, 1.0}, position), 2
 	}
 }

@@ -8,24 +8,25 @@ import (
 
 type Tree struct {
 	root buildNode
-	infiniteProps []*prop.StaticProp
 
-//	nodes []miniNode
+	infinitePropsBegin uint32
+	infinitePropsEnd   uint32
 }
 
 func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, intersection *prop.Intersection) bool {
 	hit := false
 
-	for _, p := range t.infiniteProps {
+	if t.root.intersect(ray, props, intersection) {
+		hit = true
+	}
+
+	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
+		p := props[i]
 		if p.Intersect(ray, intersection) {
 			intersection.Prop = &p.Prop
 			hit = true
 		}
-	}
-
-	if t.root.intersect(ray, props, intersection) {
-		hit = true
-	}
+	}	
 
 /*
 	currentNode := uint32(0)
@@ -69,13 +70,17 @@ func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, inter
 }
 
 func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.StaticProp) bool {
-	for _, p := range t.infiniteProps {
-		if p.IntersectP(ray) {
-			return true
-		}
+	if t.root.intersectP(ray, props) {
+		return true
 	}
 
-	return t.root.intersectP(ray, props)
+	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
+		if props[i].IntersectP(ray) {
+			return true
+		}
+	}	
+
+	return false
 /*
 	currentNode := uint32(0)
 	n := &t.nodes[currentNode]
