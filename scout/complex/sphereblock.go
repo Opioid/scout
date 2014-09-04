@@ -32,7 +32,9 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 
 				position := math.Vector3{float32(x), float32(y), float32(z)}.Mul(spacing)
 
-				modifier := math.Vector3{math.Sin(float32(y) / float32(numY - 1) * gomath.Pi), math.Sin(float32(z) / float32(numZ - 1) * gomath.Pi), -math.Sin(float32(x) / float32(numX - 1) * gomath.Pi)}
+				modifier := math.Vector3{-math.Sin(float32(y) / float32(numY - 1) * 1.0 * gomath.Pi), 
+										  math.Sin(float32(z) / float32(numZ - 1) * gomath.Pi), 
+										 -math.Sin(float32(x) / float32(numX - 1) * 2.0 * gomath.Pi)}
 
 				p.SetTransformation(offset.Add(position.Add(modifier)), scale, math.MakeIdentityQuaternion())
 			}
