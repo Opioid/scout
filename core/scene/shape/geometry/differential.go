@@ -1,10 +1,10 @@
-package shape
+package geometry
 
 import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type DifferentialGeometry struct {
+type Differential struct {
 	P math.Vector3
 	Nn math.Vector3
 	UV math.Vector2

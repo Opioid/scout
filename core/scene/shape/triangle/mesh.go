@@ -1,7 +1,8 @@
-package shape
+package triangle
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	gomath "math"
@@ -13,7 +14,7 @@ type vertex struct {
 	uv math.Vector2
 }
 
-type triangleMesh struct {
+type Mesh struct {
 	indices []uint32
 
 	vertices []vertex
@@ -21,14 +22,14 @@ type triangleMesh struct {
 	aabb bounding.AABB
 }
 
-func NewTriangleMesh(numIndices, numVertices uint32) *triangleMesh {
-	m := new(triangleMesh)
+func NewMesh(numIndices, numVertices uint32) *Mesh {
+	m := new(Mesh)
 	m.indices = make([]uint32, numIndices)
 	m.vertices = make([]vertex, numVertices)
 	return m
 }
 
-func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, thit *float32, epsilon *float32, dg *geometry.Differential) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
@@ -72,7 +73,7 @@ func (m *triangleMesh) Intersect(transformation *entity.ComposedTransformation, 
 	return false
 }
 
-func (m *triangleMesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay) bool {
+func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
@@ -86,35 +87,35 @@ func (m *triangleMesh) IntersectP(transformation *entity.ComposedTransformation,
 	return false
 }
 
-func (m *triangleMesh) AABB() *bounding.AABB {
+func (m *Mesh) AABB() *bounding.AABB {
 	return &m.aabb
 }
 
-func (m *triangleMesh) IsComplex() bool {
+func (m *Mesh) IsComplex() bool {
 	return true
 }
 
-func (m *triangleMesh) IsFinite() bool {
+func (m *Mesh) IsFinite() bool {
 	return true
 }
 
-func (m *triangleMesh) setIndex(index, value uint32) {
+func (m *Mesh) SetIndex(index, value uint32) {
 	m.indices[index] = value
 }
 
-func (m *triangleMesh) setPosition(index uint32, p math.Vector3) {
+func (m *Mesh) SetPosition(index uint32, p math.Vector3) {
 	m.vertices[index].p = p
 }
 
-func (m *triangleMesh) setNormal(index uint32, n math.Vector3) {
+func (m *Mesh) SetNormal(index uint32, n math.Vector3) {
 	m.vertices[index].n = n
 }
 
-func (m *triangleMesh) setUV(index uint32, uv math.Vector2) {
+func (m *Mesh) SetUV(index uint32, uv math.Vector2) {
 	m.vertices[index].uv = uv
 }
 
-func (m *triangleMesh) compile() {
+func (m *Mesh) Compile() {
 	min := math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
 	max := math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
 	

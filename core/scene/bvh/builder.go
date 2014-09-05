@@ -173,8 +173,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 		}
 
 		if n.children[c].intersect(ray, props, intersection) {
-		//	hit = true
-			return true
+			hit = true
 		} 
 
 		if n.children[1 - c].intersect(ray, props, intersection) {

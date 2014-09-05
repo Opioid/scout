@@ -1,11 +1,11 @@
 package prop
 
 import (
-	"github.com/Opioid/scout/core/scene/shape"
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 )
 
 type Intersection struct {
 	Prop *Prop
-	Dg shape.DifferentialGeometry
+	Dg geometry.Differential
 	Epsilon float32
 }

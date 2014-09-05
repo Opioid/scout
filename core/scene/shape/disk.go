@@ -2,6 +2,7 @@ package shape
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 )
@@ -16,7 +17,7 @@ func NewDisk() *Disk {
 	return d
 }
 
-func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, thit *float32, epsilon *float32, dg *DifferentialGeometry) bool {
+func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, thit *float32, epsilon *float32, dg *geometry.Differential) bool {
 	normal := transformation.Rotation.Row(2)
 
 	d := -normal.Dot(transformation.Position)

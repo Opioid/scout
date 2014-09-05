@@ -1,6 +1,7 @@
 package shape
 
 import (
+	"github.com/Opioid/scout/core/scene/shape/triangle"
 	_ "github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
@@ -69,21 +70,21 @@ func loadGeometry(i interface{}) Shape {
 		return nil
 	}
 
-	m := NewTriangleMesh(uint32(len(indices)), uint32(len(positions)))
+	m := triangle.NewMesh(uint32(len(indices)), uint32(len(positions)))
 
 	for i, index := range indices {
-		m.setIndex(uint32(i), uint32(index.(float64)))
+		m.SetIndex(uint32(i), uint32(index.(float64)))
 	}
 
 	for i, position := range positions {
-		m.setPosition(uint32(i), pkgjson.ParseVector3(position))
+		m.SetPosition(uint32(i), pkgjson.ParseVector3(position))
 	}
 
 	if n, ok := geometryNode["normals"]; ok {
 		normals := n.([]interface{})
 
 		for i, normal := range normals {
-			m.setNormal(uint32(i), pkgjson.ParseVector3(normal))
+			m.SetNormal(uint32(i), pkgjson.ParseVector3(normal))
 		}
 	}
 
@@ -91,11 +92,11 @@ func loadGeometry(i interface{}) Shape {
 		uvs := u.([]interface{})
 
 		for i, uv := range uvs {
-			m.setUV(uint32(i), pkgjson.ParseVector2(uv))
+			m.SetUV(uint32(i), pkgjson.ParseVector2(uv))
 		}
 	}
 
-	m.compile()
+	m.Compile()
 
 	return m
 }

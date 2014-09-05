@@ -1,7 +1,7 @@
 package material
 
 import (
-	"github.com/Opioid/scout/core/scene/shape"
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -19,7 +19,7 @@ func NewSubstitute_ColorConstant(color math.Vector3, roughness float32) *Substit
 	return m
 }
 
-func (m *Substitute_ColorConstant) Evaluate(dg *shape.DifferentialGeometry, l, v math.Vector3) (math.Vector3, float32) {
+func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, l, v math.Vector3) (math.Vector3, float32) {
 	n_dot_l := math.Max(dg.Nn.Dot(l), 0.00001)
 	n_dot_v := math.Max(dg.Nn.Dot(v), 0.0)
 
