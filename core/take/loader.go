@@ -36,9 +36,9 @@ func (take *Take) Load(filename string) bool {
 		case "camera" == key:
 			take.loadCamera(value)
 		case "sampler" == key:
-			take.loadSampler(value)
+			take.Context.Sampler = loadSampler(value)
 		case "integrator" == key:
-			take.loadIntegrator(value)
+			take.Integrator = loadIntegrator(value)
 		}
 	} 
 
@@ -94,12 +94,9 @@ func (take *Take) loadCamera(c interface{}) {
 		case "dimensions":
 			dimensions = pkgjson.ParseVector2(value)
 		case "film":
-			if filmNode, ok := value.(map[string]interface{}); ok {
-				d := pkgjson.ReadVector2i(filmNode, "dimensions", math.Vector2i{0, 0})
-				e := pkgjson.ReadFloat32(filmNode, "exposure", 0.0)
-				w := pkgjson.ReadVector3(filmNode, "linear_white", math.Vector3{1.0, 1.0, 1.0})
-				film = pkgfilm.NewUnfiltered(d, e, tonemapping.NewFilmic(w))
-			}
+				//w := pkgjson.ReadVector3(filmNode, "linear_white", math.Vector3{1.0, 1.0, 1.0})
+				film = loadFilm(value)
+		//	}
 		}
 	}
 
@@ -117,19 +114,21 @@ func (take *Take) loadCamera(c interface{}) {
 	take.Context.Camera = camera
 }
 
-func (take *Take) loadSampler(s interface{}) {
+func loadSampler(s interface{}) sampler.Sampler {
 	samplerNode, ok := s.(map[string]interface{})
 
 	if !ok {
-		return
+		return nil
 	}
 
 	for key, value := range samplerNode {
 		switch key {
 		case "Uniform":
-			take.Context.Sampler = loadUniformSampler(value)
+			return loadUniformSampler(value)
 		}
 	}
+
+	return nil
 }
 
 func loadUniformSampler(s interface{}) sampler.Sampler {
@@ -151,21 +150,83 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 	return sampler.NewUniform(math.Vector2i{}, math.Vector2i{}, samplesPerPixel)
 }
 
-func (take *Take) loadIntegrator(i interface{}) {
+func loadFilm(f interface{}) pkgfilm.Film {
+	filmNode, ok := f.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	var dimensions math.Vector2i
+	var exposure float32
+	var tonemapper tonemapping.Tonemapper
+
+	for key, value := range filmNode {
+		switch key {
+		case "dimensions":
+			dimensions = pkgjson.ParseVector2i(value)
+		case "exposure":
+			exposure = pkgjson.ParseFloat32(value)
+		case "tonemapper":
+			tonemapper = loadTonemapper(value)
+		}
+	}
+
+	if (tonemapper == nil) {
+		tonemapper = tonemapping.NewIdentity()
+	}
+
+	return pkgfilm.NewUnfiltered(dimensions, exposure, tonemapper)
+}
+
+func loadTonemapper(t interface{}) tonemapping.Tonemapper {
+	tonemapperNode, ok := t.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	for key, value := range tonemapperNode {
+		switch key {
+		case "Identity":
+			return tonemapping.NewIdentity()
+		case "Filmic":
+			return loadFilmicTonemapper(value)
+		}
+	}
+
+	return nil
+}
+
+func loadFilmicTonemapper(f interface{}) tonemapping.Tonemapper {
+	filmicNode, ok := f.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	w := pkgjson.ReadVector3(filmicNode, "linear_white", math.Vector3{1.0, 1.0, 1.0})
+
+	return tonemapping.NewFilmic(w)
+}
+
+func loadIntegrator(i interface{}) rendering.Integrator {
 	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {
-		return
+		return nil
 	}
 
 	for key, value := range integratorNode {
 		switch key {
 		case "Whitted":
-			take.Integrator = loadWhittedIntegrator(value)
+			return loadWhittedIntegrator(value)
 		case "AO":
-			take.Integrator = loadAoIntegrator(value)
+			return loadAoIntegrator(value)
 		}
 	}
+
+	return nil
 }
 
 func loadWhittedIntegrator(i interface{}) rendering.Integrator {

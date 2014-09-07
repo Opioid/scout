@@ -70,7 +70,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 
 		start.Y += a
 
-		if i == numTaks - 1 {
+		if i == numTaks - 2 {
 			end.Y = dimensions.Y
 		} else {
 			end.Y += a

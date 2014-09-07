@@ -9,6 +9,7 @@ import (
 	gocolor "image/color"
 	"runtime"
 	"sync"
+	_"fmt"
 )
 
 type Unfiltered struct {
@@ -51,7 +52,7 @@ func (f *Unfiltered) RGBA() *image.RGBA {
 
 		start.Y += a
 
-		if i == numTaks - 1 {
+		if i == numTaks - 2 {
 			end.Y = f.dimensions.Y
 		} else {
 			end.Y += a
