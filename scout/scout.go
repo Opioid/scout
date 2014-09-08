@@ -6,6 +6,7 @@ import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/core/take"
+	"github.com/Opioid/scout/core/progress"
 	"runtime"
 	"os"
 	"time"
@@ -19,7 +20,7 @@ func main() {
 
 	take := take.Take{}
 
-	if !take.Load("../data/takes/triangle_test.take") {
+	if !take.Load("../data/takes/bvh_test.take") {
 		fmt.Println("Take could not be loaded")
 		return
 	}
@@ -47,10 +48,12 @@ func main() {
 	renderer := rendering.Renderer{}
 	renderer.Integrator = take.Integrator
 
+	progressor := progress.NewStdout()
+
 	fmt.Printf("Rendering...\n")
 	renderStart := time.Now()
 
-	renderer.Render(&scene, &take.Context)
+	renderer.Render(&scene, &take.Context, progressor)
 
 	renderDuration := time.Since(renderStart)
 	seconds = float64(renderDuration.Nanoseconds()) / 1000000000.0

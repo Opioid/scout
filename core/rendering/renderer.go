@@ -5,6 +5,7 @@ import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/camera"
+	"github.com/Opioid/scout/core/progress"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
 	"sync"
@@ -18,12 +19,15 @@ type Renderer struct {
 	currentPixel math.Vector2i
 }
 
-func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
+func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor progress.Sink) {
 	dimensions := context.Camera.Film().Dimensions()
 
 	r.currentPixel = math.Vector2i{0, 0}
 
 	r.samplerDimensions = math.Vector2i{32, 32}
+
+	numSamplers := int(float32(dimensions.X) / float32(r.samplerDimensions.X) + 0.5) * int(float32(dimensions.Y) / float32(r.samplerDimensions.Y) + 0.5)
+	progressor.Start(numSamplers)
 
 	wg := sync.WaitGroup{}
 
@@ -39,6 +43,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context) {
 		go func () {
 			r.render(scene, context.Camera, sampler)
 			wg.Done()
+			progressor.Tick()
 		}()
 	}
 
