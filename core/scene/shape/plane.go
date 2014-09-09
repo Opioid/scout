@@ -33,7 +33,7 @@ func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 		*epsilon = 5e-4 * *thit
 
 		dg.P = ray.Point(*thit)
-		dg.Nn = normal
+		dg.N = normal
 
 		u := transformation.ObjectToWorld.Row(0).Vector3().Dot(dg.P)
 		dg.UV.X = u - math.Floor(u)

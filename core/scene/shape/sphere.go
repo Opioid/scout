@@ -31,7 +31,7 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 			*epsilon = 5e-4 * *thit
 
 			dg.P = ray.Point(*thit)
-			dg.Nn = dg.P.Sub(transformation.Position).Div(radius)
+			dg.N = dg.P.Sub(transformation.Position).Div(radius)
 
 			return true
 		} 

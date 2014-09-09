@@ -39,7 +39,7 @@ func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *
 			*epsilon = 5e-4 * *thit
 
 			dg.P = p
-			dg.Nn = normal
+			dg.N = normal
 
 			sk := k.Div(radius)
 

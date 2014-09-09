@@ -55,7 +55,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, ray *m
 	}
 
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
-		reflection := intersection.Dg.Nn.Reflect(ray.Direction)
+		reflection := intersection.Dg.N.Reflect(ray.Direction)
 
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 

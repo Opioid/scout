@@ -28,7 +28,7 @@ func (a *ao) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, ray *math.O
 	result := float32(0.0)
 
 	for i := 0; i < a.numSamples; i++ {
-		v := hemisphereSample(intersection.Dg.Nn, rng.RandomFloat32(), rng.RandomFloat32())
+		v := hemisphereSample(intersection.Dg.N, rng.RandomFloat32(), rng.RandomFloat32())
 		occlusionRay.SetDirection(v)
 
 		if !scene.IntersectP(&occlusionRay) {

@@ -4,7 +4,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type Differential struct {
+type Vertex struct {
 	P, N math.Vector3
 	UV math.Vector2
 }
