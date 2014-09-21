@@ -16,12 +16,12 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 	shape := shape.NewSphere()
 	material := resourceManager.LoadMaterial("../data/materials/green.material")
 
-	scale := math.Vector3{0.5, 0.5, 0.5}
-	spacing := math.Vector3{1.2, 1.2, 1.2}
+	scale := math.MakeVector3(0.5, 0.5, 0.5)
+	spacing := math.MakeVector3(1.2, 1.2, 1.2)
 
 	numX, numY, numZ := 16, 10, 16
 
-	offset := math.Vector3{-0.5 * float32(numX), 0.006, 0.0}.Add(scale.Mul(spacing))
+	offset := math.MakeVector3(-0.5 * float32(numX), 0.006, 0.0).Add(scale.Mul(spacing))
 
 	for z := 0; z < numZ; z++ {
 		for y := 0; y < numY; y++ {
@@ -30,11 +30,12 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 				p.Shape = shape
 				p.Material = material
 
-				position := math.Vector3{float32(x), float32(y), float32(z)}.Mul(spacing)
+				position := math.MakeVector3(float32(x), float32(y), float32(z)).Mul(spacing)
 
-				modifier := math.Vector3{-math.Sin(float32(y) / float32(numY - 1) * 1.0 * gomath.Pi), 
-										  math.Sin(float32(z) / float32(numZ - 1) * gomath.Pi), 
-										 -math.Sin(float32(x) / float32(numX - 1) * 2.0 * gomath.Pi)}
+				modifier := math.MakeVector3(
+					-math.Sin(float32(y) / float32(numY - 1) * 1.0 * gomath.Pi), 
+					 math.Sin(float32(z) / float32(numZ - 1) * gomath.Pi), 
+					-math.Sin(float32(x) / float32(numX - 1) * 2.0 * gomath.Pi))
 
 				p.SetTransformation(offset.Add(position.Add(modifier)), scale, math.MakeIdentityQuaternion())
 			}

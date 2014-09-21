@@ -31,7 +31,7 @@ func (u *Uniform) Resize(start, end math.Vector2i) {
 
 	for y, i := 0, 0; y < u.samplesPerPixel.Y; y++ {
 		for x := 0; x < u.samplesPerPixel.X; x++ {
-			u.offsets[i] = math.Vector2{(0.5 + float32(x)) * ox, (0.5 + float32(y)) * oy}
+			u.offsets[i] = math.MakeVector2((0.5 + float32(x)) * ox, (0.5 + float32(y)) * oy)
 			i++
 		}
 	}
@@ -58,7 +58,7 @@ func (u *Uniform) GenerateNewSample(s *Sample) bool {
 
 	o := u.offsets[u.currentSample]
 
-	s.Coordinates = math.Vector2{float32(u.currentPixel.X) + o.X, float32(u.currentPixel.Y) + o.Y}
+	s.Coordinates = math.MakeVector2(float32(u.currentPixel.X) + o.X, float32(u.currentPixel.Y) + o.Y)
 
 	u.currentSample++
 

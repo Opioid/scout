@@ -4,6 +4,10 @@ type Vector3 struct {
 	X, Y, Z float32
 }
 
+func MakeVector3(x, y, z float32) Vector3 {
+	return Vector3{x, y, z}
+}
+
 func MakeIdentityVector3() Vector3 {
 	return Vector3{1.0, 1.0, 1.0}
 }

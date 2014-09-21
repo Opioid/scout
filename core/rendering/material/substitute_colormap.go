@@ -33,7 +33,7 @@ func (m *Substitute_ColorMap) Evaluate(dg *geometry.Differential, l, v math.Vect
 	n_dot_h := dg.N.Dot(h)
 	v_dot_h := v.Dot(h)
 
-	f0 := math.Vector3{0.03, 0.03, 0.03}
+	f0 := math.MakeVector3(0.03, 0.03, 0.03)
 
 	specular := specular_f(v_dot_h, f0).Scale(specular_d(n_dot_h, m.a2)).Scale(specular_g(n_dot_l, n_dot_v, m.a2))
 

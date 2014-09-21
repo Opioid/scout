@@ -37,8 +37,8 @@ func (f *Unfiltered) RGBA() *image.RGBA {
 
 	a := f.dimensions.Y / numTaks
 
-	start := math.Vector2i{0, 0}
-	end   := math.Vector2i{f.dimensions.X, a}
+	start := math.MakeVector2i(0, 0)
+	end   := math.MakeVector2i(f.dimensions.X, a)
 
 	wg := sync.WaitGroup{}
 

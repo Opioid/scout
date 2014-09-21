@@ -22,9 +22,9 @@ type Renderer struct {
 func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor progress.Sink) {
 	dimensions := context.Camera.Film().Dimensions()
 
-	r.currentPixel = math.Vector2i{0, 0}
+	r.currentPixel = math.MakeVector2i(0, 0)
 
-	r.samplerDimensions = math.Vector2i{32, 32}
+	r.samplerDimensions = math.MakeVector2i(32, 32)
 
 	numSamplers := int(float32(dimensions.X) / float32(r.samplerDimensions.X) + 0.5) * int(float32(dimensions.Y) / float32(r.samplerDimensions.Y) + 0.5)
 	progressor.Start(numSamplers)

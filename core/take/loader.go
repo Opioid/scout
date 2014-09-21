@@ -50,7 +50,7 @@ func (take *Take) Load(filename string) bool {
 		return false
 	}
 
-	take.Context.Sampler.Resize(math.Vector2i{0, 0}, take.Context.Camera.Film().Dimensions())
+	take.Context.Sampler.Resize(math.MakeVector2i(0, 0), take.Context.Camera.Film().Dimensions())
 
 	return true
 }
@@ -109,7 +109,7 @@ func (take *Take) loadCamera(c interface{}) {
 		camera = pkgcamera.NewPerspective(fov, dimensions, film)
 	}
 
-	camera.Transformation().Set(position, math.Vector3{1.0, 1.0, 1.0}, rotation)
+	camera.Transformation().Set(position, math.MakeVector3(1.0, 1.0, 1.0), rotation)
 	camera.UpdateView()
 	take.Context.Camera = camera
 }
@@ -138,7 +138,7 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 		return nil
 	}
 
-	samplesPerPixel := math.Vector2i{1, 1}
+	samplesPerPixel := math.MakeVector2i(1, 1)
 
 	for key, value := range samplerNode {
 		switch key {
@@ -205,7 +205,7 @@ func loadFilmicTonemapper(f interface{}) tonemapping.Tonemapper {
 		return nil
 	}
 
-	w := pkgjson.ReadVector3(filmicNode, "linear_white", math.Vector3{1.0, 1.0, 1.0})
+	w := pkgjson.ReadVector3(filmicNode, "linear_white", math.MakeVector3(1.0, 1.0, 1.0))
 
 	return tonemapping.NewFilmic(w)
 }

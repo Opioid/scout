@@ -16,7 +16,7 @@ type Matrix4x4 struct {
 }
 
 func (m *Matrix4x4) Row(i int) Vector4 {
-	return Vector4{m.m[i * 4], m.m[i * 4 + 1], m.m[i * 4 + 2], m.m[i * 4 + 3]}
+	return MakeVector4(m.m[i * 4], m.m[i * 4 + 1], m.m[i * 4 + 2], m.m[i * 4 + 3])
 }
 
 func (m *Matrix4x4) Div(s float32) Matrix4x4 {
@@ -55,27 +55,27 @@ func (m *Matrix4x4) Scale(v Vector3) {
 }
 
 func (m *Matrix4x4) TransformPoint(v Vector3) Vector3 {
-	return Vector3{
+	return MakeVector3(
 		v.X * m.m[0] + v.Y * m.m[4] + v.Z * m.m[8]  + m.m[12],
 		v.X * m.m[1] + v.Y * m.m[5] + v.Z * m.m[9]  + m.m[13],
 		v.X * m.m[2] + v.Y * m.m[6] + v.Z * m.m[10] + m.m[14],
-	}
+	)
 }
 
 func (m *Matrix4x4) TransformVector(v Vector3) Vector3 {
-	return Vector3{
+	return MakeVector3(
 		v.X * m.m[0] + v.Y * m.m[4] + v.Z * m.m[8],
 		v.X * m.m[1] + v.Y * m.m[5] + v.Z * m.m[9],
 		v.X * m.m[2] + v.Y * m.m[6] + v.Z * m.m[10],
-	}
+	)
 }
 
 func (m *Matrix4x4) TransposedTransformVector(v Vector3) Vector3 {
-	return Vector3{
+	return MakeVector3(
 		v.X * m.m[0] + v.Y * m.m[1] + v.Z * m.m[2],
 		v.X * m.m[4] + v.Y * m.m[5] + v.Z * m.m[6],
 		v.X * m.m[8] + v.Y * m.m[9] + v.Z * m.m[10],
-	}
+	)
 }
 
 /*

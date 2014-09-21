@@ -4,6 +4,10 @@ type Vector2 struct {
 	X, Y float32
 }
 
+func MakeVector2(x, y float32) Vector2 {
+	return Vector2{x, y}
+}
+
 func (a Vector2) Add(b Vector2) Vector2 {
 	return Vector2{a.X + b.X, a.Y + b.Y}
 }
@@ -14,6 +18,10 @@ func (a Vector2) Scale(s float32) Vector2 {
 
 type Vector2i struct {
 	X, Y int
+}
+
+func MakeVector2i(x, y int) Vector2i {
+	return Vector2i{x, y}
 }
 
 func (a Vector2i) Add(b Vector2i) Vector2i {

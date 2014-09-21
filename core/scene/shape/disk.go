@@ -13,7 +13,7 @@ type Disk struct {
 
 func NewDisk() *Disk {
 	d := new(Disk)
-	d.aabb = bounding.MakeAABB(math.Vector3{-1.0, -1.0, 0.0}, math.Vector3{1.0, 1.0, 0.0})
+	d.aabb = bounding.MakeAABB(math.MakeVector3(-1.0, -1.0, 0.0), math.MakeVector3(1.0, 1.0, 0.0))
 	return d
 }
 

@@ -9,5 +9,5 @@ type Sample struct {
 }
 
 func NewSample(x, y float32) *Sample {
-	return &Sample{math.Vector2{x, y}}
+	return &Sample{math.MakeVector2(x, y)}
 }

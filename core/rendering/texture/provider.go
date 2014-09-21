@@ -34,7 +34,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 
 	texture := NewTexture2D(1)
 
-	dimensions := math.Vector2i{sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y}
+	dimensions := math.MakeVector2i(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y)
 	texture.images[0].resize(dimensions)
 /*
 	max := float32(0xFFFF)
@@ -55,8 +55,8 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 
 	a := dimensions.Y / numTaks
 
-	start := math.Vector2i{0, 0}
-	end   := math.Vector2i{dimensions.X, a}
+	start := math.MakeVector2i(0, 0)
+	end   := math.MakeVector2i(dimensions.X, a)
 
 	wg := sync.WaitGroup{}
 
@@ -93,10 +93,12 @@ func process(start, end math.Vector2i, source goimage.Image, target *image) {
 		for x := start.X; x < end.X; x++ {
 			r, g, b, a := source.At(x, y).RGBA()
 
-			target.set(x, y, math.Vector4{color.SrgbToLinear(float32(r) / max), 
-										  color.SrgbToLinear(float32(g) / max), 
-										  color.SrgbToLinear(float32(b) / max), 
-										  float32(a) / max})
+			target.set(x, y, math.MakeVector4(
+				color.SrgbToLinear(float32(r) / max), 
+				color.SrgbToLinear(float32(g) / max), 
+				color.SrgbToLinear(float32(b) / max), 
+				float32(a) / max,
+			))
 		}
 	}
 }

@@ -37,7 +37,7 @@ func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRa
 	x := sample.Coordinates.X / float32(o.film.Dimensions().X)
 	y := sample.Coordinates.Y / float32(o.film.Dimensions().Y)
 
-	offset := math.Vector3{x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0}
+	offset := math.MakeVector3(x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0)
 	offset = o.Entity.Transformation.Rotation.TransformVector3(offset)
 	ray.Origin = o.Entity.Transformation.Position.Add(offset)
 

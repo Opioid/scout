@@ -17,7 +17,7 @@ func NewWhitted(bounceDepth int) *whitted {
 }
 
 func (w *whitted) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
-	result := math.Vector3{0.0, 0.0, 0.0}
+	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material
 

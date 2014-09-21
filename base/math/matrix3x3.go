@@ -84,11 +84,11 @@ func (m *Matrix3x3) SetBasis(v Vector3) {
 	var r1 Vector3
 
 	if v.X < 0.6 && v.X > -0.6 {
-		r1 = Vector3{1.0, 0.0, 0.0}
+		r1 = MakeVector3(1.0, 0.0, 0.0)
 	} else if v.Y < 0.6 && v.Y > -0.6 {
-		r1 = Vector3{0.0, 1.0, 0.0}
+		r1 = MakeVector3(0.0, 1.0, 0.0)
 	} else {
-		r1 = Vector3{0.0, 0.0, 1.0}
+		r1 = MakeVector3(0.0, 0.0, 1.0)
 	}
 
 	r0 := v.Cross(r1).Normalized()
@@ -96,12 +96,12 @@ func (m *Matrix3x3) SetBasis(v Vector3) {
 
 	m.m[0] = r0.X; m.m[1] = r0.Y; m.m[2] = r0.Z
 	m.m[3] = r1.X; m.m[4] = r1.Y; m.m[5] = r1.Z
-	m.m[6] = v.X;  m.m[7] = v.Y;  m.m[8] = v.Z
+	m.m[6] =  v.X; m.m[7] =  v.Y; m.m[8] =  v.Z
 }
 
 
 func (m *Matrix3x3) Row(i int) Vector3 {
-	return Vector3{m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2]}
+	return MakeVector3(m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2])
 }
 
 func (m *Matrix3x3) MuliplyAssign(o *Matrix3x3) {
@@ -130,7 +130,8 @@ func (m *Matrix3x3) Multiply(o *Matrix3x3) Matrix3x3 {
 
 		m.m[6] * o.m[0] + m.m[7] * o.m[3] + m.m[8] * o.m[6],
 		m.m[6] * o.m[1] + m.m[7] * o.m[4] + m.m[8] * o.m[7],
-		m.m[6] * o.m[2] + m.m[7] * o.m[5] + m.m[8] * o.m[8]}}
+		m.m[6] * o.m[2] + m.m[7] * o.m[5] + m.m[8] * o.m[8],
+	}}
 }
 
 func (m *Matrix3x3) SetRotationX(a float32) {
@@ -164,9 +165,9 @@ func (m *Matrix3x3) TransformVector3(v Vector3) Vector3 {
 					  v.x * m.m02 + v.y * m.m12 + v.z * m.m22);
 	*/
 
-	return Vector3{
+	return MakeVector3(
 		v.X * m.m[0] + v.Y * m.m[3] + v.Z * m.m[6],
 		v.X * m.m[1] + v.Y * m.m[4] + v.Z * m.m[7],
 		v.X * m.m[2] + v.Y * m.m[5] + v.Z * m.m[8],
-	}
+	)
 }

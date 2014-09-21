@@ -13,10 +13,10 @@ type AABB struct {
 func MakeEmptyAABB() AABB {
     b := AABB{}
     // min
-    b.Bounds[0] = math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
+    b.Bounds[0] = math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
     
     // max
-    b.Bounds[1] = math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
+    b.Bounds[1] = math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
 
     return b
 }

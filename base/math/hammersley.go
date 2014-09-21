@@ -10,5 +10,5 @@ func radicalInverseVdC(bits uint32) float32 {
 }
 
 func Hammersley(i, numSamples uint32) Vector2 {
-	return Vector2{float32(i) / float32(numSamples), radicalInverseVdC(i)}
+	return MakeVector2(float32(i) / float32(numSamples), radicalInverseVdC(i))
 }

@@ -25,9 +25,9 @@ func calculateDimensions(dimensions math.Vector2, film film.Film) math.Vector2 {
 	var r math.Vector2
 
 	if 0.0 == dimensions.X {
-		r = math.Vector2{dimensions.Y * (float32(film.Dimensions().X) / float32(film.Dimensions().Y)), dimensions.Y}
+		r = math.MakeVector2(dimensions.Y * (float32(film.Dimensions().X) / float32(film.Dimensions().Y)), dimensions.Y)
 	} else if 0.0 == dimensions.Y {
-		r = math.Vector2{dimensions.X, dimensions.X * (float32(film.Dimensions().Y) / float32(film.Dimensions().X))}
+		r = math.MakeVector2(dimensions.X, dimensions.X * (float32(film.Dimensions().Y) / float32(film.Dimensions().X)))
 	} else {
 		r = dimensions
 	}

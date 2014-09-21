@@ -19,7 +19,7 @@ func MakeOptimizedRay(origin, direction Vector3, mint, maxt float32, depth int) 
 
 func (r *OptimizedRay) SetDirection(direction Vector3) {
 	r.Direction = direction
-	r.ReciprocalDirection = Vector3{1.0 / direction.X, 1.0 / direction.Y, 1.0 / direction.Z}
+	r.ReciprocalDirection = MakeVector3(1.0 / direction.X, 1.0 / direction.Y, 1.0 / direction.Z)
 
 	isNeg := func (x float32) int {
 		if x < 0.0 {

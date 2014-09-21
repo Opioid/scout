@@ -33,9 +33,9 @@ func (p *Perspective) UpdateView() {
 	z := ratio * gomath.Pi / p.fov * 0.5
 
 	corners := []math.Vector3{
-		math.Vector3{-ratio,  1.0, z},
-		math.Vector3{ ratio,  1.0, z},
-		math.Vector3{-ratio, -1.0, z},
+		math.MakeVector3(-ratio,  1.0, z),
+		math.MakeVector3( ratio,  1.0, z),
+		math.MakeVector3(-ratio, -1.0, z),
 	}
 
 	p.leftTop   = p.Entity.Transformation.ObjectToWorld.TransformPoint(corners[0])

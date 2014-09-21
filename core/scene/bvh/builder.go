@@ -39,7 +39,6 @@ func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree, out
 			*outProps = append(*outProps, p)
 		}
 	}
-
 }
 
 func (b *Builder) serialize(node *buildNode) {
@@ -229,10 +228,10 @@ func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int) {
 	halfsize := aabb.Halfsize()
 
 	if halfsize.X >= halfsize.Y && halfsize.X >= halfsize.Z {
-		return math.MakePlane(math.Vector3{1.0, 0.0, 0.0}, position), 0
+		return math.MakePlane(math.MakeVector3(1.0, 0.0, 0.0), position), 0
 	} else if halfsize.Y >= halfsize.X && halfsize.Y >= halfsize.Z {
-		return math.MakePlane(math.Vector3{0.0, 1.0, 0.0}, position), 1
+		return math.MakePlane(math.MakeVector3(0.0, 1.0, 0.0), position), 1
 	} else {
-		return math.MakePlane(math.Vector3{0.0, 0.0, 1.0}, position), 2
+		return math.MakePlane(math.MakeVector3(0.0, 0.0, 1.0), position), 2
 	}
 }

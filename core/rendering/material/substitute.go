@@ -6,7 +6,7 @@ import (
 )
 
 func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
-	return f0.Add(math.Vector3{1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z}.Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
+	return f0.Add(math.MakeVector3(1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z).Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
 }
 
 func specular_d(n_dot_h, a2 float32) float32 {

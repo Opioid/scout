@@ -1,8 +1,9 @@
 package triangle
 
 import (
-	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/scene/shape/triangle/kd"
 	"github.com/Opioid/scout/core/scene/shape/geometry"
+	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	gomath "math"
@@ -15,6 +16,8 @@ type Mesh struct {
 	vertices []geometry.Vertex
 
 	aabb bounding.AABB
+
+	kd kd.Tree
 }
 
 func NewMesh(numIndices, numVertices uint32) *Mesh {
@@ -29,6 +32,27 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
 
+	intersection := kd.Intersection{T: ray.MaxT}
+
+	hit := m.kd.Intersect(&oray, m.indices, m.vertices, &intersection)
+
+	if hit {
+		*thit = intersection.T
+		*epsilon = 5e-4 * *thit
+
+		dg.P = ray.Point(*thit)
+
+		interpolateVertices(&m.vertices[m.indices[intersection.Index + 0]],
+			          	 	&m.vertices[m.indices[intersection.Index + 1]],
+			           		&m.vertices[m.indices[intersection.Index + 2]],
+			           		intersection.U, intersection.V,
+			           		&dg.N, &dg.UV)
+
+		dg.N = transformation.WorldToObject.TransposedTransformVector(dg.N)
+	}
+
+	return hit
+/*
 	type intersectionResult struct {
 		t, u, v float32
 		index uint32
@@ -64,10 +88,18 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	}
 
 	return false
+	*/
 }
 
 func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay) bool {
 	oray := *ray
+	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
+	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
+
+	return m.kd.IntersectP(&oray, m.indices, m.vertices)
+
+
+/*	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
 
@@ -78,6 +110,7 @@ func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *ma
 	}
 
 	return false
+	*/
 }
 
 func (m *Mesh) AABB() *bounding.AABB {
@@ -109,8 +142,8 @@ func (m *Mesh) SetUV(index uint32, uv math.Vector2) {
 }
 
 func (m *Mesh) Compile() {
-	min := math.Vector3{ gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32}
-	max := math.Vector3{-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32}
+	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
+	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
 	
 	for _, v := range m.vertices {
 		min = v.P.Min(min)
@@ -118,6 +151,9 @@ func (m *Mesh) Compile() {
 	}
 
 	m.aabb = bounding.MakeAABB(min, max)
+
+	builder := kd.Builder{}
+	builder.Build(m.indices, m.vertices, &m.kd)	
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

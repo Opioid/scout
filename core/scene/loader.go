@@ -57,7 +57,7 @@ func (loader *Loader) Load(filename string) error {
 	} 
 
 	if loader.scene.Surrounding == nil {
-		loader.scene.Surrounding = surrounding.NewUniform(math.Vector3{0.0, 0.0, 0.0})
+		loader.scene.Surrounding = surrounding.NewUniform(math.MakeVector3(0.0, 0.0, 0.0))
 	}
 
 	loader.scene.Compile()
@@ -82,7 +82,7 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 	switch typename {
 	case "Uniform": 
-		color := pkgjson.ReadVector3(surroundingNode, "color", math.Vector3{0.0, 0.0, 0.0})
+		color := pkgjson.ReadVector3(surroundingNode, "color", math.MakeVector3(0.0, 0.0, 0.0))
 		loader.scene.Surrounding = surrounding.NewUniform(color)
 	case "Textured":
 

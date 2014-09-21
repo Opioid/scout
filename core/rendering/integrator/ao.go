@@ -38,7 +38,7 @@ func (a *ao) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, ray *math.O
 
 	result /= float32(a.numSamples)
 
-	return math.Vector3{result, result, result}
+	return math.MakeVector3(result, result, result)
 }
 
 func hemisphereSample(v math.Vector3, r, s float32) math.Vector3 {
@@ -49,7 +49,7 @@ func hemisphereSample(v math.Vector3, r, s float32) math.Vector3 {
 	r2 := math.Sqrt(1.0 - r)
 	sp := math.Sqrt(1.0 - r2 * r2)
 
-	dir := math.Vector3{math.Cos(r1) * sp, math.Sin(r1) * sp, r2}
+	dir := math.MakeVector3(math.Cos(r1) * sp, math.Sin(r1) * sp, r2)
 
 	return basis.TransformVector3(dir)
 }
