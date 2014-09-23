@@ -5,7 +5,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	gomath "math"
-	_ "fmt"
+	 "fmt"
 )
 
 type Builder struct {
@@ -36,7 +36,7 @@ type buildNode struct {
 }
 
 func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
-	if len(primitiveIndices) < maxPrimitives || depth > 5 {
+	if len(primitiveIndices) < maxPrimitives || depth > 6 {
 		n.assign(primitiveIndices)
 	} else {
 		b := subMeshAabb(primitiveIndices, indices, vertices)
@@ -72,6 +72,7 @@ func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometr
 
 func (n *buildNode) assign(primitiveIndices []uint32) {
 	n.indices = primitiveIndices
+	fmt.Println(len(primitiveIndices))
 }
 
 
@@ -85,15 +86,14 @@ func (n *buildNode) plane() math.Plane {
 	return math.Plane{A: axis[n.axis].X, B: axis[n.axis].Y, C: axis[n.axis].Z, D: n.splitPos}
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection, maxT *float32) bool {
-	hit := false
-
-	if ray.MaxT < boundingMinT || ray.MinT > boundingMaxT {
+func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {
+	if intersection.T < boundingMinT || ray.MinT > boundingMaxT {
 		return false
 	}
 
-	if n.children[0] != nil {
+	hit := false
 
+	if n.children[0] != nil {
 		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
 
 		c := 0
@@ -102,15 +102,11 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 			c = 1
 		} 
 
-		if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection, maxT) {
+		if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection) {
 			hit = true
 		} 
 
-		if hit && tplane > intersection.T {
-			return true
-		}
-
-		if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection, maxT) {
+		if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection) {
 			hit = true
 		}
 
