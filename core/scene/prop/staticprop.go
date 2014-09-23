@@ -19,13 +19,15 @@ func NewStaticProp() *StaticProp {
 }
 
 func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersection) bool {
-	if p.Shape.IsComplex() && !p.AABB.Intersect(ray) {
+	var boundingMinT, boundingMaxT float32
+
+	if p.Shape.IsComplex() && !p.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
 		return false
 	}
 
 	var thit, epsilon float32
 	
-	if !p.Shape.Intersect(&p.transformation, ray, &thit, &epsilon, &intersection.Dg) {
+	if !p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &thit, &epsilon, &intersection.Dg) {
 		return false
 	}
 
@@ -36,11 +38,13 @@ func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersectio
 }
 
 func (p *StaticProp) IntersectP(ray *math.OptimizedRay) bool {
-	if p.Shape.IsComplex() && !p.AABB.Intersect(ray) {
+	var boundingMinT, boundingMaxT float32
+
+	if p.Shape.IsComplex() && !p.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
 		return false
 	}
 
-	return p.Shape.IntersectP(&p.transformation, ray) 
+	return p.Shape.IntersectP(&p.transformation, ray, boundingMinT, boundingMaxT) 
 }
 
 func (p *StaticProp) SetTransformation(position, scale math.Vector3, rotation math.Quaternion) {

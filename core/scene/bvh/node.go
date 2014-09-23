@@ -105,7 +105,7 @@ func (n *node) assign(props []*prop.StaticProp) {
 }
 
 func (n *node) intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
-	if !n.aabb.Intersect(ray) {
+	if !n.aabb.IntersectP(ray) {
 		return false
 	}
 
@@ -145,7 +145,7 @@ func (n *node) intersect(ray *math.OptimizedRay, intersection *prop.Intersection
 }
 
 func (n *node) intersectP(ray *math.OptimizedRay) bool {
-	if !n.aabb.Intersect(ray) {
+	if !n.aabb.IntersectP(ray) {
 		return false
 	}
 

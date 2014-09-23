@@ -16,6 +16,17 @@ func MakeVector3All(s float32) Vector3 {
 	return Vector3{s, s, s}
 }
 
+func (a Vector3) At(i int) float32 {
+	switch i {
+	case 0:
+		return a.X
+	case 1:
+		return a.Y
+	default:
+		return a.Z
+	}
+}
+
 func (a Vector3) Add(b Vector3) Vector3 {
 	return Vector3{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }

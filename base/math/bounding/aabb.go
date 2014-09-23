@@ -70,7 +70,7 @@ func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
     other.Bounds[1] = xa.Max(xb).Add(ya.Max(yb)).Add(za.Max(zb)).Add(translation)
 }
 
-func (b *AABB) Intersect(ray *math.OptimizedRay) bool {
+func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
 /* 
     txmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
     txmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
@@ -127,7 +127,46 @@ func (b *AABB) Intersect(ray *math.OptimizedRay) bool {
     }
 
     return tmin < ray.MaxT && tmax > ray.MinT
-    
+}
+
+func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *float32) bool {
+    tmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+
+    tymin := (b.Bounds[    ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymax := (b.Bounds[1 - ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+
+    if tmin > tymax || tymin > tmax {
+        return false
+    }
+
+    if tymin > tmin {
+        tmin = tymin
+    }
+
+    if tymax < tmax {
+        tmax = tymax
+    }
+
+    tzmin := (b.Bounds[    ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmax := (b.Bounds[1 - ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+
+    if tmin > tzmax || tzmin > tmax {
+        return false
+    }
+
+    if tzmin > tmin {
+        tmin = tzmin
+    }
+
+    if tzmax < tmax {
+        tmax = tzmax
+    }
+
+    *boundingMinT = tmin
+    *boundingMaxT = tmax
+
+    return tmin < ray.MaxT && tmax > ray.MinT
 }
 
 func (b *AABB) Merge(other *AABB) AABB {

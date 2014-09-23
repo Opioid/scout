@@ -12,7 +12,7 @@ type Builder struct {
 
 }
 
-func (b *Builder) Build(indices []uint32, vertices []geometry.Vertex, tree *Tree) {
+func (b *Builder) Build(indices []uint32, vertices []geometry.Vertex, maxPrimitives int, tree *Tree) {
 
 	primitiveIndices := make([]uint32, len(indices) / 3)
 
@@ -21,49 +21,53 @@ func (b *Builder) Build(indices []uint32, vertices []geometry.Vertex, tree *Tree
 	}
 
 	root := buildNode{}
-	root.split(primitiveIndices, indices, vertices)
+	root.split(primitiveIndices, indices, vertices, maxPrimitives, 0)
 
 	tree.root = root
 }
 
 type buildNode struct {
 	axis int
-	offset float32
+	splitPos float32
 
 	indices []uint32
 
 	children [2]*buildNode
 }
 
-func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex) {
-	b := subMeshAabb(primitiveIndices, indices, vertices)
+func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
+	if len(primitiveIndices) < maxPrimitives || depth > 5 {
+		n.assign(primitiveIndices)
+	} else {
+		b := subMeshAabb(primitiveIndices, indices, vertices)
 
-	n.axis, n.offset = splittingPlane(&b)
+		n.axis, n.splitPos = splittingPlane(&b)
 
-	p := n.plane()
+		p := n.plane()
 
-	numPids := len(primitiveIndices) / 2
-	pids0 := make([]uint32, 0, numPids)
-	pids1 := make([]uint32, 0, numPids)
+		numPids := len(primitiveIndices) / 2
+		pids0 := make([]uint32, 0, numPids)
+		pids1 := make([]uint32, 0, numPids)
 
-	for _, pi := range primitiveIndices {
-		s := triangleSide(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, p)
-		
-		if s == 0 {
-			pids0 = append(pids0, pi)
-		} else if s == 1 {
-			pids1 = append(pids1, pi)
-		} else {
-			pids0 = append(pids0, pi)
-			pids1 = append(pids1, pi)
+		for _, pi := range primitiveIndices {
+			s := triangleSide(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, p)
+			
+			if s == 0 {
+				pids0 = append(pids0, pi)
+			} else if s == 1 {
+				pids1 = append(pids1, pi)
+			} else {
+				pids0 = append(pids0, pi)
+				pids1 = append(pids1, pi)
+			}
 		}
+
+		n.children[0] = new(buildNode)
+		n.children[1] = new(buildNode)
+
+		n.children[0].split(pids0, indices, vertices, maxPrimitives, depth + 1)
+		n.children[1].split(pids1, indices, vertices, maxPrimitives, depth + 1)
 	}
-
-	n.children[0] = new(buildNode)
-	n.children[1] = new(buildNode)
-
-	n.children[0].assign(pids0)
-	n.children[1].assign(pids1)
 }
 
 func (n *buildNode) assign(primitiveIndices []uint32) {
@@ -78,20 +82,38 @@ var axis = [...]math.Vector3{
 }
 
 func (n *buildNode) plane() math.Plane {
-	return math.Plane{A: axis[n.axis].X, B: axis[n.axis].Y, C: axis[n.axis].Z, D: n.offset}
+	return math.Plane{A: axis[n.axis].X, B: axis[n.axis].Y, C: axis[n.axis].Z, D: n.splitPos}
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection, maxT *float32) bool {
 	hit := false
 
+	if ray.MaxT < boundingMinT || ray.MinT > boundingMaxT {
+		return false
+	}
+
 	if n.children[0] != nil {
-		if n.children[0].intersect(ray, indices, vertices, intersection) {
+
+		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
+
+		c := 0
+
+		if ray.DirIsNeg[n.axis] == 1 {
+			c = 1
+		} 
+
+		if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection, maxT) {
 			hit = true
 		} 
 
-		if n.children[1].intersect(ray, indices, vertices, intersection) {
+		if hit && tplane > intersection.T {
+			return true
+		}
+
+		if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection, maxT) {
 			hit = true
 		}
+
 	} else {
 		for _, pi := range n.indices {
 			ti := Intersection{Index: pi}
@@ -107,13 +129,25 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, indices []uint32, vertices
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay, indices []uint32, vertices []geometry.Vertex) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
+	if ray.MaxT < boundingMinT || ray.MinT > boundingMaxT {
+		return false
+	}
+
 	if n.children[0] != nil {
-		if n.children[0].intersectP(ray, indices, vertices) {
+		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
+
+		c := 0
+
+		if ray.DirIsNeg[n.axis] == 1 {
+			c = 1
+		} 
+
+		if n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices) {
 			return true
 		} 
 
-		return n.children[1].intersectP(ray, indices, vertices)
+		return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
 	}
 
 	for _, pi := range n.indices {

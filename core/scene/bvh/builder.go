@@ -158,7 +158,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 }
 
 func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, intersection *prop.Intersection) bool {
-	if !n.aabb.Intersect(ray) {
+	if !n.aabb.IntersectP(ray) {
 		return false
 	}
 
@@ -192,7 +192,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 }
 
 func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp) bool {
-	if !n.aabb.Intersect(ray) {
+	if !n.aabb.IntersectP(ray) {
 		return false
 	}
 

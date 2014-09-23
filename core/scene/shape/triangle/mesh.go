@@ -27,14 +27,15 @@ func NewMesh(numIndices, numVertices uint32) *Mesh {
 	return m
 }
 
-func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, thit *float32, epsilon *float32, dg *geometry.Differential) bool {
+func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
+						 thit *float32, epsilon *float32, dg *geometry.Differential) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
 
 	intersection := kd.Intersection{T: ray.MaxT}
 
-	hit := m.kd.Intersect(&oray, m.indices, m.vertices, &intersection)
+	hit := m.kd.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
 
 	if hit {
 		*thit = intersection.T
@@ -52,65 +53,14 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	}
 
 	return hit
-/*
-	type intersectionResult struct {
-		t, u, v float32
-		index uint32
-	}
-
-	closestHit := intersectionResult{t: ray.MaxT}
-	hasHit := false
-	for i, len := uint32(0), uint32(len(m.indices)); i < len; i += 3 {
-		hit := intersectionResult{index: i}
-		if intersectTriangle(m.vertices[m.indices[i + 0]].P, m.vertices[m.indices[i + 1]].P, m.vertices[m.indices[i + 2]].P, &oray, &hit.t, &hit.u, &hit.v) {
-			if hit.t <= closestHit.t {
-				closestHit = hit
-				hasHit = true
-			}
-		}
-	}
-
-	if hasHit {
-		*thit = closestHit.t
-		*epsilon = 5e-4 * *thit
-
-		dg.P = ray.Point(*thit)
-
-		interpolateVertices(&m.vertices[m.indices[closestHit.index + 0]],
-			          	 	&m.vertices[m.indices[closestHit.index + 1]],
-			           		&m.vertices[m.indices[closestHit.index + 2]],
-			           		closestHit.u, closestHit.v,
-			           		&dg.N, &dg.UV)
-
-		dg.N = transformation.WorldToObject.TransposedTransformVector(dg.N)
-
-		return true
-	}
-
-	return false
-	*/
 }
 
-func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay) bool {
+func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
 
-	return m.kd.IntersectP(&oray, m.indices, m.vertices)
-
-
-/*	oray := *ray
-	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
-
-	for i, len := uint32(0), uint32(len(m.indices)); i < len; i += 3 {
-		if intersectTriangleP(m.vertices[m.indices[i + 0]].P, m.vertices[m.indices[i + 1]].P, m.vertices[m.indices[i + 2]].P, &oray) {
-			return true
-		}
-	}
-
-	return false
-	*/
+	return m.kd.IntersectP(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices)
 }
 
 func (m *Mesh) AABB() *bounding.AABB {
@@ -153,7 +103,7 @@ func (m *Mesh) Compile() {
 	m.aabb = bounding.MakeAABB(min, max)
 
 	builder := kd.Builder{}
-	builder.Build(m.indices, m.vertices, &m.kd)	
+	builder.Build(m.indices, m.vertices, 32, &m.kd)	
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

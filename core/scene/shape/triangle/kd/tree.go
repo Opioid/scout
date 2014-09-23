@@ -16,12 +16,14 @@ type Intersection struct {
 	Index uint32
 }
 
-func (t *Tree) Intersect(ray *math.OptimizedRay, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {
-	return t.root.intersect(ray, indices, vertices, intersection)
+func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {
+	maxT := float32(1000.0)
+
+	return t.root.intersect(ray, boundingMinT, boundingMaxT, indices, vertices, intersection, &maxT)
 }
 
-func (t *Tree) IntersectP(ray *math.OptimizedRay, indices []uint32, vertices []geometry.Vertex) bool {
-	return t.root.intersectP(ray, indices, vertices)
+func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
+	return t.root.intersectP(ray, boundingMinT, boundingMaxT, indices, vertices)
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {
