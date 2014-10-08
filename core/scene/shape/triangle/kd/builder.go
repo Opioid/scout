@@ -5,7 +5,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	gomath "math"
-	 "fmt"
+	_ "fmt"
 )
 
 type Builder struct {
@@ -36,7 +36,7 @@ type buildNode struct {
 }
 
 func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
-	if len(primitiveIndices) < maxPrimitives || depth > 6 {
+	if len(primitiveIndices) < maxPrimitives || depth > 8 {
 		n.assign(primitiveIndices)
 	} else {
 		b := subMeshAabb(primitiveIndices, indices, vertices)
@@ -72,7 +72,6 @@ func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometr
 
 func (n *buildNode) assign(primitiveIndices []uint32) {
 	n.indices = primitiveIndices
-	fmt.Println(len(primitiveIndices))
 }
 
 
@@ -96,18 +95,24 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 	if n.children[0] != nil {
 		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
 
-		c := 0
+		c := ray.DirIsNeg[n.axis]
 
-		if ray.DirIsNeg[n.axis] == 1 {
-			c = 1
-		} 
+		if tplane > boundingMaxT {
+			if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection) {
+				hit = true
+			} 
+		} else if tplane < boundingMinT {
+			if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection) {
+				hit = true
+			}
+		} else {
+			if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection) {
+				hit = true
+			} 
 
-		if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection) {
-			hit = true
-		} 
-
-		if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection) {
-			hit = true
+			if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection) {
+				hit = true
+			}
 		}
 
 	} else {
@@ -133,17 +138,19 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMax
 	if n.children[0] != nil {
 		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
 
-		c := 0
+		c := ray.DirIsNeg[n.axis]
 
-		if ray.DirIsNeg[n.axis] == 1 {
-			c = 1
-		} 
+		if tplane > boundingMaxT {
+			return n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices)
+		} else if tplane < boundingMinT {
+			return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
+		} else {
+			if n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices) {
+				return true
+			} 
 
-		if n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices) {
-			return true
-		} 
-
-		return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
+			return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
+		}
 	}
 
 	for _, pi := range n.indices {

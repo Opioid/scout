@@ -165,11 +165,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 	hit := false
 
 	if n.children[0] != nil {
-		c := 0
-
-		if ray.DirIsNeg[n.axis] == 1 {
-			c = 1
-		}
+		c := ray.DirIsNeg[n.axis]
 
 		if n.children[c].intersect(ray, props, intersection) {
 			hit = true
@@ -197,11 +193,13 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp)
 	}
 
 	if n.children[0] != nil {
-		if n.children[0].intersectP(ray, props) {
+		c := ray.DirIsNeg[n.axis]
+
+		if n.children[c].intersectP(ray, props) {
 			return true
 		} 
 
-		return n.children[1].intersectP(ray, props)
+		return n.children[1 - c].intersectP(ray, props)
 	}
 
 	for i := n.offset; i < n.propsEnd; i++ {
