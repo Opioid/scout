@@ -6,6 +6,7 @@ import (
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
+	_ "fmt"
 )
 
 type Scene struct {

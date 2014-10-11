@@ -37,7 +37,7 @@ type buildNode struct {
 }
 
 func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
-	if len(primitiveIndices) < maxPrimitives || depth > 8 {
+	if len(primitiveIndices) < maxPrimitives || depth > 10 {
 		n.assign(primitiveIndices, indices, vertices)
 	} else {
 		b := subMeshAabb(primitiveIndices, indices, vertices)
@@ -93,7 +93,7 @@ func (n *buildNode) plane() math.Plane {
 }
 
 func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {
-	if intersection.T < boundingMinT /*|| ray.MinT > boundingMaxT*/ {
+	if intersection.T < boundingMinT || ray.MinT > boundingMaxT {
 		return false
 	}
 
@@ -129,7 +129,6 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 				hit = true
 			}
 		}
-
 	} else {
 /*
 		for _, pi := range n.indices {
@@ -164,7 +163,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 }
 
 func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
-	if ray.MaxT < boundingMinT /*|| ray.MinT > boundingMaxT*/ {
+	if ray.MaxT < boundingMinT || ray.MinT > boundingMaxT {
 		return false
 	}
 

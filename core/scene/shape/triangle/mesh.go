@@ -31,7 +31,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 						 thit *float32, epsilon *float32, dg *geometry.Differential) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
+	oray.SetDirection(transformation.WorldToObject.TransformVector(ray.Direction))
 
 	intersection := kd.Intersection{T: ray.MaxT}
 
@@ -61,7 +61,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.Direction = transformation.WorldToObject.TransformVector(ray.Direction)
+	oray.SetDirection(transformation.WorldToObject.TransformVector(ray.Direction))
 
 	return m.kd.IntersectP(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices)
 }
@@ -106,7 +106,7 @@ func (m *Mesh) Compile() {
 	m.aabb = bounding.MakeAABB(min, max)
 
 	builder := kd.Builder{}
-	builder.Build(m.indices, m.vertices, 32, &m.kd)	
+	builder.Build(m.indices, m.vertices, 24, &m.kd)	
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

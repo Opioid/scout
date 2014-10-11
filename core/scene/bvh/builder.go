@@ -4,6 +4,7 @@ import (
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
+	_ "fmt"
 )
 
 type Builder struct {
@@ -39,6 +40,9 @@ func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree, out
 			*outProps = append(*outProps, p)
 		}
 	}
+
+
+
 }
 
 func (b *Builder) serialize(node *buildNode) {
@@ -142,7 +146,9 @@ func (n *buildNode) assign(props []*prop.StaticProp, outProps *[]*prop.StaticPro
 	n.offset = uint32(len(*outProps))
 
 	for _, p := range props {
-		*outProps = append(*outProps, p)
+		if p.Shape.IsFinite() {
+			*outProps = append(*outProps, p)
+		}
 	}	
 
 	n.propsEnd = uint32(len(*outProps))
