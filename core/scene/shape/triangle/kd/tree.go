@@ -14,6 +14,7 @@ type Tree struct {
 type Intersection struct {
 	T, U, V float32
 	Index uint32
+	Triangle *geometry.Triangle
 }
 
 func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {

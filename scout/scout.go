@@ -20,7 +20,7 @@ func main() {
 
 	take := take.Take{}
 
-	if !take.Load("../data/takes/bvh_test.take") {
+	if !take.Load("../data/takes/triangle_test.take") {
 		fmt.Println("Take could not be loaded")
 		return
 	}
@@ -38,7 +38,7 @@ func main() {
 	sceneLoader := pkgscene.NewLoader(&scene, resourceManager)
 
 	if err := sceneLoader.Load(take.Scene); err != nil {
-		fmt.Printf("Scene could not be loaded: %s\n",err)
+		fmt.Printf("Scene could not be loaded: %s\n", err)
 	}
 
 	loadDuration := time.Since(loadStart)

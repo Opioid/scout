@@ -30,14 +30,15 @@ type buildNode struct {
 	axis int
 	splitPos float32
 
-	indices []uint32
+//	indices []uint32
+	triangles []geometry.Triangle
 
 	children [2]*buildNode
 }
 
 func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
 	if len(primitiveIndices) < maxPrimitives || depth > 8 {
-		n.assign(primitiveIndices)
+		n.assign(primitiveIndices, indices, vertices)
 	} else {
 		b := subMeshAabb(primitiveIndices, indices, vertices)
 
@@ -70,8 +71,14 @@ func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometr
 	}
 }
 
-func (n *buildNode) assign(primitiveIndices []uint32) {
-	n.indices = primitiveIndices
+func (n *buildNode) assign(primitiveIndices []uint32, indices []uint32, vertices []geometry.Vertex) {
+//	n.indices = primitiveIndices
+
+	n.triangles = make([]geometry.Triangle, len(primitiveIndices))
+
+	for i, pi := range primitiveIndices {
+		n.triangles[i] = geometry.MakeTriangle(&vertices[indices[pi + 0]], &vertices[indices[pi + 1]], &vertices[indices[pi + 2]])
+	}
 }
 
 
@@ -86,23 +93,31 @@ func (n *buildNode) plane() math.Plane {
 }
 
 func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *Intersection) bool {
-	if intersection.T < boundingMinT || ray.MinT > boundingMaxT {
+	if intersection.T < boundingMinT /*|| ray.MinT > boundingMaxT*/ {
 		return false
 	}
 
 	hit := false
 
 	if n.children[0] != nil {
-		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
+		oa := ray.Origin.At(n.axis)
 
-		c := ray.DirIsNeg[n.axis]
+		tplane := (n.splitPos + oa) * -ray.ReciprocalDirection.At(n.axis)
 
-		if tplane > boundingMaxT {
-			if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection) {
+	//	c := ray.DirIsNeg[n.axis]
+
+		c := 1
+
+		if oa < -n.splitPos || (oa == -n.splitPos && ray.Direction.At(n.axis) >= 0.0) {
+			c = 0
+		}
+
+		if tplane > boundingMaxT || tplane <= 0.0 {
+			if n.children[c].intersect(ray, boundingMinT, boundingMaxT, indices, vertices, intersection) {
 				hit = true
 			} 
 		} else if tplane < boundingMinT {
-			if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection) {
+			if n.children[1 - c].intersect(ray, boundingMinT, boundingMaxT, indices, vertices, intersection) {
 				hit = true
 			}
 		} else {
@@ -116,6 +131,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 		}
 
 	} else {
+/*
 		for _, pi := range n.indices {
 			ti := Intersection{Index: pi}
 			if intersectTriangle(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, ray, &ti.T, &ti.U, &ti.V) {
@@ -125,25 +141,50 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 				}
 			}
 		}
+*/
+
+		var ti Intersection
+		var index int
+
+		for i, t := range n.triangles {
+			if t.Intersect(ray, &ti.T, &ti.U, &ti.V) {
+				if ti.T <= intersection.T {
+					*intersection = ti
+					index = i
+					hit = true
+				}
+			}
+		}
+
+		intersection.Triangle = &n.triangles[index]
+		
 	}
 
 	return hit
 }
 
 func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
-	if ray.MaxT < boundingMinT || ray.MinT > boundingMaxT {
+	if ray.MaxT < boundingMinT /*|| ray.MinT > boundingMaxT*/ {
 		return false
 	}
 
 	if n.children[0] != nil {
+		oa := ray.Origin.At(n.axis)
+
 		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
 
-		c := ray.DirIsNeg[n.axis]
+	//	c := ray.DirIsNeg[n.axis]
 
-		if tplane > boundingMaxT {
-			return n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices)
+		c := 1
+
+		if oa < -n.splitPos || (oa == -n.splitPos && ray.Direction.At(n.axis) >= 0.0) {
+			c = 0
+		}
+
+		if tplane > boundingMaxT || tplane <= 0.0 {
+			return n.children[c].intersectP(ray, boundingMinT, boundingMaxT, indices, vertices)
 		} else if tplane < boundingMinT {
-			return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
+			return n.children[1 - c].intersectP(ray, boundingMinT, boundingMaxT, indices, vertices)
 		} else {
 			if n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices) {
 				return true
@@ -152,9 +193,16 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMax
 			return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
 		}
 	}
-
+/*
 	for _, pi := range n.indices {
 		if intersectTriangleP(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, ray) {
+			return true
+		}
+	}
+*/
+
+	for _, t := range n.triangles {
+		if t.IntersectP(ray) {
 			return true
 		}
 	}
