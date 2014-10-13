@@ -53,19 +53,19 @@ func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
         Vector3.Max(xa, xb) + Vector3.Max(ya, yb) + Vector3.Max(za, zb) + m.Translation
     );
 */
-    right := m.Row(0).Vector3()
+    right := m.Right()
     xa := right.Scale(b.Bounds[0].X)
     xb := right.Scale(b.Bounds[1].X)
 
-    up := m.Row(1).Vector3()
+    up := m.Up()
     ya := up.Scale(b.Bounds[0].Y)
     yb := up.Scale(b.Bounds[1].Y)
 
-    dir := m.Row(2).Vector3()
+    dir := m.Direction()
     za := dir.Scale(b.Bounds[0].Z)
     zb := dir.Scale(b.Bounds[1].Z)
 
-    translation := m.Row(3).Vector3()
+    translation := m.Translation()
     other.Bounds[0] = xa.Min(xb).Add(ya.Min(yb)).Add(za.Min(zb)).Add(translation)
     other.Bounds[1] = xa.Max(xb).Add(ya.Max(yb)).Add(za.Max(zb)).Add(translation)
 }

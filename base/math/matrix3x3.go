@@ -5,15 +5,19 @@ type Matrix3x3 struct {
 	m[3] m10, 	m[4] m11,	m[5] m12,
 	m[6] m20,	m[7] m21,	m[8] m22 float32 */
 
-	m [9]float32
+//	m [9]float32
+
+	m00, m01, m02,
+	m10, m11, m12,
+	m20, m21, m22 float32
 }
 
 func MakeIdentityMatrix3x3() Matrix3x3 {
-	return Matrix3x3{[9]float32{
+	return Matrix3x3{
 		1.0, 0.0, 0.0,
 		0.0, 1.0, 0.0,
 		0.0, 0.0, 1.0,
-	}}
+	}
 }
 
 func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
@@ -26,11 +30,11 @@ func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 	xx, xy, xz := q.X * xs, q.X * ys, q.X * zs
 	yy, yz, zz := q.Y * ys, q.Y * zs, q.Z * zs
 
-	return &Matrix3x3{[9]float32{
+	return &Matrix3x3{
 		1.0 - (yy + zz), xy - wz,         xz + wy,
 		xy + wz,         1.0 - (xx + zz), yz - wx,
 		xz - wy,         yz + wx,         1.0 - (xx + yy),
-	}}
+	}
 
 /*	T d = dot(q, q);
 
@@ -47,6 +51,34 @@ func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 	*/
 }
 
+func (m *Matrix3x3) Row(i int) Vector3 {
+//	return MakeVector3(m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2])
+	switch i {
+	case 0:
+		return MakeVector3(m.m00, m.m01, m.m02)
+	case 1:
+		return MakeVector3(m.m10, m.m11, m.m12)
+	default:
+		return MakeVector3(m.m20, m.m21, m.m22)
+	}	
+}
+
+func (m *Matrix3x3) Right() Vector3 {
+	return MakeVector3(m.m00, m.m01, m.m02)
+}
+
+func (m *Matrix3x3) Up() Vector3 {
+	return MakeVector3(m.m10, m.m11, m.m12)
+}
+
+func (m *Matrix3x3) Direction() Vector3 {
+	return MakeVector3(m.m20, m.m21, m.m22)
+}
+
+func (m *Matrix3x3) At(i, j int) float32 {
+	return m.Row(i).At(j)
+}
+
 func (m *Matrix3x3) SetFromQuaternion(q Quaternion) {
 	d := q.Dot(q)
 
@@ -57,9 +89,9 @@ func (m *Matrix3x3) SetFromQuaternion(q Quaternion) {
 	xx, xy, xz := q.X * xs, q.X * ys, q.X * zs
 	yy, yz, zz := q.Y * ys, q.Y * zs, q.Z * zs
 
-	m.m[0] = 1.0 - (yy + zz); m.m[1] = xy - wz;         m.m[2] = xz + wy
-	m.m[3] = xy + wz;         m.m[4] = 1.0 - (xx + zz); m.m[5] = yz - wx
-	m.m[6] = xz - wy;         m.m[7] = yz + wx;         m.m[8] = 1.0 - (xx + yy)
+	m.m00 = 1.0 - (yy + zz); m.m01 = xy - wz;         m.m02 = xz + wy
+	m.m10 = xy + wz;         m.m11 = 1.0 - (xx + zz); m.m12 = yz - wx
+	m.m20 = xz - wy;         m.m21 = yz + wx;         m.m22 = 1.0 - (xx + yy)
 }
 
 /*
@@ -94,68 +126,63 @@ func (m *Matrix3x3) SetBasis(v Vector3) {
 	r0 := v.Cross(r1).Normalized()
 	r1 = r0.Cross(v)
 
-	m.m[0] = r0.X; m.m[1] = r0.Y; m.m[2] = r0.Z
-	m.m[3] = r1.X; m.m[4] = r1.Y; m.m[5] = r1.Z
-	m.m[6] =  v.X; m.m[7] =  v.Y; m.m[8] =  v.Z
-}
-
-
-func (m *Matrix3x3) Row(i int) Vector3 {
-	return MakeVector3(m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2])
+	m.m00 = r0.X; m.m01 = r0.Y; m.m02 = r0.Z
+	m.m10 = r1.X; m.m11 = r1.Y; m.m12 = r1.Z
+	m.m20 =  v.X; m.m21 =  v.Y; m.m22 =  v.Z
 }
 
 func (m *Matrix3x3) MuliplyAssign(o *Matrix3x3) {
-	m.m[0] = m.m[0] * o.m[0] + m.m[1] * o.m[3] + m.m[2] * o.m[6]
-	m.m[1] = m.m[0] * o.m[1] + m.m[1] * o.m[4] + m.m[2] * o.m[7]
-	m.m[2] = m.m[0] * o.m[2] + m.m[1] * o.m[5] + m.m[2] * o.m[8]
+	m.m00 = m.m00 * o.m00 + m.m01 * o.m10 + m.m02 * o.m20
+	m.m01 = m.m00 * o.m01 + m.m01 * o.m11 + m.m02 * o.m21
+	m.m02 = m.m00 * o.m02 + m.m01 * o.m12 + m.m02 * o.m22
 
-	m.m[3] = m.m[3] * o.m[0] + m.m[4] * o.m[3] + m.m[5] * o.m[6]
-	m.m[4] = m.m[3] * o.m[1] + m.m[4] * o.m[4] + m.m[5] * o.m[7]
-	m.m[5] = m.m[3] * o.m[2] + m.m[4] * o.m[5] + m.m[5] * o.m[8]
+	m.m10 = m.m10 * o.m00 + m.m11 * o.m10 + m.m12 * o.m20
+	m.m11 = m.m10 * o.m01 + m.m11 * o.m11 + m.m12 * o.m21
+	m.m12 = m.m10 * o.m02 + m.m11 * o.m12 + m.m12 * o.m22
 
-	m.m[6] = m.m[6] * o.m[0] + m.m[7] * o.m[3] + m.m[8] * o.m[6]
-	m.m[7] = m.m[6] * o.m[1] + m.m[7] * o.m[4] + m.m[8] * o.m[7]
-	m.m[8] = m.m[6] * o.m[2] + m.m[7] * o.m[5] + m.m[8] * o.m[8]
+	m.m20 = m.m20 * o.m00 + m.m21 * o.m10 + m.m22 * o.m20
+	m.m21 = m.m20 * o.m01 + m.m21 * o.m11 + m.m22 * o.m21
+	m.m22 = m.m20 * o.m02 + m.m21 * o.m12 + m.m22 * o.m22
 }
 
 func (m *Matrix3x3) Multiply(o *Matrix3x3) Matrix3x3 {
-	return Matrix3x3{[9]float32{
-		m.m[0] * o.m[0] + m.m[1] * o.m[3] + m.m[2] * o.m[6],
-		m.m[0] * o.m[1] + m.m[1] * o.m[4] + m.m[2] * o.m[7],
-		m.m[0] * o.m[2] + m.m[1] * o.m[5] + m.m[2] * o.m[8],
+	return Matrix3x3{
+		m.m00 * o.m00 + m.m01 * o.m10 + m.m02 * o.m20,
+		m.m00 * o.m01 + m.m01 * o.m11 + m.m02 * o.m21,
+		m.m00 * o.m02 + m.m01 * o.m12 + m.m02 * o.m22,
 
-		m.m[3] * o.m[0] + m.m[4] * o.m[3] + m.m[5] * o.m[6],
-		m.m[3] * o.m[1] + m.m[4] * o.m[4] + m.m[5] * o.m[7],
-		m.m[3] * o.m[2] + m.m[4] * o.m[5] + m.m[5] * o.m[8],
+		m.m10 * o.m00 + m.m11 * o.m10 + m.m12 * o.m20,
+		m.m10 * o.m01 + m.m11 * o.m11 + m.m12 * o.m21,
+		m.m10 * o.m02 + m.m11 * o.m12 + m.m12 * o.m22,
 
-		m.m[6] * o.m[0] + m.m[7] * o.m[3] + m.m[8] * o.m[6],
-		m.m[6] * o.m[1] + m.m[7] * o.m[4] + m.m[8] * o.m[7],
-		m.m[6] * o.m[2] + m.m[7] * o.m[5] + m.m[8] * o.m[8],
-	}}
+		m.m20 * o.m00 + m.m21 * o.m10 + m.m22 * o.m20,
+		m.m20 * o.m01 + m.m21 * o.m11 + m.m22 * o.m21,
+		m.m20 * o.m02 + m.m21 * o.m12 + m.m22 * o.m22,
+	}
 }
 
 func (m *Matrix3x3) SetRotationX(a float32) {
 	c, s := Cos(a), Sin(a)
 
-	m.m[0] = 1.0; m.m[1] = 0.0; m.m[2] = 0.0
-	m.m[3] = 0.0; m.m[4] = c;   m.m[5] = -s
-	m.m[6] = 0.0; m.m[7] = s;   m.m[8] =  c
+	m.m00 = 1.0; m.m01 = 0.0; m.m02 = 0.0
+	m.m10 = 0.0; m.m11 = c;   m.m12 = -s
+	m.m20 = 0.0; m.m21 = s;   m.m22 =  c
 }
 
 func (m *Matrix3x3) SetRotationY(a float32) {
 	c, s := Cos(a), Sin(a)
 
-	m.m[0] =  c;   m.m[1] = 0.0; m.m[2] = s;
-	m.m[3] =  0.0; m.m[4] = 1.0; m.m[5] = 0.0;
-	m.m[6] = -s;   m.m[7] = 0.0; m.m[8] = c;
+	m.m00 =  c;   m.m01 = 0.0; m.m02 = s;
+	m.m10 =  0.0; m.m11 = 1.0; m.m12 = 0.0;
+	m.m20 = -s;   m.m21 = 0.0; m.m22 = c;
 }
 
 func (m *Matrix3x3) SetRotationZ(a float32) {
 	c, s := Cos(a), Sin(a)
 
-	m.m[0] = c;   m.m[1] = -s;   m.m[2] = 0.0;
-	m.m[3] = s;   m.m[4] =  c;   m.m[5] = 0.0;
-	m.m[6] = 0.0; m.m[7] =  0.0; m.m[8] = 1.0;
+	m.m00 = c;   m.m01 = -s;   m.m02 = 0.0;
+	m.m10 = s;   m.m11 =  c;   m.m12 = 0.0;
+	m.m20 = 0.0; m.m21 =  0.0; m.m22 = 1.0;
 }
 
 func (m *Matrix3x3) TransformVector3(v Vector3) Vector3 {
@@ -166,8 +193,8 @@ func (m *Matrix3x3) TransformVector3(v Vector3) Vector3 {
 	*/
 
 	return MakeVector3(
-		v.X * m.m[0] + v.Y * m.m[3] + v.Z * m.m[6],
-		v.X * m.m[1] + v.Y * m.m[4] + v.Z * m.m[7],
-		v.X * m.m[2] + v.Y * m.m[5] + v.Z * m.m[8],
+		v.X * m.m00 + v.Y * m.m10 + v.Z * m.m20,
+		v.X * m.m01 + v.Y * m.m11 + v.Z * m.m21,
+		v.X * m.m02 + v.Y * m.m12 + v.Z * m.m22,
 	)
 }

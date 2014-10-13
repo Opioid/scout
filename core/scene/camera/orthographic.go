@@ -41,7 +41,7 @@ func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRa
 	offset = o.Entity.Transformation.Rotation.TransformVector3(offset)
 	ray.Origin = o.Entity.Transformation.Position.Add(offset)
 
-	ray.SetDirection(o.Entity.Transformation.Rotation.Row(2))
+	ray.SetDirection(o.Entity.Transformation.Rotation.Direction())
 
 	ray.MaxT  = 1000.0
 	ray.Depth = 0

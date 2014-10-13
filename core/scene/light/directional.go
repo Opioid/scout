@@ -13,7 +13,7 @@ func NewDirectional() *Directional {
 }
 
 func (l *Directional) Vector(p math.Vector3) math.Vector3 {
-	return l.entity.Transformation.Rotation.Row(2).Scale(-1.0)
+	return l.entity.Transformation.Rotation.Direction().Scale(-1.0)
 }
 
 func (l *Directional) Light(p, color math.Vector3) math.Vector3 {

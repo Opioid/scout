@@ -42,14 +42,14 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 		*epsilon = 5e-4 * *thit
 
 		dg.P = ray.Point(*thit)
-/*
-		interpolateVertices(&m.vertices[m.indices[intersection.Index + 0]],
+
+/*		interpolateVertices(&m.vertices[m.indices[intersection.Index + 0]],
 			          	 	&m.vertices[m.indices[intersection.Index + 1]],
 			           		&m.vertices[m.indices[intersection.Index + 2]],
 			           		intersection.U, intersection.V,
 			           		&dg.N, &dg.UV)
-			  */        		
-
+			          		
+*/
 		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.UV)
 
 		dg.N = transformation.WorldToObject.TransposedTransformVector(dg.N)
