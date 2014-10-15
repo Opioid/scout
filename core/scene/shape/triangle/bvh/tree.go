@@ -1,4 +1,4 @@
-package kd
+package bvh
 
 import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
@@ -12,12 +12,13 @@ type Tree struct {
 	root buildNode
 }
 
+
 func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
-	return t.root.intersect(ray, boundingMinT, boundingMaxT, indices, vertices, intersection)
+	return t.root.intersect(ray, intersection)
 }
 
 func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
-	return t.root.intersectP(ray, boundingMinT, boundingMaxT, indices, vertices)
+	return t.root.intersectP(ray)
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

@@ -1,8 +1,10 @@
 package triangle
 
 import (
-	"github.com/Opioid/scout/core/scene/shape/triangle/kd"
+	"github.com/Opioid/scout/core/scene/shape/triangle/bvh"
+	_ "github.com/Opioid/scout/core/scene/shape/triangle/kd"
 	"github.com/Opioid/scout/core/scene/shape/geometry"
+	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
@@ -17,7 +19,7 @@ type Mesh struct {
 
 	aabb bounding.AABB
 
-	kd kd.Tree
+	tree bvh.Tree
 }
 
 func NewMesh(numIndices, numVertices uint32) *Mesh {
@@ -33,9 +35,9 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector(ray.Direction))
 
-	intersection := kd.Intersection{T: ray.MaxT}
+	intersection := primitive.Intersection{T: ray.MaxT}
 
-	hit := m.kd.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
+	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
 
 	if hit {
 		*thit = intersection.T
@@ -63,7 +65,7 @@ func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *ma
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector(ray.Direction))
 
-	return m.kd.IntersectP(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices)
+	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices)
 }
 
 func (m *Mesh) AABB() *bounding.AABB {
@@ -105,8 +107,8 @@ func (m *Mesh) Compile() {
 
 	m.aabb = bounding.MakeAABB(min, max)
 
-	builder := kd.Builder{}
-	builder.Build(m.indices, m.vertices, 24, &m.kd)	
+	builder := bvh.Builder{}
+	builder.Build(m.indices, m.vertices, 8, &m.tree)	
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

@@ -1,14 +1,15 @@
-package geometry
+package primitive
 
 import (
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 )
 
 type Triangle struct {
-	a, b, c Vertex
+	a, b, c geometry.Vertex
 }
 
-func MakeTriangle(a, b, c *Vertex) Triangle {
+func MakeTriangle(a, b, c *geometry.Vertex) Triangle {
 	return Triangle{*a, *b, *c}
 
 }

@@ -1,4 +1,4 @@
-package kd
+package bvh
 
 import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
@@ -27,8 +27,9 @@ func (b *Builder) Build(indices []uint32, vertices []geometry.Vertex, maxPrimiti
 }
 
 type buildNode struct {
+	aabb bounding.AABB
+
 	axis int
-	splitPos float32
 
 //	indices []uint32
 	triangles []primitive.Triangle
@@ -37,28 +38,25 @@ type buildNode struct {
 }
 
 func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
-	if len(primitiveIndices) < maxPrimitives || depth > 10 {
+	n.aabb = subMeshAabb(primitiveIndices, indices, vertices)
+
+	if len(primitiveIndices) < maxPrimitives || depth > 16 {
 		n.assign(primitiveIndices, indices, vertices)
 	} else {
-		b := subMeshAabb(primitiveIndices, indices, vertices)
+		sp, axis := chooseSplittingPlane(&n.aabb)
 
-		n.axis, n.splitPos = splittingPlane(&b)
-
-		p := n.plane()
+		n.axis = axis
 
 		numPids := len(primitiveIndices) / 2
 		pids0 := make([]uint32, 0, numPids)
 		pids1 := make([]uint32, 0, numPids)
 
 		for _, pi := range primitiveIndices {
-			s := triangleSide(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, p)
+			s := triangleSide(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, sp)
 			
 			if s == 0 {
 				pids0 = append(pids0, pi)
-			} else if s == 1 {
-				pids1 = append(pids1, pi)
 			} else {
-				pids0 = append(pids0, pi)
 				pids1 = append(pids1, pi)
 			}
 		}
@@ -88,60 +86,24 @@ var axis = [...]math.Vector3{
 	math.MakeVector3(0.0, 0.0, 1.0), 
 }
 
-func (n *buildNode) plane() math.Plane {
-	return math.Plane{A: axis[n.axis].X, B: axis[n.axis].Y, C: axis[n.axis].Z, D: n.splitPos}
-}
-
-func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
-	if intersection.T < boundingMinT || ray.MinT > boundingMaxT {
+func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.Intersection) bool {
+	if !n.aabb.IntersectP(ray) {
 		return false
 	}
 
 	hit := false
 
 	if n.children[0] != nil {
-		oa := ray.Origin.At(n.axis)
+		c := ray.DirIsNeg[n.axis]
 
-		tplane := (n.splitPos + oa) * -ray.ReciprocalDirection.At(n.axis)
+		if n.children[c].intersect(ray, intersection) {
+			hit = true
+		} 
 
-	//	c := ray.DirIsNeg[n.axis]
-
-		c := 1
-
-		if oa < -n.splitPos || (oa == -n.splitPos && ray.Direction.At(n.axis) >= 0.0) {
-			c = 0
-		}
-
-		if tplane > boundingMaxT || tplane <= 0.0 {
-			if n.children[c].intersect(ray, boundingMinT, boundingMaxT, indices, vertices, intersection) {
-				hit = true
-			} 
-		} else if tplane < boundingMinT {
-			if n.children[1 - c].intersect(ray, boundingMinT, boundingMaxT, indices, vertices, intersection) {
-				hit = true
-			}
-		} else {
-			if n.children[c].intersect(ray, boundingMinT, tplane, indices, vertices, intersection) {
-				hit = true
-			} 
-
-			if n.children[1 - c].intersect(ray, tplane, boundingMaxT, indices, vertices, intersection) {
-				hit = true
-			}
+		if n.children[1 - c].intersect(ray, intersection) {
+			hit = true
 		}
 	} else {
-/*
-		for _, pi := range n.indices {
-			ti := Intersection{Index: pi}
-			if intersectTriangle(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, ray, &ti.T, &ti.U, &ti.V) {
-				if ti.T <= intersection.T {
-					*intersection = ti
-					hit = true
-				}
-			}
-		}
-*/
-
 		var ti primitive.Intersection
 		var index int
 
@@ -155,50 +117,29 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 			}
 		}
 
-		intersection.Triangle = &n.triangles[index]
-		
+		if hit {
+			intersection.Triangle = &n.triangles[index]
+			ray.MaxT = intersection.T
+		}
 	}
 
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
-	if ray.MaxT < boundingMinT || ray.MinT > boundingMaxT {
+func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
+	if !n.aabb.IntersectP(ray) {
 		return false
 	}
 
 	if n.children[0] != nil {
-		oa := ray.Origin.At(n.axis)
+		c := ray.DirIsNeg[n.axis]
 
-		tplane := (n.splitPos + ray.Origin.At(n.axis)) * -ray.ReciprocalDirection.At(n.axis)
-
-	//	c := ray.DirIsNeg[n.axis]
-
-		c := 1
-
-		if oa < -n.splitPos || (oa == -n.splitPos && ray.Direction.At(n.axis) >= 0.0) {
-			c = 0
-		}
-
-		if tplane > boundingMaxT || tplane <= 0.0 {
-			return n.children[c].intersectP(ray, boundingMinT, boundingMaxT, indices, vertices)
-		} else if tplane < boundingMinT {
-			return n.children[1 - c].intersectP(ray, boundingMinT, boundingMaxT, indices, vertices)
-		} else {
-			if n.children[c].intersectP(ray, boundingMinT, tplane, indices, vertices) {
-				return true
-			} 
-
-			return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
-		}
-	}
-/*
-	for _, pi := range n.indices {
-		if intersectTriangleP(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, ray) {
+		if n.children[c].intersectP(ray) {
 			return true
-		}
+		} 
+
+		return n.children[1 - c].intersectP(ray)
 	}
-*/
 
 	for _, t := range n.triangles {
 		if t.IntersectP(ray) {
@@ -207,20 +148,9 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMax
 	}
 
 	return false
-
 }
 
 func subMeshAabb(primitiveIndices, indices []uint32, vertices []geometry.Vertex) bounding.AABB {
-/*	b := bounding.MakeEmptyAABB()
-
-	for _, p := range props {
-		b = b.Merge(&p.AABB)
-	}
-
-	return b
-	*/
-
-
 	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
 	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
 	
@@ -277,5 +207,18 @@ func splittingPlane(aabb *bounding.AABB) (int, float32) {
 	} else {
 		p := math.MakePlane(axis[2], position)
 		return 2, p.D
+	}
+}
+
+func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int) {
+	position := aabb.Position()
+	halfsize := aabb.Halfsize()
+
+	if halfsize.X >= halfsize.Y && halfsize.X >= halfsize.Z {
+		return math.MakePlane(math.MakeVector3(1.0, 0.0, 0.0), position), 0
+	} else if halfsize.Y >= halfsize.X && halfsize.Y >= halfsize.Z {
+		return math.MakePlane(math.MakeVector3(0.0, 1.0, 0.0), position), 1
+	} else {
+		return math.MakePlane(math.MakeVector3(0.0, 0.0, 1.0), position), 2
 	}
 }
