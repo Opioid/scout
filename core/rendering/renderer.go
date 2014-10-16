@@ -61,20 +61,22 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	var ray math.OptimizedRay
 	var sample pkgsampler.Sample
 
+	numSamples := sampler.NumSamplesPerPixel()
+
 	for sampler.GenerateNewSample(&sample) {
 		camera.GenerateRay(&sample, &ray)
 
-		color := r.Li(scene, &ray, &rng) 
+		color := r.Li(scene, sample.Id, numSamples, &ray, &rng) 
 
 		film.AddSample(&sample, color)
 	}
 }
 
-func (r *Renderer) Li(scene *pkgscene.Scene, ray *math.OptimizedRay, rng *random.Generator) math.Vector3 {
+func (r *Renderer) Li(scene *pkgscene.Scene, sample, numSamples uint32, ray *math.OptimizedRay, rng *random.Generator) math.Vector3 {
 	var intersection prop.Intersection
 
 	if scene.Intersect(ray, &intersection) {
-		return r.Integrator.Li(scene, r, ray, &intersection, rng) 
+		return r.Integrator.Li(scene, r, sample, numSamples, ray, &intersection, rng) 
 	} else {
 		return scene.Surrounding.Sample(ray)
 	}

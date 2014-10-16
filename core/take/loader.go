@@ -255,13 +255,13 @@ func loadAoIntegrator(i interface{}) rendering.Integrator {
 		return nil
 	}
 
-	numSamples := 1
+	numSamples := uint32(1)
 	radius := float32(1.0)
 
 	for key, value := range integratorNode {
 		switch key {
 		case "num_samples":
-			numSamples = int(value.(float64))
+			numSamples = uint32(value.(float64))
 		case "radius":
 			radius = float32(value.(float64))
 		}

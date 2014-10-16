@@ -10,6 +10,7 @@ type Sampler interface {
 	SubSampler(start, end math.Vector2i) Sampler 
 	GenerateNewSample(sample *Sample) bool
 	Start() math.Vector2i
+	NumSamplesPerPixel() uint32
 }
 
 type sampler struct {

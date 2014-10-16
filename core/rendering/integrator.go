@@ -8,5 +8,5 @@ import (
 )
 
 type Integrator interface {
-	Li(scene *scene.Scene, renderer *Renderer, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3
+	Li(scene *scene.Scene, renderer *Renderer, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3
 }
