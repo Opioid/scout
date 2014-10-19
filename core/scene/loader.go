@@ -148,6 +148,31 @@ func (loader *Loader) loadLight(i interface{}) {
 		return
 	}
 
+
+	color := math.MakeVector3(1.0, 1.0, 1.0)
+	lumen := float32(1.0)
+	var position math.Vector3
+	scale := math.MakeIdentityVector3()
+	rotation := math.MakeIdentityQuaternion()
+	radius := float32(1.0)
+
+	for key, value := range lightNode {
+		switch key {
+		case "color":
+			color = pkgjson.ParseVector3(value)
+		case "lumen":
+			lumen = pkgjson.ParseFloat32(value)
+		case "position":
+			position = pkgjson.ParseVector3(value)
+		case "scale":
+			scale = pkgjson.ParseVector3(value)
+		case "rotation":
+			rotation = pkgjson.ParseRotationQuaternion(value)
+		case "radius":
+			radius = pkgjson.ParseFloat32(value)
+		}
+	}
+
 	typename := typeNode.(string)
 
 	var l light.Light
@@ -157,27 +182,12 @@ func (loader *Loader) loadLight(i interface{}) {
 		l = light.NewDirectional()
 	case "Point":
 		l = light.NewPoint()
+	case "Sphere":
+		l = light.NewSphere(radius)
 	}
 
-	var position math.Vector3
-	scale := math.MakeIdentityVector3()
-	rotation := math.MakeIdentityQuaternion()
-
-	for key, value := range lightNode {
-		switch key {
-		case "color":
-			l.SetColor(pkgjson.ParseVector3(value))
-		case "lumen":
-			l.SetLumen(pkgjson.ParseFloat32(value))
-		case "position":
-			position = pkgjson.ParseVector3(value)
-		case "scale":
-			scale = pkgjson.ParseVector3(value)
-		case "rotation":
-			rotation = pkgjson.ParseRotationQuaternion(value)
-		}
-	}
-
+	l.SetColor(color)
+	l.SetLumen(lumen)
 	l.Entity().Transformation.Set(position, scale, rotation)
 
 	loader.scene.AddLight(l)

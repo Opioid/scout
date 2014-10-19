@@ -3,6 +3,7 @@ package light
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/random"
 )
 
 type Light interface {
@@ -13,6 +14,8 @@ type Light interface {
 
 	SetColor(color math.Vector3)
 	SetLumen(lumen float32)
+
+	Samples(p math.Vector3, rng *random.Generator, samples *[]Sample) 
 }
 
 type light struct {

@@ -38,12 +38,12 @@ func (take *Take) Load(filename string) bool {
 		case "sampler" == key:
 			take.Context.Sampler = loadSampler(value)
 		case "integrator" == key:
-			take.Integrator = loadIntegrator(value)
+			take.IntegratorFactory = loadIntegratorFactory(value)
 		}
 	} 
 
-	if (take.Integrator == nil) {
-		take.Integrator = integrator.NewWhitted(1)
+	if (take.IntegratorFactory == nil) {
+		take.IntegratorFactory = integrator.NewWhittedFactory(1)
 	}
 
 	if take.Context.Camera == nil {
@@ -210,7 +210,7 @@ func loadFilmicTonemapper(f interface{}) tonemapping.Tonemapper {
 	return tonemapping.NewFilmic(w)
 }
 
-func loadIntegrator(i interface{}) rendering.Integrator {
+func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {
@@ -229,7 +229,7 @@ func loadIntegrator(i interface{}) rendering.Integrator {
 	return nil
 }
 
-func loadWhittedIntegrator(i interface{}) rendering.Integrator {
+func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {
@@ -245,10 +245,10 @@ func loadWhittedIntegrator(i interface{}) rendering.Integrator {
 		}
 	}
 
-	return integrator.NewWhitted(bounceDepth)
+	return integrator.NewWhittedFactory(bounceDepth)
 }
 
-func loadAoIntegrator(i interface{}) rendering.Integrator {
+func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 
 	if !ok {
@@ -267,5 +267,5 @@ func loadAoIntegrator(i interface{}) rendering.Integrator {
 		}
 	}
 
-	return integrator.NewAo(numSamples, radius)
+	return integrator.NewAoFactory(numSamples, radius)
 }

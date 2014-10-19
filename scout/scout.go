@@ -20,7 +20,7 @@ func main() {
 
 	take := take.Take{}
 
-	if !take.Load("../data/takes/triangle_test.take") {
+	if !take.Load("../data/takes/light_test.take") {
 		fmt.Println("Take could not be loaded")
 		return
 	}
@@ -46,7 +46,7 @@ func main() {
 	fmt.Printf("(%fs)\n", seconds)
 
 	renderer := rendering.Renderer{}
-	renderer.Integrator = take.Integrator
+	renderer.IntegratorFactory = take.IntegratorFactory
 
 	progressor := progress.NewStdout()
 

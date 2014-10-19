@@ -4,19 +4,23 @@ import (
 	"github.com/Opioid/scout/core/rendering"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
+	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
+	_ "fmt"
 )
 
-type whitted struct {
+type whittedSettings struct {
 	bounceDepth int
 }
 
-func NewWhitted(bounceDepth int) *whitted {
-	return &whitted{bounceDepth}
+type whitted struct {
+	whittedSettings
+
+	lightSamples []light.Sample
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
+func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material
@@ -28,6 +32,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, sample
 
 	v := ray.Direction.Scale(-1.0)
 
+/*
 	for _, l := range scene.Lights {
 		lightVector := l.Vector(intersection.Dg.P)
 
@@ -36,31 +41,70 @@ func (w *whitted) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, sample
 		if !scene.IntersectP(&shadowRay) {
 			color, opacity := material.Evaluate(&intersection.Dg, lightVector, v)
 
-		//	result = result.Add(color.Scale(opacity).Mul(l.Color))
-
 			result.AddAssign(l.Light(intersection.Dg.P, color.Scale(opacity)))
 
-/*
-			if opacity < 1.0 {
-				secondaryRay := *ray
-				secondaryRay.MinT = ray.MaxT + intersection.Epsilon
-				secondaryRay.MaxT = 1000.0
+		//	if opacity < 1.0 {
+		//		secondaryRay := *ray
+		//		secondaryRay.MinT = ray.MaxT + intersection.Epsilon
+		//		secondaryRay.MaxT = 1000.0
 				
-				secondaryColor := r.li(scene, &secondaryRay, depth)
+		//		secondaryColor := r.li(scene, &secondaryRay, depth)
 	
-				result = result.Add(secondaryColor.Scale(1.0 - opacity))
-			}
-			*/
+		//		result = result.Add(secondaryColor.Scale(1.0 - opacity))
+		//	}
 		}
 	}
+	*/
+
+	for _, l := range scene.Lights {
+		w.lightSamples = w.lightSamples[:0]
+
+		l.Samples(intersection.Dg.P, rng, &w.lightSamples)
+
+		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
+
+		for _, s := range w.lightSamples {
+			shadowRay.SetDirection(s.L)
+
+
+			if !scene.IntersectP(&shadowRay) {
+				color, opacity := material.Evaluate(&intersection.Dg, s.L, v)
+				result.AddAssign(s.Energy.Mul(color.Scale(opacity)).Scale(numSamplesReciprocal))
+			}
+
+		}
+	}
+
 
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
 		reflection := intersection.Dg.N.Reflect(ray.Direction)
 
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		result = result.Add(renderer.Li(scene, sample, numSamples, &secondaryRay, rng))
+		result = result.Add(task.Li(scene, sample, numSamples, &secondaryRay, rng))
 	}
 
 	return result
+}
+
+type whittedFactory struct {
+	whittedSettings
+}
+
+func NewWhittedFactory(bounceDepth int) *whittedFactory {
+	f := whittedFactory{}
+
+	f.bounceDepth = bounceDepth
+
+	return &f
+}
+
+func (f *whittedFactory) New() rendering.Integrator {
+	w := whitted{}
+
+	w.bounceDepth = f.bounceDepth
+
+	w.lightSamples = make([]light.Sample, 0, 16)
+
+	return &w
 }

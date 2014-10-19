@@ -54,6 +54,13 @@ func (a Vector3) Scale(s float32) Vector3 {
 	return Vector3{a.X * s, a.Y * s, a.Z * s}
 }
 
+func (a *Vector3) ScaleAssign(s float32) Vector3 {
+	a.X *= s
+	a.Y *= s
+	a.Z *= s
+	return *a
+}
+
 func (a Vector3) Mul(b Vector3) Vector3 {
 	return Vector3{a.X * b.X, a.Y * b.Y, a.Z * b.Z}
 }

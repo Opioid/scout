@@ -6,27 +6,20 @@ import (
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
-	gomath "math"
 	_ "fmt"
 )
 
-type ao struct {
+type aoSettings struct {
 	numSamples uint32
 	numSamplesReciprocal float32
 	radius float32
 }
 
-func NewAo(numSamples uint32, radius float32) *ao {
-	a := ao{}
-
-	a.numSamples = numSamples
-	a.numSamplesReciprocal = 1.0 / float32(numSamples)
-	a.radius = radius
-
-	return &a
+type ao struct {
+	aoSettings
 }
 
-func (a *ao) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
+func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
 	occlusionRay.Origin = intersection.Dg.P
 	occlusionRay.MinT = intersection.Epsilon
@@ -41,7 +34,7 @@ func (a *ao) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, sample, num
 //	numTotalSamples := a.numSamples * numSamples
 
 	for i := uint32(0); i < a.numSamples; i++ {
-		s := hemisphereSample_cos(rng.RandomFloat32(), rng.RandomFloat32())
+		s := math.HemisphereSample_cos(rng.RandomFloat32(), rng.RandomFloat32())
 
 	//	h := math.Hammersley(i + offset, numTotalSamples)
 	//	s := hemisphereSample_cos(h.X, h.Y)
@@ -57,10 +50,26 @@ func (a *ao) Li(scene *pkgscene.Scene, renderer *rendering.Renderer, sample, num
 	return math.MakeVector3(result, result, result)
 }
 
-func hemisphereSample_cos(r, s float32) math.Vector3 {
-	r1 := s * 2.0 * gomath.Pi
-	r2 := math.Sqrt(1.0 - r)
-	sp := math.Sqrt(1.0 - r2 * r2)
+type aoFactory struct {
+	aoSettings
+}
 
-	return math.MakeVector3(math.Cos(r1) * sp, math.Sin(r1) * sp, r2)
+func NewAoFactory(numSamples uint32, radius float32) *aoFactory {
+	f := aoFactory{}
+
+	f.numSamples = numSamples
+	f.numSamplesReciprocal = 1.0 / float32(numSamples)
+	f.radius = radius
+
+	return &f
+}
+
+func (f *aoFactory) New() rendering.Integrator {
+	a := ao{}
+
+	a.numSamples = f.numSamples
+	a.numSamplesReciprocal = 1.0 / float32(f.numSamples)
+	a.radius = f.radius
+
+	return &a
 }

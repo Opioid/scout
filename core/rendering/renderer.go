@@ -3,7 +3,6 @@ package rendering
 import (
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
-	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/core/progress"
 	"github.com/Opioid/scout/base/math"
@@ -13,7 +12,7 @@ import (
 )
 
 type Renderer struct {
-	Integrator Integrator
+	IntegratorFactory IntegratorFactory
 
 	samplerDimensions math.Vector2i
 	currentPixel math.Vector2i
@@ -51,6 +50,10 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 }
 
 func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {
+	task := RenderTask{}
+	task.renderer = r
+	task.integrator = r.IntegratorFactory.New()
+
 	rng := random.Generator{}
 
 	start := sampler.Start()
@@ -66,19 +69,9 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	for sampler.GenerateNewSample(&sample) {
 		camera.GenerateRay(&sample, &ray)
 
-		color := r.Li(scene, sample.Id, numSamples, &ray, &rng) 
+		color := task.Li(scene, sample.Id, numSamples, &ray, &rng) 
 
 		film.AddSample(&sample, color)
-	}
-}
-
-func (r *Renderer) Li(scene *pkgscene.Scene, sample, numSamples uint32, ray *math.OptimizedRay, rng *random.Generator) math.Vector3 {
-	var intersection prop.Intersection
-
-	if scene.Intersect(ray, &intersection) {
-		return r.Integrator.Li(scene, r, sample, numSamples, ray, &intersection, rng) 
-	} else {
-		return scene.Surrounding.Sample(ray)
 	}
 }
 
