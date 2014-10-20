@@ -180,10 +180,16 @@ func (loader *Loader) loadLight(i interface{}) {
 	switch typename {
 	case "Directional":
 		l = light.NewDirectional()
+	case "Disk":
+		l = light.NewDisk(radius)
 	case "Point":
 		l = light.NewPoint()
 	case "Sphere":
 		l = light.NewSphere(radius)
+	}
+
+	if l == nil {
+		return
 	}
 
 	l.SetColor(color)

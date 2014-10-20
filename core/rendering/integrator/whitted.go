@@ -2,6 +2,7 @@ package integrator
 
 import (
 	"github.com/Opioid/scout/core/rendering"
+	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
@@ -15,12 +16,15 @@ type whittedSettings struct {
 }
 
 type whitted struct {
+	integrator
 	whittedSettings
+
+	sampler pkgsampler.Stratified
 
 	lightSamples []light.Sample
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
+func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material
@@ -57,9 +61,10 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, 
 	*/
 
 	for _, l := range scene.Lights {
+		w.sampler.Restart()
 		w.lightSamples = w.lightSamples[:0]
 
-		l.Samples(intersection.Dg.P, rng, &w.lightSamples)
+		l.Samples(intersection.Dg.P, &w.sampler, &w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
@@ -81,7 +86,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, 
 
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		result = result.Add(task.Li(scene, sample, numSamples, &secondaryRay, rng))
+		result = result.Add(task.Li(scene, sample, numSamples, &secondaryRay))
 	}
 
 	return result
@@ -99,11 +104,13 @@ func NewWhittedFactory(bounceDepth int) *whittedFactory {
 	return &f
 }
 
-func (f *whittedFactory) New() rendering.Integrator {
+func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w := whitted{}
 
+	w.rng = rng
 	w.bounceDepth = f.bounceDepth
-
+	w.sampler = pkgsampler.MakeStratified(rng)
+	w.sampler.Resize(math.MakeVector2i(4, 4))
 	w.lightSamples = make([]light.Sample, 0, 16)
 
 	return &w

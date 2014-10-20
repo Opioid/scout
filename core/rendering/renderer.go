@@ -52,12 +52,11 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {
 	task := RenderTask{}
 	task.renderer = r
-	task.integrator = r.IntegratorFactory.New()
-
-	rng := random.Generator{}
 
 	start := sampler.Start()
-	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)
+	rng := random.Generator{}
+	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
+	task.integrator = r.IntegratorFactory.New(&rng)
 
 	film := camera.Film()
 
@@ -69,7 +68,7 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	for sampler.GenerateNewSample(&sample) {
 		camera.GenerateRay(&sample, &ray)
 
-		color := task.Li(scene, sample.Id, numSamples, &ray, &rng) 
+		color := task.Li(scene, sample.Id, numSamples, &ray) 
 
 		film.AddSample(&sample, color)
 	}

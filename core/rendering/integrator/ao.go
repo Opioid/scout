@@ -2,6 +2,7 @@ package integrator
 
 import (
 	"github.com/Opioid/scout/core/rendering"
+	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
@@ -16,10 +17,12 @@ type aoSettings struct {
 }
 
 type ao struct {
+	integrator
+	sampler pkgsampler.Stratified
 	aoSettings
 }
 
-func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection, rng *random.Generator) math.Vector3 {
+func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
 	occlusionRay.Origin = intersection.Dg.P
 	occlusionRay.MinT = intersection.Epsilon
@@ -30,11 +33,17 @@ func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSa
 
 	result := float32(0.0)
 
-//	offset          := a.numSamples * sample
+//	offset          := a.numSamples * subsample
 //	numTotalSamples := a.numSamples * numSamples
 
-	for i := uint32(0); i < a.numSamples; i++ {
-		s := math.HemisphereSample_cos(rng.RandomFloat32(), rng.RandomFloat32())
+	a.sampler.Restart()
+
+	sample := pkgsampler.Sample{}
+
+//	for i := uint32(0); i < a.numSamples; i++ {
+	for a.sampler.GenerateNewSample(&sample) {
+	//	s := math.HemisphereSample_cos(a.rng.RandomFloat32(), a.rng.RandomFloat32())
+		s := math.HemisphereSample_cos(sample.Coordinates.X, sample.Coordinates.Y)
 
 	//	h := math.Hammersley(i + offset, numTotalSamples)
 	//	s := hemisphereSample_cos(h.X, h.Y)
@@ -64,11 +73,14 @@ func NewAoFactory(numSamples uint32, radius float32) *aoFactory {
 	return &f
 }
 
-func (f *aoFactory) New() rendering.Integrator {
+func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 	a := ao{}
 
-	a.numSamples = f.numSamples
-	a.numSamplesReciprocal = 1.0 / float32(f.numSamples)
+	a.rng = rng
+	a.sampler = pkgsampler.MakeStratified(rng)
+	a.sampler.Resize(math.MakeVector2i(4, 4))
+	a.numSamples = 16//f.numSamples
+	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
 	a.radius = f.radius
 
 	return &a

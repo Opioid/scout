@@ -2,20 +2,17 @@ package light
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
-	"github.com/Opioid/scout/base/math/random"
 )
 
 type Light interface {
 	Entity() *entity.Entity
-	
-	Vector(p math.Vector3) math.Vector3
-	Light(p, color math.Vector3) math.Vector3
 
 	SetColor(color math.Vector3)
 	SetLumen(lumen float32)
 
-	Samples(p math.Vector3, rng *random.Generator, samples *[]Sample) 
+	Samples(p math.Vector3, sampler *sampler.Stratified, samples *[]Sample) 
 }
 
 type light struct {
