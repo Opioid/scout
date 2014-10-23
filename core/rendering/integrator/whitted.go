@@ -24,7 +24,7 @@ type whitted struct {
 	lightSamples []light.Sample
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material
@@ -60,11 +60,12 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, 
 	}
 	*/
 
+	w.sampler.Restart(numSamples)
+
 	for _, l := range scene.Lights {
-		w.sampler.Restart()
 		w.lightSamples = w.lightSamples[:0]
 
-		l.Samples(intersection.Dg.P, &w.sampler, &w.lightSamples)
+		l.Samples(intersection.Dg.P, subsample, &w.sampler, &w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
@@ -86,7 +87,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, sample, 
 
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		result = result.Add(task.Li(scene, sample, numSamples, &secondaryRay))
+		result = result.Add(task.Li(scene, subsample, numSamples, &secondaryRay))
 	}
 
 	return result

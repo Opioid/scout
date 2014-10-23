@@ -13,7 +13,7 @@ func NewDirectional() *Directional {
 	return &Directional{}
 }
 
-func (l *Directional) Samples(p math.Vector3, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Directional) Samples(p math.Vector3, subsample uint32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
 	s := Sample{}
 
 	s.L = l.entity.Transformation.Rotation.Direction().Scale(-1.0)

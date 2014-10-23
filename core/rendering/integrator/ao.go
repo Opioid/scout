@@ -18,7 +18,7 @@ type aoSettings struct {
 
 type ao struct {
 	integrator
-	sampler pkgsampler.Stratified
+	sampler pkgsampler.ScrambledHammersley
 	aoSettings
 }
 
@@ -33,20 +33,12 @@ func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample, nu
 
 	result := float32(0.0)
 
-//	offset          := a.numSamples * subsample
-//	numTotalSamples := a.numSamples * numSamples
+	a.sampler.Restart(numSamples)
 
-	a.sampler.Restart()
+	samples := a.sampler.GenerateSamples(subsample) 
 
-	sample := pkgsampler.Sample{}
-
-//	for i := uint32(0); i < a.numSamples; i++ {
-	for a.sampler.GenerateNewSample(&sample) {
-	//	s := math.HemisphereSample_cos(a.rng.RandomFloat32(), a.rng.RandomFloat32())
-		s := math.HemisphereSample_cos(sample.Coordinates.X, sample.Coordinates.Y)
-
-	//	h := math.Hammersley(i + offset, numTotalSamples)
-	//	s := hemisphereSample_cos(h.X, h.Y)
+	for _, sample := range samples {
+		s := math.HemisphereSample_cos(sample.X, sample.Y)
 
 		v := basis.TransformVector3(s)
 		occlusionRay.SetDirection(v)
@@ -77,9 +69,9 @@ func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 	a := ao{}
 
 	a.rng = rng
-	a.sampler = pkgsampler.MakeStratified(rng)
-	a.sampler.Resize(math.MakeVector2i(4, 4))
-	a.numSamples = 16//f.numSamples
+	a.sampler = pkgsampler.MakeScrambledHammersley(rng)
+	a.sampler.Resize(f.numSamples)
+	a.numSamples = f.numSamples
 	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
 	a.radius = f.radius
 
