@@ -19,7 +19,7 @@ type whitted struct {
 	integrator
 	whittedSettings
 
-	sampler pkgsampler.Stratified
+	sampler pkgsampler.ScrambledHammersley
 
 	lightSamples []light.Sample
 }
@@ -109,8 +109,10 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 
 	w.rng = rng
 	w.bounceDepth = f.bounceDepth
-	w.sampler = pkgsampler.MakeStratified(rng)
-	w.sampler.Resize(math.MakeVector2i(4, 4))
+//	w.sampler = pkgsampler.MakeStratified(rng)
+//	w.sampler.Resize(math.MakeVector2i(4, 4))
+	w.sampler = pkgsampler.MakeScrambledHammersley(rng)
+	w.sampler.Resize(16)
 	w.lightSamples = make([]light.Sample, 0, 16)
 
 	return &w

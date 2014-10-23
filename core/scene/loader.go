@@ -182,6 +182,8 @@ func (loader *Loader) loadLight(i interface{}) {
 		l = light.NewDirectional()
 	case "Disk":
 		l = light.NewDisk(radius)
+	case "Sun":
+		l = light.NewDisk(/*0.5 * 0.00935*/0.01)
 	case "Point":
 		l = light.NewPoint()
 	case "Sphere":

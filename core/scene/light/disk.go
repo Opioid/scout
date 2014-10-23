@@ -18,7 +18,7 @@ func NewDisk(radius float32) *Disk {
 	return &d
 }
 
-func (l *Disk) Samples(p math.Vector3, sampler *pkgsampler.Stratified, samples *[]Sample) {
+func (l *Disk) Samples(p math.Vector3, sampler *pkgsampler.ScrambledHammersley, samples *[]Sample) {
 /*	s := Sample{}
 
 	s.L = l.entity.Transformation.Rotation.Direction().Scale(-1.0)

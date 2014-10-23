@@ -16,7 +16,7 @@ func NewSphere(radius float32) *Sphere {
 	return &l
 }
 
-func (l *Sphere) Samples(p math.Vector3, sampler *pkgsampler.Stratified, samples *[]Sample) {
+func (l *Sphere) Samples(p math.Vector3, sampler *pkgsampler.ScrambledHammersley, samples *[]Sample) {
 	result := Sample{}
 
 	sample := pkgsampler.Sample{}

@@ -13,7 +13,7 @@ func NewPoint() *Point {
 	return &Point{}
 }
 
-func (l *Point) Samples(p math.Vector3, sampler *sampler.Stratified, samples *[]Sample) {
+func (l *Point) Samples(p math.Vector3, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
 	result := Sample{}
 
 	v := l.entity.Transformation.Position.Sub(p)

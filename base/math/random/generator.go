@@ -40,6 +40,11 @@ func (g *Generator) RandomFloat32() float32 {
 	return 2.3283064365387e-10 * float32(bits)
 }
 
+func (g *Generator) RandomUint32() uint32 {
+	return g.advance_lfsr113()
+}
+
+
 /*
 	//this is a simple lfsr113 RNG
 	class RandomGenerator 

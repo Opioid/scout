@@ -12,7 +12,7 @@ type Light interface {
 	SetColor(color math.Vector3)
 	SetLumen(lumen float32)
 
-	Samples(p math.Vector3, sampler *sampler.Stratified, samples *[]Sample) 
+	Samples(p math.Vector3, sampler *sampler.ScrambledHammersley, samples *[]Sample) 
 }
 
 type light struct {
