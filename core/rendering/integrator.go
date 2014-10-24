@@ -8,7 +8,9 @@ import (
 )
 
 type Integrator interface {
-	Li(scene *scene.Scene, task *RenderTask, sample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3
+	FirstSample(numSamples uint32)
+
+	Li(scene *scene.Scene, task *RenderTask, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3
 }
 
 type IntegratorFactory interface {

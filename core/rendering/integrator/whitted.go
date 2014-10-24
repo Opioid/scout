@@ -12,7 +12,9 @@ import (
 )
 
 type whittedSettings struct {
-	bounceDepth int
+	bounceDepth uint32
+
+	maxLightSamples uint32
 }
 
 type whitted struct {
@@ -24,7 +26,11 @@ type whitted struct {
 	lightSamples []light.Sample
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (w *whitted) FirstSample(numSamples uint32) {
+	w.sampler.Restart(numSamples)
+}
+
+func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material
@@ -60,8 +66,6 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 	}
 	*/
 
-	w.sampler.Restart(numSamples)
-
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
 
@@ -71,7 +75,6 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 		for _, s := range w.lightSamples {
 			shadowRay.SetDirection(s.L)
-
 
 			if !scene.IntersectP(&shadowRay) {
 				color, opacity := material.Evaluate(&intersection.Dg, s.L, v)
@@ -87,7 +90,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		result = result.Add(task.Li(scene, subsample, numSamples, &secondaryRay))
+		result = result.Add(task.Li(scene, subsample, &secondaryRay))
 	}
 
 	return result
@@ -95,12 +98,14 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 type whittedFactory struct {
 	whittedSettings
+
 }
 
-func NewWhittedFactory(bounceDepth int) *whittedFactory {
+func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
 	f := whittedFactory{}
 
 	f.bounceDepth = bounceDepth
+	f.maxLightSamples = maxLightSamples
 
 	return &f
 }
@@ -110,11 +115,12 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 
 	w.rng = rng
 	w.bounceDepth = f.bounceDepth
+	w.maxLightSamples = f.maxLightSamples
 //	w.sampler = pkgsampler.MakeStratified(rng)
 //	w.sampler.Resize(math.MakeVector2i(4, 4))
 	w.sampler = pkgsampler.MakeScrambledHammersley(rng)
-	w.sampler.Resize(16)
-	w.lightSamples = make([]light.Sample, 0, 16)
+	w.sampler.Resize(w.maxLightSamples)
+	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
 
 	return &w
 }

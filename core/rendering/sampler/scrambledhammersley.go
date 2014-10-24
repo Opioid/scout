@@ -57,6 +57,10 @@ func (s *ScrambledHammersley) GenerateNewSample(subsample uint32, sample *Sample
 func (s *ScrambledHammersley) GenerateSamples(subsample uint32) []math.Vector2 {
 	for i := uint32(0); i < s.numSamples; i++ {
 		s.samples[i] = math.ScrambledHammersley(i + subsample * s.numSamples, s.numTotalSamples, s.randomBits)
+
+		// Random Digit Scramble attempt
+	//	s.samples[i].X = math.ScrambledRadicalInverse_vdC(i + subsample * s.numSamples, s.randomBits)
+	//	s.samples[i].Y = math.RadicalInverse_S(i + subsample * s.numSamples, s.randomBits)
 	}
 
 	return s.samples

@@ -22,7 +22,11 @@ type ao struct {
 	aoSettings
 }
 
-func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample, numSamples uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (a *ao) FirstSample(numSamples uint32) {
+	a.sampler.Restart(numSamples)
+}
+
+func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
 	occlusionRay.Origin = intersection.Dg.P
 	occlusionRay.MinT = intersection.Epsilon
@@ -32,8 +36,6 @@ func (a *ao) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample, nu
 	basis.SetBasis(intersection.Dg.N)
 
 	result := float32(0.0)
-
-	a.sampler.Restart(numSamples)
 
 	samples := a.sampler.GenerateSamples(subsample) 
 
@@ -70,8 +72,8 @@ func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 
 	a.rng = rng
 	a.sampler = pkgsampler.MakeScrambledHammersley(rng)
-	a.sampler.Resize(f.numSamples)
-	a.numSamples = f.numSamples
+	a.sampler.Resize(a.numSamples)
+	a.numSamples = a.numSamples
 	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
 	a.radius = f.radius
 

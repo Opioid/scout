@@ -4,10 +4,10 @@ type OptimizedRay struct {
 	Ray
 	ReciprocalDirection Vector3
 	DirIsNeg [3]int
-	Depth int
+	Depth uint32
 }
 
-func MakeOptimizedRay(origin, direction Vector3, mint, maxt float32, depth int) OptimizedRay {
+func MakeOptimizedRay(origin, direction Vector3, mint, maxt float32, depth uint32) OptimizedRay {
 	r := OptimizedRay{}
 	r.Origin = origin
 	r.SetDirection(direction)

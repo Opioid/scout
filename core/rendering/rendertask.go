@@ -11,11 +11,15 @@ type RenderTask struct {
 	integrator Integrator
 } 
 
-func (r *RenderTask) Li(scene *pkgscene.Scene, subsample, numSamples uint32, ray *math.OptimizedRay) math.Vector3 {
+func (r *RenderTask) FirstSample(numSamples uint32) {
+	r.integrator.FirstSample(numSamples)
+}
+
+func (r *RenderTask) Li(scene *pkgscene.Scene, subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 	var intersection prop.Intersection
 
 	if scene.Intersect(ray, &intersection) {
-		return r.integrator.Li(scene, r, subsample, numSamples, ray, &intersection) 
+		return r.integrator.Li(scene, r, subsample, ray, &intersection) 
 	} else {
 		return scene.Surrounding.Sample(ray)
 	}

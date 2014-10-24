@@ -68,7 +68,11 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	for sampler.GenerateNewSample(&sample) {
 		camera.GenerateRay(&sample, &ray)
 
-		color := task.Li(scene, sample.Id, numSamples, &ray) 
+		if 0 == sample.Id {
+			task.FirstSample(numSamples)
+		}
+
+		color := task.Li(scene, sample.Id, &ray) 
 
 		film.AddSample(&sample, color)
 	}
