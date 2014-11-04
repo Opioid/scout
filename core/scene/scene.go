@@ -15,7 +15,12 @@ type Scene struct {
 	bvh bvh.Tree
 
 	StaticProps []*prop.StaticProp
+	
 	Lights []light.Light
+
+	Ambient light.Light
+	AmbientCube *light.AmbientCube
+
 	Complexes []Complex
 
 	ComplexProvider ComplexProvider
@@ -31,6 +36,9 @@ func (scene *Scene) Compile() {
 	builder.Build(scene.StaticProps, 4, &scene.bvh, &outProps)
 
 	scene.StaticProps = outProps
+
+
+	scene.AmbientCube = light.NewAmbientCubeFromSurrounding(scene.Surrounding)
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {

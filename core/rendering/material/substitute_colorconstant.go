@@ -35,6 +35,10 @@ func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, l, v math
 	return m.color.Add(specular).Scale(n_dot_l), 1.0
 }
 
+func (m *Substitute_ColorConstant) EvaluateAmbient(dg *geometry.Differential) (math.Vector3, float32) {
+	return m.color, 1.0
+}
+
 func (m *Substitute_ColorConstant) IsMirror() bool {
 	return m.a2 == 0.0
 }

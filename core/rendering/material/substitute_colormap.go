@@ -42,6 +42,13 @@ func (m *Substitute_ColorMap) Evaluate(dg *geometry.Differential, l, v math.Vect
 	return color.Vector3().Add(specular).Scale(n_dot_l), color.W
 }
 
+func (m *Substitute_ColorMap) EvaluateAmbient(dg *geometry.Differential) (math.Vector3, float32) {
+	color := m.colorMap.Sample(dg.UV)
+
+	return color.Vector3(), color.W
+}
+
+
 func (m *Substitute_ColorMap) IsMirror() bool {
 	return m.a2 == 0.0
 }

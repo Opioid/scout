@@ -43,6 +43,8 @@ func (loader *Loader) Load(filename string) error {
 		return err
 	}
 
+	loader.scene.Ambient = light.NewAmbient()
+
 	root := document.(map[string]interface{})
 
 	for key, value := range root {
@@ -84,6 +86,8 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 	case "Uniform": 
 		color := pkgjson.ReadVector3(surroundingNode, "color", math.MakeVector3(0.0, 0.0, 0.0))
 		loader.scene.Surrounding = surrounding.NewUniform(color)
+
+		loader.scene.Ambient.SetColor(color)
 	case "Textured":
 
 		t, ok := surroundingNode["texture"]
@@ -100,7 +104,6 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 			sampler := texture.NewSamplerSpherical_nearest(sphericalTexture)
 			loader.scene.Surrounding = surrounding.NewSphere(sampler)
 		}
-
 	}
 }
 

@@ -72,8 +72,8 @@ func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 
 	a.rng = rng
 	a.sampler = pkgsampler.MakeScrambledHammersley(rng)
-	a.sampler.Resize(a.numSamples)
-	a.numSamples = a.numSamples
+	a.sampler.Resize(f.numSamples)
+	a.numSamples = f.numSamples	
 	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
 	a.radius = f.radius
 
