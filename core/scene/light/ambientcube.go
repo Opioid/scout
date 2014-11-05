@@ -49,8 +49,6 @@ func (a *AmbientCube) Evaluate(n math.Vector3) math.Vector3 {
 
 
 func NewAmbientCubeFromSurrounding(surrounding pkgsurrounding.Surrounding) *AmbientCube {
-	ac := new(AmbientCube)
-
 	ray := math.OptimizedRay{}
 	ray.MaxT = 1000.0
 
@@ -79,6 +77,8 @@ func NewAmbientCubeFromSurrounding(surrounding pkgsurrounding.Surrounding) *Ambi
 
 		return result
 	}
+
+	ac := new(AmbientCube)
 
 	ac.Colors[0] = integrateHemisphere(math.MakeVector3( 1.0,  0.0,  0.0))
 	ac.Colors[1] = integrateHemisphere(math.MakeVector3(-1.0,  0.0,  0.0))

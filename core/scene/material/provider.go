@@ -24,7 +24,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 
 	var document interface{}
 	if err = json.Unmarshal(data, &document); err != nil {
-		fmt.Println(err)
+		fmt.Printf("Load material \"%v\": %v\n", filename, err)
 		return nil
 	}
 
@@ -42,12 +42,9 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 		return nil
 	}
 
-//	material := &Material{Color: math.Vector3{0.75, 0.75, 0.75}, Roughness: 0.9 }
-
-//	material := new(material.Substitute_ColorOnly)
-
-	var color math.Vector3
-	var roughness float32
+	color     := math.MakeVector3(0.75, 0.75, 0.75)
+	roughness := float32(1.0)
+	metallic  := float32(0.0)
 	var colorMap texture.Sampler2D
 
 	for key, value := range renderingNode {
@@ -70,13 +67,15 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 			color = pkgjson.ParseVector3(value)
 		case "roughness":
 			roughness = float32(value.(float64))
+		case "metallic":
+			metallic = float32(value.(float64))
 		}
 	}
 
 	if colorMap != nil {
-		return material.NewSubstitute_ColorMap(color, roughness, colorMap)
+		return material.NewSubstitute_ColorMap(color, roughness, metallic, colorMap)
 	} else {
-		return material.NewSubstitute_ColorConstant(color, roughness)
+		return material.NewSubstitute_ColorConstant(color, roughness, metallic)
 	}
 }
 

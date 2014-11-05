@@ -9,13 +9,15 @@ type Substitute_ColorConstant struct {
 	color math.Vector3
 	// roughness float32
 	a2 float32
+	metallic float32
 }
 
-func NewSubstitute_ColorConstant(color math.Vector3, roughness float32) *Substitute_ColorConstant {
+func NewSubstitute_ColorConstant(color math.Vector3, roughness, metallic float32) *Substitute_ColorConstant {
 	m := new(Substitute_ColorConstant)
 	m.color = color
 	a := roughness * roughness
 	m.a2 = a * a
+	m.metallic = metallic
 	return m
 }
 
@@ -28,15 +30,17 @@ func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, l, v math
 	n_dot_h := dg.N.Dot(h)
 	v_dot_h := v.Dot(h)
 
-	f0 := math.MakeVector3(0.03, 0.03, 0.03)
+	f0 := math.MakeVector3(0.03, 0.03, 0.03).Lerp(m.color, m.metallic)
 
 	specular := specular_f(v_dot_h, f0).Scale(specular_d(n_dot_h, m.a2)).Scale(specular_g(n_dot_l, n_dot_v, m.a2))
 
-	return m.color.Add(specular).Scale(n_dot_l), 1.0
+	diffuse := m.color.Scale(1.0 - m.metallic)
+
+	return diffuse.Add(specular).Scale(n_dot_l), 1.0
 }
 
 func (m *Substitute_ColorConstant) EvaluateAmbient(dg *geometry.Differential) (math.Vector3, float32) {
-	return m.color, 1.0
+	return m.color.Scale(1.0 - m.metallic), 1.0
 }
 
 func (m *Substitute_ColorConstant) IsMirror() bool {

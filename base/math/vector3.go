@@ -116,3 +116,8 @@ func (a Vector3) Min(b Vector3) Vector3 {
 func (a Vector3) Max(b Vector3) Vector3 {
 	return Vector3{Max(a.X, b.X), Max(a.Y, b.Y), Max(a.Z, b.Z)}
 }
+
+func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
+	_t := 1.0 - t
+	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
+}
