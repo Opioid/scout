@@ -32,24 +32,16 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 		return nil
 	}
 
-	texture := NewTexture2D(1)
-
 	dimensions := math.MakeVector2i(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y)
-	texture.images[0].resize(dimensions)
-/*
-	max := float32(0xFFFF)
 
-	for y := 0; y < dimensions.Y; y++ {
-		for x := 0; x < dimensions.X; x++ {
-			r, g, b, a := image.At(x, y).RGBA()
+	texture := NewTexture2D(dimensions, 1)
 
-			texture.images[0].set(x, y, math.Vector4{color.SrgbToLinear(float32(r) / max), 
-													 color.SrgbToLinear(float32(g) / max), 
-													 color.SrgbToLinear(float32(b) / max), 
-													 float32(a) / max})
-		}
-	}
-*/
+// ----
+
+	fmt.Println(dimensions)
+	fmt.Println(countMipLevels(dimensions))
+
+// ----
 
 	numTaks := runtime.GOMAXPROCS(0)
 
@@ -64,7 +56,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 		wg.Add(1)
 
 		go func (start, end math.Vector2i) {
-			process(start, end, sourceImage, &texture.images[0])
+			process(start, end, sourceImage, &texture.image.buffers[0])
 			wg.Done()
 		}(start, end)
 
@@ -79,21 +71,17 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 
 	wg.Wait()
 
-
-
-
 	return texture
 }
 
-
-func process(start, end math.Vector2i, source goimage.Image, target *image) {
+func process(start, end math.Vector2i, source goimage.Image, target *Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			r, g, b, a := source.At(x, y).RGBA()
 
-			target.set(x, y, math.MakeVector4(
+			target.Set(x, y, math.MakeVector4(
 				color.SrgbToLinear(float32(r) / max), 
 				color.SrgbToLinear(float32(g) / max), 
 				color.SrgbToLinear(float32(b) / max), 

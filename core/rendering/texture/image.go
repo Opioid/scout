@@ -2,22 +2,36 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
+	gomath "math"
 )
 
 type image struct {
-	dimensions math.Vector2i
-	data []math.Vector4
+	buffers []Buffer
 }
 
-func (i *image) resize(dimensions math.Vector2i) {
-	i.dimensions = dimensions
-	i.data = make([]math.Vector4, dimensions.X * dimensions.Y)
+func (i *image) resize(dimensions math.Vector2i, mipLevels int) {
+	if mipLevels <= 0 {
+		mipLevels = countMipLevels(dimensions)
+	} else {
+		mipLevels = math.Mini(countMipLevels(dimensions), mipLevels)
+	}
+
+	i.buffers = make([]Buffer, mipLevels)
+
+	for l := 0; l < mipLevels; l++ {
+		i.buffers[0].Resize(dimensions)
+
+		dimensions.X = math.Maxi(dimensions.X / 2, 1)
+		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
+	}
 }
 
-func (i *image) at(x, y int) math.Vector4 {
-	return i.data[i.dimensions.X * y + x]
+func (i *image) mipLevels() int {
+	return len(i.buffers)
 }
 
-func (i *image) set(x, y int, color math.Vector4) {
-	i.data[i.dimensions.X * y + x] = color
+func countMipLevels(dimensions math.Vector2i) int {
+	m := math.Maxi(dimensions.X, dimensions.Y)
+
+	return 1 + int(gomath.Log2(float64(m)))
 }

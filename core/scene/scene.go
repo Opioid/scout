@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/core/scene/bvh"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
+	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/base/math"
 	_ "fmt"
 )
@@ -39,6 +40,9 @@ func (scene *Scene) Compile() {
 
 
 	scene.AmbientCube = light.NewAmbientCubeFromSurrounding(scene.Surrounding)
+
+	ibl.BakeSphereMap(scene.Surrounding)
+
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {

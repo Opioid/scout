@@ -20,8 +20,10 @@ func main() {
 
 	take := take.Take{}
 
-	if !take.Load("../data/takes/light_test.take") {
-		fmt.Println("Take could not be loaded")
+	takename := "../data/takes/test.take"
+
+	if !take.Load(takename) {
+		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)
 		return
 	}
 

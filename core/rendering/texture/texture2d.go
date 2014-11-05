@@ -1,15 +1,17 @@
 package texture
 
 import (
-	_ "github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math"
 )
 
 type Texture2D struct {
-	images []image
+	image image
 }
 
-func NewTexture2D(numImages int) *Texture2D {
+func NewTexture2D(dimensions math.Vector2i, mipLevels int) *Texture2D {
 	t := new(Texture2D)
-	t.images = make([]image, numImages)
+
+	t.image.resize(dimensions, mipLevels)
+
 	return t
 }
