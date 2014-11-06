@@ -36,13 +36,6 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 
 	texture := NewTexture2D(dimensions, 1)
 
-// ----
-
-	fmt.Println(dimensions)
-	fmt.Println(countMipLevels(dimensions))
-
-// ----
-
 	numTaks := runtime.GOMAXPROCS(0)
 
 	a := dimensions.Y / numTaks

@@ -15,3 +15,7 @@ func NewTexture2D(dimensions math.Vector2i, mipLevels int) *Texture2D {
 
 	return t
 }
+
+func (t *Texture2D) AllocateMipLevels(mipLevels int) {
+	t.image.allocateMipLevels(mipLevels)
+}

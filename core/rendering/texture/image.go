@@ -19,7 +19,7 @@ func (i *image) resize(dimensions math.Vector2i, mipLevels int) {
 	i.buffers = make([]Buffer, mipLevels)
 
 	for l := 0; l < mipLevels; l++ {
-		i.buffers[0].Resize(dimensions)
+		i.buffers[l].Resize(dimensions)
 
 		dimensions.X = math.Maxi(dimensions.X / 2, 1)
 		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
@@ -28,6 +28,25 @@ func (i *image) resize(dimensions math.Vector2i, mipLevels int) {
 
 func (i *image) mipLevels() int {
 	return len(i.buffers)
+}
+
+func (i *image) allocateMipLevels(mipLevels int) {
+	buffers := make([]Buffer, mipLevels)
+
+	copy(buffers, i.buffers)
+
+	previousMipLevels := i.mipLevels()
+
+	dimensions := i.buffers[previousMipLevels - 1].dimensions
+
+	for l := previousMipLevels; l < mipLevels; l++ {
+		buffers[l].Resize(dimensions)
+
+		dimensions.X = math.Maxi(dimensions.X / 2, 1)
+		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
+	}
+
+	i.buffers = buffers
 }
 
 func countMipLevels(dimensions math.Vector2i) int {
