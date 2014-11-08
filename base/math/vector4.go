@@ -28,6 +28,10 @@ func (a Vector4) Sub(b Vector4) Vector4 {
 	return Vector4{a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W}
 }
 
+func (a Vector4) Scale(s float32) Vector4 {
+	return Vector4{a.X * s, a.Y * s, a.Z * s, a.W * s}
+}
+
 func (a Vector4) Dot(b Vector4) float32 {
 	return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W + b.W
 }

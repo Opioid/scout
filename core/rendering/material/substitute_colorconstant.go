@@ -22,8 +22,8 @@ func NewSubstitute_ColorConstant(color math.Vector3, roughness, metallic float32
 }
 
 func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, l, v math.Vector3) (math.Vector3, float32) {
-	n_dot_l := math.Max(dg.N.Dot(l), 0.00001)
-	n_dot_v := math.Max(dg.N.Dot(v), 0.0)
+	n_dot_l := math.Maxf(dg.N.Dot(l), 0.00001)
+	n_dot_v := math.Maxf(dg.N.Dot(v), 0.0)
 
 	h := v.Add(l).Normalized()
 

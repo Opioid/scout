@@ -49,7 +49,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 		wg.Add(1)
 
 		go func (start, end math.Vector2i) {
-			process(start, end, sourceImage, &texture.image.buffers[0])
+			process(start, end, sourceImage, &texture.Image.Buffers[0])
 			wg.Done()
 		}(start, end)
 

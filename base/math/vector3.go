@@ -102,7 +102,7 @@ func (a Vector3) Normalized() Vector3 {
 }
 
 func (a Vector3) Saturated() Vector3 {
-	return Vector3{Clamp(a.X, 0.0, 1.0), Clamp(a.Y, 0.0, 1.0), Clamp(a.Z, 0.0, 1.0)}
+	return Vector3{Clampf(a.X, 0.0, 1.0), Clampf(a.Y, 0.0, 1.0), Clampf(a.Z, 0.0, 1.0)}
 }
 
 func (a Vector3) Reflect(b Vector3) Vector3 {
@@ -110,11 +110,11 @@ func (a Vector3) Reflect(b Vector3) Vector3 {
 }
 
 func (a Vector3) Min(b Vector3) Vector3 {
-	return Vector3{Min(a.X, b.X), Min(a.Y, b.Y), Min(a.Z, b.Z)}
+	return Vector3{Minf(a.X, b.X), Minf(a.Y, b.Y), Minf(a.Z, b.Z)}
 }
 
 func (a Vector3) Max(b Vector3) Vector3 {
-	return Vector3{Max(a.X, b.X), Max(a.Y, b.Y), Max(a.Z, b.Z)}
+	return Vector3{Maxf(a.X, b.X), Maxf(a.Y, b.Y), Maxf(a.Z, b.Z)}
 }
 
 func (a Vector3) Lerp(b Vector3, t float32) Vector3 {

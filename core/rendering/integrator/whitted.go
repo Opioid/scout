@@ -84,19 +84,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 		}
 	}
 
-	// ambient light
-	// TODO: make more generic
-	/*
-	w.lightSamples = w.lightSamples[:0]
-
-	scene.Ambient.Samples(intersection.Dg.P, subsample, &w.sampler, &w.lightSamples)
-
-	s := w.lightSamples[0]
-	color, opacity := material.EvaluateAmbient(&intersection.Dg)
-	result.AddAssign(s.Energy.Mul(color.Scale(opacity)))
-	*/
-
-	ambientColor := scene.AmbientCube.Evaluate(intersection.Dg.N)
+	ambientColor := scene.Surrounding.SampleDiffuse(intersection.Dg.N)
 	color, opacity := material.EvaluateAmbient(&intersection.Dg)
 	result.AddAssign(ambientColor.Mul(color.Scale(opacity)))
 

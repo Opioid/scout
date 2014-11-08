@@ -6,6 +6,7 @@ import (
 
 type Sink interface {
 	Start(resolution int)
+	End()
 	Tick()
 }
 
@@ -27,6 +28,10 @@ func (s *stdout) Start(resolution int) {
 //	fmt.Println("0%")
 }
 
+func (s *stdout) End() {
+	fmt.Printf("\n")
+}
+
 func (s *stdout) Tick() {
 	if (s.progress >= s.resolution) {
 		return
@@ -39,6 +44,6 @@ func (s *stdout) Tick() {
 	if p >= s.threshold {
 		s.threshold += s.step 
 
-		fmt.Printf("%d%%\n", int(p))
+		fmt.Printf("%d%%... ", int(p))		
 	}
 }

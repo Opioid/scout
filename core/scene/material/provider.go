@@ -59,7 +59,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 			for _, t := range textures {
 				filename = readFilename(t)
 				if colorTexture := tp.Load2D(filename); colorTexture != nil {
-					colorMap = texture.NewSampler2D_nearest(colorTexture, new(texture.AddressMode_repeat))
+					colorMap = texture.NewSampler2D_bilinear(colorTexture, new(texture.AddressMode_repeat))
 				}
 			}
 

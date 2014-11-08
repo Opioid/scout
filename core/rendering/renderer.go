@@ -47,6 +47,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	}
 
 	wg.Wait()
+	progressor.End()
 }
 
 func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {

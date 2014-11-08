@@ -5,7 +5,8 @@ import (
 	"github.com/Opioid/scout/core/scene/bvh"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
-	"github.com/Opioid/scout/core/rendering/ibl"
+	// "github.com/Opioid/scout/core/rendering/ibl"
+	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/base/math"
 	_ "fmt"
 )
@@ -18,9 +19,6 @@ type Scene struct {
 	StaticProps []*prop.StaticProp
 	
 	Lights []light.Light
-
-	Ambient light.Light
-	AmbientCube *light.AmbientCube
 
 	Complexes []Complex
 
@@ -38,11 +36,10 @@ func (scene *Scene) Compile() {
 
 	scene.StaticProps = outProps
 
+	buffer := texture.Buffer{}
 
-	scene.AmbientCube = light.NewAmbientCubeFromSurrounding(scene.Surrounding)
-
-	ibl.BakeSphereMap(scene.Surrounding)
-
+	dimensions := math.MakeVector2i(256, 128)
+	buffer.Resize(dimensions)
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {

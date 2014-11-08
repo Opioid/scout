@@ -15,3 +15,11 @@ func NewUniform(color math.Vector3) *uniform {
 func (u *uniform) Sample(ray *math.OptimizedRay) math.Vector3 {
 	return u.color
 }
+
+func (u *uniform) SampleDiffuse(v math.Vector3) math.Vector3 {
+	return u.color
+}
+
+func (u *uniform) SampleSpecular(v math.Vector3) math.Vector3 {
+	return u.color
+}

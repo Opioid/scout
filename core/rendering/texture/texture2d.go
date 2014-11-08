@@ -5,17 +5,17 @@ import (
 )
 
 type Texture2D struct {
-	image image
+	Image Image
 }
 
 func NewTexture2D(dimensions math.Vector2i, mipLevels int) *Texture2D {
 	t := new(Texture2D)
 
-	t.image.resize(dimensions, mipLevels)
+	t.Image.resize(dimensions, mipLevels)
 
 	return t
 }
 
 func (t *Texture2D) AllocateMipLevels(mipLevels int) {
-	t.image.allocateMipLevels(mipLevels)
+	t.Image.allocateMipLevels(mipLevels)
 }

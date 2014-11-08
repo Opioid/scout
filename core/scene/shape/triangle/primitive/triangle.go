@@ -81,6 +81,6 @@ func (t *Triangle) IntersectP(ray *math.OptimizedRay) bool {
 func (t *Triangle) Interpolate(u, v float32, n *math.Vector3, uv *math.Vector2) {
 	w := 1.0 - u - v
 	
-	*n  = t.a.N.Scale(w).Add(t.b.N.Scale(u)).Add(t.c.N.Scale(v))
+	*n  = t.a.N.Scale(w).Add(t.b.N.Scale(u)).Add(t.c.N.Scale(v)).Normalized()
 	*uv = t.a.UV.Scale(w).Add(t.b.UV.Scale(u)).Add(t.c.UV.Scale(v))
 }

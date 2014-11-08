@@ -38,15 +38,15 @@ func Floor(x float32) float32 {
 	return float32(math.Floor(float64(x)))
 }
 
-func Min(x, y float32) float32 {
+func Minf(x, y float32) float32 {
 	return float32(math.Min(float64(x), float64(y)))
 }
 
-func Max(x, y float32) float32 {
+func Maxf(x, y float32) float32 {
 	return float32(math.Max(float64(x), float64(y)))
 }
 
-func Clamp(x, min, max float32) float32 {
+func Clampf(x, min, max float32) float32 {
 	return float32(math.Min(math.Max(float64(x), float64(min)), float64(max)))
 }
 

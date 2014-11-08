@@ -15,3 +15,7 @@ func Maxi(s, max int) int {
 		return s
 	}
 }
+
+func Clampi(x, min, max int) int {
+	return Mini(Maxi(x, min), max)
+}
