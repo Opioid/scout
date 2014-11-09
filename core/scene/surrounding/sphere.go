@@ -26,7 +26,7 @@ func NewSphere(sphereMap texture.SamplerSphere) *sphere {
 
 	integrateHemisphereSphereMap(s, &diffuse.Image.Buffers[0])
 
-	s.diffuseSampler = texture.NewSamplerSpherical_bilinear(diffuse) 
+	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
 	return s
 }

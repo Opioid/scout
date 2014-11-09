@@ -98,7 +98,7 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 		filename := textureNode["file"].(string)
 
 		if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
-			sampler := texture.NewSamplerSpherical_bilinear(sphericalTexture)
+			sampler := texture.NewSamplerSpherical_linear(sphericalTexture)
 			loader.scene.Surrounding = surrounding.NewSphere(sampler)
 		}
 	}

@@ -5,8 +5,7 @@ import (
 	"github.com/Opioid/scout/core/scene/bvh"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
-	// "github.com/Opioid/scout/core/rendering/ibl"
-	"github.com/Opioid/scout/core/rendering/texture"
+	_ "github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/base/math"
 	_ "fmt"
 )
@@ -36,10 +35,11 @@ func (scene *Scene) Compile() {
 
 	scene.StaticProps = outProps
 
+	/*
 	buffer := texture.Buffer{}
-
-	dimensions := math.MakeVector2i(256, 128)
-	buffer.Resize(dimensions)
+	buffer.Resize(math.MakeVector2i(512, 256))
+	surrounding.BakeSphereMap(scene.Surrounding, &buffer)
+	*/
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {

@@ -12,56 +12,28 @@ import (
 func BakeSphereMap(surrounding Surrounding, buffer *texture.Buffer) {
 	ray := math.OptimizedRay{}
 	ray.MaxT = 1000.0
-/*
-	numSamples := uint32(256)
-	numSamplesReciprocal := 1.0 / float32(numSamples)
 
-	basis := math.Matrix3x3{}
-
-	integrateHemisphere := func (d math.Vector3) math.Vector3 {
-		basis.SetBasis(d)
-
-		result := math.MakeVector3(0.0, 0.0, 0.0)
-
-		for i := uint32(0); i < numSamples; i++ {
-			sample := math.Hammersley(i, numSamples)
-
-			s := math.HemisphereSample_cos(sample.X, sample.Y)
-
-			v := basis.TransformVector3(s)
-			ray.SetDirection(v)
-			
-			c := surrounding.Sample(&ray)
-
-			result.AddAssign(c.Scale(numSamplesReciprocal))
-		}
-
-		return result
-	}
-*/
 	dimensions := buffer.Dimensions()
 
 	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
-	sy := 1.0 / float32(dimensions.X) * 2.0
+	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
 
 	for y := 0; y < dimensions.Y; y++ {
-		ay := float32(y) * sy
+		ay := (float32(y) + 0.5) * sy
 
-		vy := 1.0 - 2.0 * ay
+		vy := math.Cos(ay)
 
 		for x := 0; x < dimensions.X; x++ {
-			ax := float32(x) * sx
+			ax := (float32(x) + 0.5) * sx
 
 			vx := -math.Sin(ax)
 			vz := -math.Cos(ax)
 
-			v := math.MakeVector3(vx, vy, vz).Normalized()
+			v := math.MakeVector3(vx, vy, vz)
 
 			ray.SetDirection(v)
 
 			c := surrounding.Sample(&ray)
-
-		//	c := integrateHemisphere(v)
 
 			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
 		}
@@ -113,15 +85,15 @@ func integrateHemisphereSphereMap(surrounding Surrounding, buffer *texture.Buffe
 	dimensions := buffer.Dimensions()
 
 	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
-	sy := 1.0 / float32(dimensions.X) * 2.0
+	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
 
 	for y := 0; y < dimensions.Y; y++ {
-		ay := float32(y) * sy
+		ay := (float32(y) + 0.5) * sy
 
-		vy := 1.0 - 2.0 * ay
+		vy := math.Cos(ay)
 
 		for x := 0; x < dimensions.X; x++ {
-			ax := float32(x) * sx
+			ax := (float32(x) + 0.5) * sx
 
 			vx := -math.Sin(ax)
 			vz := -math.Cos(ax)

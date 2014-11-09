@@ -16,7 +16,7 @@ func NewSamplerSpherical_nearest(t *Texture2D) *SamplerSpherical_nearest {
 }
 
 func (s *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, 1.0 - (xyz.Y + 1.0) * 0.5)
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
 	d := s.texture.Image.Buffers[0].dimensions
 
@@ -27,7 +27,7 @@ func (s *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {
 }
 
 func (s *SamplerSpherical_nearest) SampleLod(xyz math.Vector3, mipLevel int) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, 1.0 - (xyz.Y + 1.0) * 0.5)
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
 	b := &s.texture.Image.Buffers[mipLevel]
 

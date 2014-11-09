@@ -10,6 +10,10 @@ func Sin(x float32) float32 {
 	return float32(math.Sin(float64(x)))
 }
 
+func Acos(x float32) float32 {
+	return float32(math.Acos(float64(x)))
+}
+
 func Atan2(x, y float32) float32 {
 	return float32(math.Atan2(float64(x), float64(y)))
 }

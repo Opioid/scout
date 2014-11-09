@@ -5,18 +5,18 @@ import (
 	gomath "math"
 )
 
-type SamplerSpherical_bilinear struct {
+type SamplerSpherical_linear struct {
 	texture *Texture2D
 }
 
-func NewSamplerSpherical_bilinear(t *Texture2D) *SamplerSpherical_bilinear {
-	s := new(SamplerSpherical_bilinear)
+func NewSamplerSpherical_linear(t *Texture2D) *SamplerSpherical_linear {
+	s := new(SamplerSpherical_linear)
 	s.texture = t
 	return s
 }
 
-func (sampler *SamplerSpherical_bilinear) Sample(xyz math.Vector3) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, 1.0 - (xyz.Y + 1.0) * 0.5)
+func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
 	d := sampler.texture.Image.Buffers[0].dimensions
 
@@ -64,8 +64,8 @@ func (sampler *SamplerSpherical_bilinear) Sample(xyz math.Vector3) math.Vector4 
 	*/
 }
 
-func (s *SamplerSpherical_bilinear) SampleLod(xyz math.Vector3, mipLevel int) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, 1.0 - (xyz.Y + 1.0) * 0.5)
+func (s *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel int) math.Vector4 {
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
 	b := &s.texture.Image.Buffers[mipLevel]
 

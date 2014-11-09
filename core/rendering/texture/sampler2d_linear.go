@@ -4,19 +4,19 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type Sampler2D_bilinear struct {
+type Sampler2D_linear struct {
 	texture *Texture2D
 	address addressMode
 }
 
-func NewSampler2D_bilinear(t *Texture2D, address addressMode) *Sampler2D_bilinear {
-	s := new(Sampler2D_bilinear)
+func NewSampler2D_linear(t *Texture2D, address addressMode) *Sampler2D_linear {
+	s := new(Sampler2D_linear)
 	s.texture = t
 	s.address = address
 	return s
 }
 
-func (sampler *Sampler2D_bilinear) Sample(uv math.Vector2) math.Vector4 {
+func (sampler *Sampler2D_linear) Sample(uv math.Vector2) math.Vector4 {
 	auv := sampler.address.address2D(uv)
 
 	d := sampler.texture.Image.Buffers[0].dimensions
@@ -47,7 +47,7 @@ func (sampler *Sampler2D_bilinear) Sample(uv math.Vector2) math.Vector4 {
 	return bilinear(c00, c01, c10, c11, s, t)
 }
 
-func (s *Sampler2D_bilinear) SampleLod(uv math.Vector2, mipLevel int) math.Vector4 {
+func (s *Sampler2D_linear) SampleLod(uv math.Vector2, mipLevel int) math.Vector4 {
 	auv := s.address.address2D(uv)
 
 	b := &s.texture.Image.Buffers[mipLevel]
