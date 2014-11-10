@@ -22,12 +22,13 @@ func BakeSphereMap(surrounding Surrounding, buffer *texture.Buffer) {
 		ay := (float32(y) + 0.5) * sy
 
 		vy := math.Cos(ay)
+		say := -math.Sin(ay)
 
 		for x := 0; x < dimensions.X; x++ {
 			ax := (float32(x) + 0.5) * sx
 
-			vx := -math.Sin(ax)
-			vz := -math.Cos(ax)
+			vx := say * math.Sin(ax)
+			vz := say * math.Cos(ax)
 
 			v := math.MakeVector3(vx, vy, vz)
 
@@ -91,14 +92,15 @@ func integrateHemisphereSphereMap(surrounding Surrounding, buffer *texture.Buffe
 		ay := (float32(y) + 0.5) * sy
 
 		vy := math.Cos(ay)
+		say := -math.Sin(ay)
 
 		for x := 0; x < dimensions.X; x++ {
 			ax := (float32(x) + 0.5) * sx
 
-			vx := -math.Sin(ax)
-			vz := -math.Cos(ax)
+			vx := say * math.Sin(ax)
+			vz := say * math.Cos(ax)
 
-			v := math.MakeVector3(vx, vy, vz).Normalized()
+			v := math.MakeVector3(vx, vy, vz)
 
 			c := integrateHemisphere(v)
 

@@ -22,7 +22,7 @@ func NewSphere(sphereMap texture.SamplerSphere) *sphere {
 	s.ambientCube = NewAmbientCubeFromSurrounding(s)
 
 
-	diffuse := texture.NewTexture2D(math.MakeVector2i(16, 8), 1)
+	diffuse := texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
 
 	integrateHemisphereSphereMap(s, &diffuse.Image.Buffers[0])
 
