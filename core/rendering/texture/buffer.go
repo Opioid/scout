@@ -31,6 +31,18 @@ func (b *Buffer) Set(x, y int, color math.Vector4) {
 	b.data[b.dimensions.X * y + x] = color
 }
 
+func (b *Buffer) SetRgb(x, y int, color math.Vector3) {
+	v := &b.data[b.dimensions.X * y + x]
+
+	v.X = color.X
+	v.Y = color.Y
+	v.Z = color.Z
+}
+
+func (b *Buffer) SetChannel(x, y, c int, value float32) {
+	b.data[b.dimensions.X * y + x].Set(c, value)
+}
+
 func (b *Buffer) RGBA() *goimage.RGBA {
 	target := goimage.NewRGBA(goimage.Rect(0, 0, b.dimensions.X, b.dimensions.Y))
 

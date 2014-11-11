@@ -5,7 +5,7 @@ import (
 )
 
 type Surrounding interface {
-	Sample(ray *math.OptimizedRay) math.Vector3
+	Sample(ray *math.OptimizedRay) (math.Vector3, float32)
 
 	SampleDiffuse(v math.Vector3) math.Vector3
 	SampleSpecular(v math.Vector3) math.Vector3

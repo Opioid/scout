@@ -15,6 +15,10 @@ func NewSamplerSpherical_linear(t *Texture2D) *SamplerSpherical_linear {
 	return s
 }
 
+func (sampler *SamplerSpherical_linear) Texture() *Texture2D {
+	return sampler.texture
+}
+
 func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {
 	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 

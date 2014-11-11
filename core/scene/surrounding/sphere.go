@@ -21,18 +21,21 @@ func NewSphere(sphereMap texture.SamplerSphere) *sphere {
 
 	s.ambientCube = NewAmbientCubeFromSurrounding(s)
 
-
 	diffuse := texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
+//	diffuse := texture.NewTexture2D(math.MakeVector2i(256, 128), 1)
 
-	integrateHemisphereSphereMap(s, &diffuse.Image.Buffers[0])
+	calculateSphereMapSolidAngleWeights(&s.sphereMap.Texture().Image.Buffers[0])
+
+	integrateHemisphereSphereMap(s, 512, &diffuse.Image.Buffers[0])
 
 	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
 	return s
 }
 
-func (s *sphere) Sample(ray *math.OptimizedRay) math.Vector3 {
-	return s.sphereMap.Sample(ray.Direction).Vector3()
+func (s *sphere) Sample(ray *math.OptimizedRay) (math.Vector3, float32) {
+	sample := s.sphereMap.Sample(ray.Direction)
+	return sample.Vector3(), sample.W
 }
 
 func (s *sphere) SampleDiffuse(v math.Vector3) math.Vector3 {
@@ -44,7 +47,6 @@ func (s *sphere) SampleDiffuse(v math.Vector3) math.Vector3 {
 func (s *sphere) SampleSpecular(v math.Vector3) math.Vector3 {
 	return s.sphereMap.Sample(v).Vector3()
 }
-
 
 func NewAmbientCubeFromSurrounding(surrounding Surrounding) *light.AmbientCube {
 	ray := math.OptimizedRay{}
@@ -68,7 +70,7 @@ func NewAmbientCubeFromSurrounding(surrounding Surrounding) *light.AmbientCube {
 			v := basis.TransformVector3(s)
 			ray.SetDirection(v)
 			
-			c := surrounding.Sample(&ray)
+			c, _ := surrounding.Sample(&ray)
 
 			result.AddAssign(c.Scale(numSamplesReciprocal))
 		}
