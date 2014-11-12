@@ -182,10 +182,10 @@ func integrateHemisphereSphereMapTask(surrounding Surrounding, numSamples uint32
 			weightSum += w
 
 			result.AddAssign(c.Scale(w))
+		//	result.AddAssign(c.Scale(numSamplesReciprocal))
 		}
 
 		result.ScaleAssign(1.0 / weightSum)
-	//	result.ScaleAssign(numSamplesReciprocal)
 
 		return result
 	}
@@ -211,7 +211,7 @@ func integrateHemisphereSphereMapTask(surrounding Surrounding, numSamples uint32
 
 			c := integrateHemisphere(v)
 
-			buffer.SetRgb(x, y, math.MakeVector3(c.X, c.Y, c.Z))
+			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
 		}
 	}
 }
