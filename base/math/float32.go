@@ -34,7 +34,7 @@ func Exp2(x float32) float32 {
 	return float32(math.Exp2(float64(x)))
 }
 
-func Abs(x float32) float32 {
+func Absf(x float32) float32 {
 	return float32(math.Abs(float64(x)))
 }
 
@@ -60,4 +60,8 @@ func Saturate(x float32) float32 {
 
 func DegreesToRadians(x float32) float32 {
 	return x * math.Pi / 180.0;
+}
+
+func IsNaN(x float32) bool {
+	return math.IsNaN(float64(x))
 }

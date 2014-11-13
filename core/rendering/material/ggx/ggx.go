@@ -43,8 +43,15 @@ func ImportanceSample(xi math.Vector2, roughness float32, n math.Vector3) math.V
 	var up math.Vector3
 
 	if math.Absf(n.Z) < 0.999 {
-		up = math.MakeVector3(0)
+		up = math.MakeVector3(0.0, 0.0, 1.0)
+	} else {
+		up = math.MakeVector3(1.0, 0.0, 0.0)
 	}
 
-	return h
+	tangent_x := up.Cross(n).Normalized()
+
+	tangent_y := n.Cross(tangent_x)
+
+	// Tangent to world space
+	return tangent_x.Scale(h.X).Add(tangent_y.Scale(h.Y)).Add(n.Scale(h.Z))
 }

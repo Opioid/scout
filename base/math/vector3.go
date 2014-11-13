@@ -121,3 +121,7 @@ func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
 	_t := 1.0 - t
 	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
 }
+
+func (a Vector3) ContainsNaN() bool {
+	return IsNaN(a.X) || IsNaN(a.Y) || IsNaN(a.Z)
+}

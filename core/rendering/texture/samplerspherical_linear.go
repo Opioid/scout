@@ -3,6 +3,7 @@ package texture
 import (
 	"github.com/Opioid/scout/base/math"
 	gomath "math"
+	_ "fmt"
 )
 
 type SamplerSpherical_linear struct {

@@ -228,7 +228,7 @@ func integrateConeSphereMapTask(surrounding Surrounding, roughness float32, numS
 
 //	numSamplesReciprocal := 1.0 / float32(numSamples)
 
-	integrateHemisphere := func (n math.Vector3) math.Vector3 {
+	integrateCone := func (n math.Vector3) math.Vector3 {
 		v := n
 
 		result := math.MakeVector3(0.0, 0.0, 0.0)
@@ -242,7 +242,8 @@ func integrateConeSphereMapTask(surrounding Surrounding, roughness float32, numS
 
 			h := ggx.ImportanceSample(xi, roughness, n)
 
-			l := h.Scale(2.0 * v.Dot(h)).Sub(v)
+			// normalizing here prevents some NaN where l.Y is beyond either -1 or 1
+			l := h.Scale(2.0 * v.Dot(h)).Sub(v).Normalized()
 
 			n_dot_l := math.Saturate(n.Dot(l))
 
@@ -289,7 +290,7 @@ func integrateConeSphereMapTask(surrounding Surrounding, roughness float32, numS
 
 			v := math.MakeVector3(vx, vy, vz)
 
-			c := integrateHemisphere(v)
+			c := integrateCone(v)
 
 			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
 		}

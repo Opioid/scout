@@ -30,9 +30,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
-	sphericalTexture := s.sphereMap.Texture()
-
-	sphericalTexture.AllocateMipLevels(4)
+	sphericalTexture.AllocateMipLevels(8)
 
 	mipLevels := sphericalTexture.Image.MipLevels()
 
