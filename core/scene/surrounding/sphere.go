@@ -30,6 +30,18 @@ func NewSphere(sphereMap texture.SamplerSphere) *sphere {
 
 	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
+	sphericalTexture := s.sphereMap.Texture()
+
+	sphericalTexture.AllocateMipLevels(4)
+
+	mipLevels := sphericalTexture.Image.MipLevels()
+
+	roughnessIncrement := 1.0 / float32(mipLevels - 1) 
+
+	for i := 1; i < mipLevels; i++ {
+		integrateConeSphereMap(s, float32(i) * roughnessIncrement, 32, &sphericalTexture.Image.Buffers[i])
+	}
+
 	return s
 }
 

@@ -2,6 +2,7 @@ package surrounding
 
 import (
 	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/material/ggx"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
 	gomath "math"
@@ -9,52 +10,9 @@ import (
 	"image/png"
 	"runtime"
 	"sync"	
+	"strconv"
 	_ "fmt"
 )
-
-func BakeSphereMap(surrounding Surrounding, buffer *texture.Buffer) {
-	ray := math.OptimizedRay{}
-	ray.MaxT = 1000.0
-
-	dimensions := buffer.Dimensions()
-
-	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
-	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
-
-	for y := 0; y < dimensions.Y; y++ {
-		ay := (float32(y) + 0.5) * sy
-
-		vy := math.Cos(ay)
-		say := -math.Sin(ay)
-
-		for x := 0; x < dimensions.X; x++ {
-			ax := (float32(x) + 0.5) * sx
-
-			vx := say * math.Sin(ax)
-			vz := say * math.Cos(ax)
-
-			v := math.MakeVector3(vx, vy, vz)
-
-			ray.SetDirection(v)
-
-			c, _ := surrounding.Sample(&ray)
-
-			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
-		}
-	}
-
-	image := buffer.RGBA()
-
-	fo, err := os.Create("sphere_map.png")
-
-	if err != nil {
-		panic(err)
-	}
-
-	defer fo.Close()
-
-	png.Encode(fo, image)
-}
 
 func calculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
@@ -91,7 +49,7 @@ func calculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 
 		//fmt.Println(math.Sin(ay))
 	}
-
+/*
 	image := buffer.RGBA()
 
 	fo, err := os.Create("solid_angles.png")
@@ -103,12 +61,13 @@ func calculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 	defer fo.Close()
 
 	png.Encode(fo, image)
+	*/
 }
 
 func integrateHemisphereSphereMap(surrounding Surrounding, numSamples uint32, buffer *texture.Buffer) {
-	numTaks := runtime.GOMAXPROCS(0)
-
 	dimensions := buffer.Dimensions()
+
+	numTaks := runtime.GOMAXPROCS(0)
 
 	a := dimensions.Y / numTaks
 
@@ -138,7 +97,7 @@ func integrateHemisphereSphereMap(surrounding Surrounding, numSamples uint32, bu
 
 	image := buffer.RGBA()
 
-	fo, err := os.Create("sphere_map.png")
+	fo, err := os.Create("sphere_map_diffuse.png")
 
 	if err != nil {
 		panic(err)
@@ -160,8 +119,8 @@ func integrateHemisphereSphereMapTask(surrounding Surrounding, numSamples uint32
 
 	basis := math.Matrix3x3{}
 
-	integrateHemisphere := func (d math.Vector3) math.Vector3 {
-		basis.SetBasis(d)
+	integrateHemisphere := func (n math.Vector3) math.Vector3 {
+		basis.SetBasis(n)
 
 		result := math.MakeVector3(0.0, 0.0, 0.0)
 
@@ -183,6 +142,127 @@ func integrateHemisphereSphereMapTask(surrounding Surrounding, numSamples uint32
 
 			result.AddAssign(c.Scale(w))
 		//	result.AddAssign(c.Scale(numSamplesReciprocal))
+		}
+
+		result.ScaleAssign(1.0 / weightSum)
+
+		return result
+	}
+
+	dimensions := buffer.Dimensions()
+
+	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
+	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
+
+	for y := start.Y; y < end.Y; y++ {
+		ay := (float32(y) + 0.5) * sy
+
+		vy := math.Cos(ay)
+		say := -math.Sin(ay)
+
+		for x := start.X; x < end.X; x++ {
+			ax := (float32(x) + 0.5) * sx
+
+			vx := say * math.Sin(ax)
+			vz := say * math.Cos(ax)
+
+			v := math.MakeVector3(vx, vy, vz)
+
+			c := integrateHemisphere(v)
+
+			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
+		}
+	}
+}
+
+func integrateConeSphereMap(surrounding Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
+	dimensions := buffer.Dimensions()
+
+	numTaks := runtime.GOMAXPROCS(0)
+
+	a := dimensions.Y / numTaks
+
+	start := math.MakeVector2i(0, 0)
+	end   := math.MakeVector2i(dimensions.X, a)
+
+	wg := sync.WaitGroup{}
+
+	for i := 0; i < numTaks; i++ {
+		wg.Add(1)
+
+		go func (s, e math.Vector2i) {
+			integrateConeSphereMapTask(surrounding, roughness, numSamples, s, e, buffer)
+			wg.Done()
+		}(start, end)
+
+		start.Y += a
+
+		if i == numTaks - 2 {
+			end.Y = dimensions.Y
+		} else {
+			end.Y += a
+		}
+	}
+
+	wg.Wait()
+
+	image := buffer.RGBA()
+
+	fo, err := os.Create("sphere_map_specular_" + strconv.FormatFloat(float64(roughness), 'f', 2, 32) + ".png")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer fo.Close()
+
+	png.Encode(fo, image)
+}
+
+func integrateConeSphereMapTask(surrounding Surrounding, roughness float32, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
+	rng := random.Generator{}
+	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
+
+	ray := math.OptimizedRay{}
+	ray.MaxT = 1000.0
+
+//	numSamplesReciprocal := 1.0 / float32(numSamples)
+
+	integrateHemisphere := func (n math.Vector3) math.Vector3 {
+		v := n
+
+		result := math.MakeVector3(0.0, 0.0, 0.0)
+
+		weightSum := float32(0.0)
+
+		rn := rng.RandomUint32()
+
+		for i := uint32(0); i < numSamples; i++ {
+			xi := math.ScrambledHammersley(i, numSamples, rn)
+
+			h := ggx.ImportanceSample(xi, roughness, n)
+
+			l := h.Scale(2.0 * v.Dot(h)).Sub(v)
+
+			n_dot_l := math.Saturate(n.Dot(l))
+
+			if n_dot_l > 0.0 {
+				ray.SetDirection(l)
+			
+				c, _ := surrounding.Sample(&ray)
+
+				result.AddAssign(c.Scale(n_dot_l))
+
+				weightSum += n_dot_l
+			}
+
+		//	vec3 L = 2 * dot( V, H ) * H - V;
+		//	float NoL = saturate( dot( N, L ) );
+		//	if (NoL > 0.f)
+		//	{
+		//		PrefilteredColor += texture(g_cubemap, L).rgb * NoL;
+		//		TotalWeight += NoL;
+		//	}
 		}
 
 		result.ScaleAssign(1.0 / weightSum)
