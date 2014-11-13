@@ -14,17 +14,17 @@ type sphere struct {
 	diffuseSampler texture.SamplerSphere
 }
 
-func NewSphere(sphereMap texture.SamplerSphere) *sphere {
+func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 	s := new(sphere)
 
-	s.sphereMap = sphereMap
+	s.sphereMap = texture.NewSamplerSpherical_linear(sphericalTexture)
 
 	s.ambientCube = NewAmbientCubeFromSurrounding(s)
 
 	diffuse := texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
 //	diffuse := texture.NewTexture2D(math.MakeVector2i(256, 128), 1)
 
-	calculateSphereMapSolidAngleWeights(&s.sphereMap.Texture().Image.Buffers[0])
+	calculateSphereMapSolidAngleWeights(&sphericalTexture.Image.Buffers[0])
 
 	integrateHemisphereSphereMap(s, 512, &diffuse.Image.Buffers[0])
 
