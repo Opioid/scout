@@ -54,6 +54,10 @@ func Clampf(x, min, max float32) float32 {
 	return float32(math.Min(math.Max(float64(x), float64(min)), float64(max)))
 }
 
+func Saturate(x float32) float32 {
+	return Clampf(x, 0.0, 1.0)
+}
+
 func DegreesToRadians(x float32) float32 {
 	return x * math.Pi / 180.0;
 }

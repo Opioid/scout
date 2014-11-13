@@ -26,7 +26,7 @@ func (i *Image) resize(dimensions math.Vector2i, mipLevels int) {
 	}
 }
 
-func (i *Image) mipLevels() int {
+func (i *Image) MipLevels() int {
 	return len(i.Buffers)
 }
 
@@ -35,15 +35,15 @@ func (i *Image) allocateMipLevels(mipLevels int) {
 
 	copy(buffers, i.Buffers)
 
-	previousMipLevels := i.mipLevels()
+	previousMipLevels := i.MipLevels()
 
 	dimensions := i.Buffers[previousMipLevels - 1].dimensions
 
 	for l := previousMipLevels; l < mipLevels; l++ {
-		buffers[l].Resize(dimensions)
-
 		dimensions.X = math.Maxi(dimensions.X / 2, 1)
 		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
+
+		buffers[l].Resize(dimensions)
 	}
 
 	i.Buffers = buffers

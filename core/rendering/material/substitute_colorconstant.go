@@ -7,17 +7,18 @@ import (
 
 type Substitute_ColorConstant struct {
 	color math.Vector3
-	// roughness float32
-	a2 float32
 	metallic float32
+	roughness, a2 float32
+
 }
 
 func NewSubstitute_ColorConstant(color math.Vector3, roughness, metallic float32) *Substitute_ColorConstant {
 	m := new(Substitute_ColorConstant)
 	m.color = color
+	m.metallic = metallic	
+	m.roughness = roughness
 	a := roughness * roughness
 	m.a2 = a * a
-	m.metallic = metallic
 	return m
 }
 
