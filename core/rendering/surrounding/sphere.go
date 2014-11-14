@@ -19,7 +19,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	s.sphereMap = texture.NewSamplerSpherical_linear(sphericalTexture)
 
-	s.ambientCube = NewAmbientCubeFromSurrounding(s)
+//	s.ambientCube = NewAmbientCubeFromSurrounding(s)
 
 	diffuse := texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
 //	diffuse := texture.NewTexture2D(math.MakeVector2i(256, 128), 1)
@@ -58,6 +58,7 @@ func (s *sphere) SampleSpecular(v math.Vector3) math.Vector3 {
 	return s.sphereMap.Sample(v).Vector3()
 }
 
+/*
 func NewAmbientCubeFromSurrounding(surrounding Surrounding) *light.AmbientCube {
 	ray := math.OptimizedRay{}
 	ray.MaxT = 1000.0
@@ -99,3 +100,4 @@ func NewAmbientCubeFromSurrounding(surrounding Surrounding) *light.AmbientCube {
 
 	return ac
 }
+*/

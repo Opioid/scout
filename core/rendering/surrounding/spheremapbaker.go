@@ -3,6 +3,7 @@ package surrounding
 import (
 	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/core/rendering/material/ggx"
+	"github.com/Opioid/scout/core/scene/surrounding"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
 	gomath "math"
@@ -64,7 +65,7 @@ func calculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 	*/
 }
 
-func integrateHemisphereSphereMap(surrounding Surrounding, numSamples uint32, buffer *texture.Buffer) {
+func integrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSamples uint32, buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	numTaks := runtime.GOMAXPROCS(0)
@@ -108,7 +109,7 @@ func integrateHemisphereSphereMap(surrounding Surrounding, numSamples uint32, bu
 	png.Encode(fo, image)
 }
 
-func integrateHemisphereSphereMapTask(surrounding Surrounding, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
+func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
 	rng := random.Generator{}
 	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
 
@@ -175,7 +176,7 @@ func integrateHemisphereSphereMapTask(surrounding Surrounding, numSamples uint32
 	}
 }
 
-func integrateConeSphereMap(surrounding Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
+func integrateConeSphereMap(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	numTaks := runtime.GOMAXPROCS(0)
@@ -219,7 +220,7 @@ func integrateConeSphereMap(surrounding Surrounding, roughness float32, numSampl
 	png.Encode(fo, image)
 }
 
-func integrateConeSphereMapTask(surrounding Surrounding, roughness float32, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
+func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
 	rng := random.Generator{}
 	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
 

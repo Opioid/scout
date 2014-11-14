@@ -1,7 +1,7 @@
 package scene
 
 import (
-	"github.com/Opioid/scout/core/scene/surrounding"
+	"github.com/Opioid/scout/core/rendering/surrounding"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/resource"
