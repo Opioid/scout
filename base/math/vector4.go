@@ -69,3 +69,8 @@ func (a Vector4) SquaredLength() float32 {
 func (a Vector4) Length() float32 {
 	return Sqrt(a.SquaredLength())
 }
+
+func (a Vector4) Lerp(b Vector4, t float32) Vector4 {
+	_t := 1.0 - t
+	return Vector4{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z, _t * a.W + t * b.W}
+}

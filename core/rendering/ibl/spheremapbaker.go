@@ -1,4 +1,4 @@
-package surrounding
+package ibl
 
 import (
 	"github.com/Opioid/scout/core/rendering/texture"
@@ -15,7 +15,7 @@ import (
 	_ "fmt"
 )
 
-func calculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
+func CalculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
 //	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
@@ -65,7 +65,7 @@ func calculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 	*/
 }
 
-func integrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSamples uint32, buffer *texture.Buffer) {
+func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSamples uint32, buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	numTaks := runtime.GOMAXPROCS(0)
@@ -176,7 +176,7 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 	}
 }
 
-func integrateConeSphereMap(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
+func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	numTaks := runtime.GOMAXPROCS(0)

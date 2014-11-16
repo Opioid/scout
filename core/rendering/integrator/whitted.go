@@ -3,6 +3,8 @@ package integrator
 import (
 	"github.com/Opioid/scout/core/rendering"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
+	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/ibl"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
@@ -24,6 +26,8 @@ type whitted struct {
 	sampler pkgsampler.ScrambledHammersley
 
 	lightSamples []light.Sample
+
+	brdf texture.Sampler2D
 }
 
 func (w *whitted) FirstSample(numSamples uint32) {
@@ -88,12 +92,46 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 	color, opacity := material.EvaluateAmbient(&intersection.Dg)
 	result.AddAssign(ambientColor.Mul(color.Scale(opacity)))
 
-	if material.IsMirror() && ray.Depth < w.bounceDepth {
-		reflection := intersection.Dg.N.Reflect(ray.Direction)
 
+/*
+	numSamplesReciprocal := 1.0 / float32(w.maxLightSamples)
+
+	basis := math.Matrix3x3{}
+
+	basis.SetBasis(intersection.Dg.N)
+
+	rn := w.rng.RandomUint32()
+
+	sresult := math.MakeVector3(0.0, 0.0, 0.0)
+
+	for i := uint32(0); i < w.maxLightSamples; i++ {
+		sample := math.ScrambledHammersley(i, w.maxLightSamples, rn)
+
+		s := math.HemisphereSample_cos(sample.X, sample.Y)
+
+		l := basis.TransformVector3(s).Normalized()
+
+		ambientColor = scene.Surrounding.SampleSpecular(l, 0)
+			
+		color = material.EvaluateSpecular(&intersection.Dg, l, v)
+
+		sresult.AddAssign(ambientColor.Mul(color.Scale(opacity)).Scale(numSamplesReciprocal))
+	}
+
+
+	result.AddAssign(sresult)
+*/
+
+	reflection := intersection.Dg.N.Reflect(ray.Direction)
+
+	if material.IsMirror() && ray.Depth < w.bounceDepth {
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		result = result.Add(task.Li(scene, subsample, &secondaryRay))
+		result.AddAssign(task.Li(scene, subsample, &secondaryRay))
+	} else {
+		specularLight := scene.Surrounding.SampleSpecular(reflection, material.Roughness())
+	//	color, opacity := material.EvaluateAmbient(&intersection.Dg)
+		result.AddAssign(specularLight)
 	}
 
 	return result
@@ -124,6 +162,12 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w.sampler = pkgsampler.MakeScrambledHammersley(rng)
 	w.sampler.Resize(w.maxLightSamples)
 	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
+
+	brdf := texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
+
+	ibl.IntegrateGgxBrdf(16, &brdf.Image.Buffers[0])
+
+	w.brdf = texture.NewSampler2D_linear(brdf, new(texture.AddressMode_clamp)) 
 
 	return &w
 }

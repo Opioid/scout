@@ -20,6 +20,6 @@ func (u *uniform) SampleDiffuse(v math.Vector3) math.Vector3 {
 	return u.color
 }
 
-func (u *uniform) SampleSpecular(v math.Vector3) math.Vector3 {
+func (u *uniform) SampleSpecular(v math.Vector3, roughness float32) math.Vector3 {
 	return u.color
 }

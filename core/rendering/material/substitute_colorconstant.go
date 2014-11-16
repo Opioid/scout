@@ -44,6 +44,26 @@ func (m *Substitute_ColorConstant) EvaluateAmbient(dg *geometry.Differential) (m
 	return m.color.Scale(1.0 - m.metallic), 1.0
 }
 
+func (m *Substitute_ColorConstant) EvaluateSpecular(dg *geometry.Differential, l, v math.Vector3) math.Vector3 {
+	n_dot_l := math.Maxf(dg.N.Dot(l), 0.00001)
+	n_dot_v := math.Maxf(dg.N.Dot(v), 0.0)
+
+	h := v.Add(l).Normalized()
+
+	n_dot_h := dg.N.Dot(h)
+	v_dot_h := v.Dot(h)
+
+	f0 := math.MakeVector3(0.03, 0.03, 0.03).Lerp(m.color, m.metallic)
+
+	specular := specular_f(v_dot_h, f0).Scale(specular_d(n_dot_h, m.a2)).Scale(specular_g(n_dot_l, n_dot_v, m.a2))
+
+	return specular
+}
+
+func (m *Substitute_ColorConstant) Roughness() float32 {
+	return m.roughness
+}
+
 func (m *Substitute_ColorConstant) IsMirror() bool {
 	return m.a2 == 0.0
 }

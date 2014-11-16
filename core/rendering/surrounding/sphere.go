@@ -2,6 +2,7 @@ package surrounding
 
 import (
 	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 )
@@ -12,6 +13,8 @@ type sphere struct {
 	ambientCube *light.AmbientCube
 
 	diffuseSampler texture.SamplerSphere
+
+	mipLevels float32
 }
 
 func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
@@ -24,20 +27,22 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 	diffuse := texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
 //	diffuse := texture.NewTexture2D(math.MakeVector2i(256, 128), 1)
 
-	calculateSphereMapSolidAngleWeights(&sphericalTexture.Image.Buffers[0])
+	ibl.CalculateSphereMapSolidAngleWeights(&sphericalTexture.Image.Buffers[0])
 
-	integrateHemisphereSphereMap(s, 512, &diffuse.Image.Buffers[0])
+	ibl.IntegrateHemisphereSphereMap(s, 512, &diffuse.Image.Buffers[0])
 
 	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
-	sphericalTexture.AllocateMipLevels(8)
+	sphericalTexture.AllocateMipLevels(7)
 
 	mipLevels := sphericalTexture.Image.MipLevels()
 
-	roughnessIncrement := 1.0 / float32(mipLevels - 1) 
+	s.mipLevels = float32(mipLevels)
+
+	roughnessIncrement := 1.0 / (s.mipLevels - 1) 
 
 	for i := 1; i < mipLevels; i++ {
-		integrateConeSphereMap(s, float32(i) * roughnessIncrement, 32, &sphericalTexture.Image.Buffers[i])
+		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 1, &sphericalTexture.Image.Buffers[i])
 	}
 
 	return s
@@ -54,8 +59,8 @@ func (s *sphere) SampleDiffuse(v math.Vector3) math.Vector3 {
 	return s.diffuseSampler.Sample(v).Vector3()
 }
 
-func (s *sphere) SampleSpecular(v math.Vector3) math.Vector3 {
-	return s.sphereMap.Sample(v).Vector3()
+func (s *sphere) SampleSpecular(v math.Vector3, roughness float32) math.Vector3 {
+	return s.sphereMap.SampleLod(v, s.mipLevels * roughness).Vector3()
 }
 
 /*

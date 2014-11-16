@@ -30,10 +30,10 @@ func (sampler *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {
 	return sampler.texture.Image.Buffers[0].At(x, y)
 }
 
-func (sampler *SamplerSpherical_nearest) SampleLod(xyz math.Vector3, mipLevel int) math.Vector4 {
+func (sampler *SamplerSpherical_nearest) SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4 {
 	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
-	b := &sampler.texture.Image.Buffers[mipLevel]
+	b := &sampler.texture.Image.Buffers[int(mipLevel)]
 
 	x := int(uv.X * float32(b.dimensions.X - 1) + 0.5)
 	y := int(uv.Y * float32(b.dimensions.Y - 1) + 0.5)
