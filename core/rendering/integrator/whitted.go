@@ -127,11 +127,27 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		result.AddAssign(task.Li(scene, subsample, &secondaryRay))
+		environment := task.Li(scene, subsample, &secondaryRay)
+
+		n_dot_v := math.Maxf(intersection.Dg.N.Dot(v), 0.0)
+
+		brdf := w.brdf.Sample(math.MakeVector2(0, n_dot_v))
+
+		result.AddAssign(environment.Scale(brdf.X + brdf.Y))
 	} else {
-		specularLight := scene.Surrounding.SampleSpecular(reflection, material.Roughness())
+		// pixel_out.color = cavity * prefiltered_environment * (f0 * brdf.x + brdf.y);
+
+
+		roughness := material.Roughness()
+
+		environment := scene.Surrounding.SampleSpecular(reflection, material.Roughness())
 	//	color, opacity := material.EvaluateAmbient(&intersection.Dg)
-		result.AddAssign(specularLight)
+
+		n_dot_v := math.Maxf(intersection.Dg.N.Dot(v), 0.0)
+
+		brdf := w.brdf.Sample(math.MakeVector2(roughness, n_dot_v))
+
+		result.AddAssign(environment.Scale(brdf.X + brdf.Y))
 	}
 
 	return result

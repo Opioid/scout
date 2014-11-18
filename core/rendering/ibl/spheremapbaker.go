@@ -240,8 +240,7 @@ func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness f
 
 		for i := uint32(0); i < numSamples; i++ {
 			xi := math.ScrambledHammersley(i, numSamples, rn)
-
-			h := ggx.ImportanceSample(xi, roughness, n)
+			h  := ggx.ImportanceSample(xi, roughness, n)
 
 			// normalizing here prevents some NaN where l.Y is beyond either -1 or 1
 			l := h.Scale(2.0 * v.Dot(h)).Sub(v).Normalized()

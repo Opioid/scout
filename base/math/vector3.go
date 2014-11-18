@@ -9,7 +9,7 @@ func MakeVector3(x, y, z float32) Vector3 {
 }
 
 func MakeIdentityVector3() Vector3 {
-	return Vector3{1.0, 1.0, 1.0}
+	return Vector3{1, 1, 1}
 }
 
 func MakeVector3All(s float32) Vector3 {
@@ -66,7 +66,7 @@ func (a Vector3) Mul(b Vector3) Vector3 {
 }
 
 func (a Vector3) Div(s float32) Vector3 {
-	return a.Scale(1.0 / s)
+	return a.Scale(1 / s)
 }
 
 func (a Vector3) DivV(b Vector3) Vector3 {
@@ -102,7 +102,7 @@ func (a Vector3) Normalized() Vector3 {
 }
 
 func (a Vector3) Saturated() Vector3 {
-	return Vector3{Clampf(a.X, 0.0, 1.0), Clampf(a.Y, 0.0, 1.0), Clampf(a.Z, 0.0, 1.0)}
+	return Vector3{Clampf(a.X, 0, 1), Clampf(a.Y, 0, 1), Clampf(a.Z, 0, 1)}
 }
 
 func (a Vector3) Reflect(b Vector3) Vector3 {
@@ -118,7 +118,7 @@ func (a Vector3) Max(b Vector3) Vector3 {
 }
 
 func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
-	_t := 1.0 - t
+	_t := 1 - t
 	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
 }
 

@@ -55,3 +55,29 @@ func ImportanceSample(xi math.Vector2, roughness float32, n math.Vector3) math.V
 	// Tangent to world space
 	return tangent_x.Scale(h.X).Add(tangent_y.Scale(h.Y)).Add(n.Scale(h.Z))
 }
+
+/*
+float g1(float n_dot_v, float k)
+{
+	return n_dot_v / (n_dot_v * (1.f - k) + k);
+}
+
+float g_smith(float roughness, float n_dot_l, float n_dot_v)
+{
+	float r1 = roughness + 1.f;
+	float k = (r1 * r1) / 8.f;
+
+	return g1(n_dot_l, k) * g1(n_dot_v, k);
+}
+*/
+
+func g1(n_dot_v, k float32) float32 {
+	return n_dot_v / (n_dot_v * (1 - k) + k)
+}
+
+func G_smith(roughness, n_dot_l, n_dot_v float32) float32 {
+	r1 := roughness + 1
+	k  := (r1 + r1) / 8
+
+	return g1(n_dot_l, k) * g1(n_dot_v, k)
+}

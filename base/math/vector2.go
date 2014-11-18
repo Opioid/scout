@@ -16,6 +16,10 @@ func (a Vector2) Scale(s float32) Vector2 {
 	return Vector2{a.X * s, a.Y * s}
 }
 
+func (a Vector2) Div(s float32) Vector2 {
+	return a.Scale(1 / s)
+}
+
 type Vector2i struct {
 	X, Y int
 }
