@@ -31,8 +31,6 @@ func IntegrateGgxBrdf(numSamples uint32, buffer *texture.Buffer) {
 
 			buffer.Set(x, y, math.MakeVector4(brdf.X, brdf.Y, 0, 1))
 		}
-
-		
 	}
 
 	image := buffer.RGBA()

@@ -46,30 +46,6 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 	v := ray.Direction.Scale(-1.0)
 
-/*
-	for _, l := range scene.Lights {
-		lightVector := l.Vector(intersection.Dg.P)
-
-		shadowRay.SetDirection(lightVector)
-
-		if !scene.IntersectP(&shadowRay) {
-			color, opacity := material.Evaluate(&intersection.Dg, lightVector, v)
-
-			result.AddAssign(l.Light(intersection.Dg.P, color.Scale(opacity)))
-
-		//	if opacity < 1.0 {
-		//		secondaryRay := *ray
-		//		secondaryRay.MinT = ray.MaxT + intersection.Epsilon
-		//		secondaryRay.MaxT = 1000.0
-				
-		//		secondaryColor := r.li(scene, &secondaryRay, depth)
-	
-		//		result = result.Add(secondaryColor.Scale(1.0 - opacity))
-		//	}
-		}
-	}
-	*/
-
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
 
@@ -87,40 +63,9 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 		}
 	}
-
 	ambientColor := scene.Surrounding.SampleDiffuse(intersection.Dg.N)
 	color, opacity := material.EvaluateAmbient(&intersection.Dg)
 	result.AddAssign(ambientColor.Mul(color.Scale(opacity)))
-
-
-/*
-	numSamplesReciprocal := 1.0 / float32(w.maxLightSamples)
-
-	basis := math.Matrix3x3{}
-
-	basis.SetBasis(intersection.Dg.N)
-
-	rn := w.rng.RandomUint32()
-
-	sresult := math.MakeVector3(0.0, 0.0, 0.0)
-
-	for i := uint32(0); i < w.maxLightSamples; i++ {
-		sample := math.ScrambledHammersley(i, w.maxLightSamples, rn)
-
-		s := math.HemisphereSample_cos(sample.X, sample.Y)
-
-		l := basis.TransformVector3(s).Normalized()
-
-		ambientColor = scene.Surrounding.SampleSpecular(l, 0)
-			
-		color = material.EvaluateSpecular(&intersection.Dg, l, v)
-
-		sresult.AddAssign(ambientColor.Mul(color.Scale(opacity)).Scale(numSamplesReciprocal))
-	}
-
-
-	result.AddAssign(sresult)
-*/
 
 	reflection := intersection.Dg.N.Reflect(ray.Direction)
 
@@ -136,7 +81,6 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 		result.AddAssign(environment.Scale(brdf.X + brdf.Y))
 	} else {
 		// pixel_out.color = cavity * prefiltered_environment * (f0 * brdf.x + brdf.y);
-
 
 		roughness := material.Roughness()
 
@@ -156,6 +100,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 type whittedFactory struct {
 	whittedSettings
 
+	brdf texture.Sampler2D
 }
 
 func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
@@ -163,6 +108,10 @@ func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
 
 	f.bounceDepth = bounceDepth
 	f.maxLightSamples = maxLightSamples
+
+	brdf := texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
+	ibl.IntegrateGgxBrdf(1024, &brdf.Image.Buffers[0])
+	f.brdf = texture.NewSampler2D_linear(brdf, new(texture.AddressMode_clamp)) 
 
 	return &f
 }
@@ -179,11 +128,7 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w.sampler.Resize(w.maxLightSamples)
 	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
 
-	brdf := texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
-
-	ibl.IntegrateGgxBrdf(16, &brdf.Image.Buffers[0])
-
-	w.brdf = texture.NewSampler2D_linear(brdf, new(texture.AddressMode_clamp)) 
+	w.brdf = f.brdf
 
 	return &w
 }

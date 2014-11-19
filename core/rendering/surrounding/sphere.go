@@ -42,7 +42,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 	roughnessIncrement := 1.0 / (s.mipLevels - 1) 
 
 	for i := 1; i < mipLevels; i++ {
-		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 128, &sphericalTexture.Image.Buffers[i])
+		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 4, &sphericalTexture.Image.Buffers[i])
 	}
 
 	return s

@@ -4,6 +4,7 @@ import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
+	_ "fmt"
 )
 
 type RenderTask struct {
@@ -19,7 +20,8 @@ func (r *RenderTask) Li(scene *pkgscene.Scene, subsample uint32, ray *math.Optim
 	var intersection prop.Intersection
 
 	if scene.Intersect(ray, &intersection) {
-		return r.integrator.Li(scene, r, subsample, ray, &intersection) 
+		c := r.integrator.Li(scene, r, subsample, ray, &intersection) 
+		return c
 	} else {
 		c, _ := scene.Surrounding.Sample(ray)
 		return c

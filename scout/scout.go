@@ -50,11 +50,10 @@ func main() {
 	renderer := rendering.Renderer{}
 	renderer.IntegratorFactory = take.IntegratorFactory
 
-	progressor := progress.NewStdout()
-
 	fmt.Printf("Rendering...\n")
 	renderStart := time.Now()
 
+	progressor := progress.NewStdout()
 	renderer.Render(&scene, &take.Context, progressor)
 
 	renderDuration := time.Since(renderStart)
