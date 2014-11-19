@@ -3,6 +3,7 @@ package texture
 import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/rendering/color"
+	"github.com/Opioid/scout/base/file"
 	"os"
 	goimage "image"
 	_ "image/jpeg"
@@ -17,6 +18,8 @@ type Provider struct {
 
 func (p *Provider) Load2D(filename string) *Texture2D {
 	fi, err := os.Open(filename)
+
+	fmt.Println(file.QueryFileType(fi))
 
 	if err != nil {
 		fmt.Printf("%s could not be loaded", filename)
