@@ -28,7 +28,7 @@ func ParseVector2(value interface{}) math.Vector2 {
 
 func ParseVector2i(value interface{}) math.Vector2i {
 	if ints, ok := value.([]interface{}); ok {
-		return math.MakeVector2i(int(ints[0].(float64)), int(ints[1].(float64)))
+		return math.MakeVector2i(int32(ints[0].(float64)), int32(ints[1].(float64)))
 	} 
 		
 	return math.Vector2i{}
@@ -37,7 +37,7 @@ func ParseVector2i(value interface{}) math.Vector2i {
 func ReadVector2i(value map[string]interface{}, name string, defaultValue math.Vector2i) math.Vector2i {
 	if t, ok := value[name]; ok {
 		if ints, isArray := t.([]interface{}); isArray {
-			return math.MakeVector2i(int(ints[0].(float64)), int(ints[1].(float64)))
+			return math.MakeVector2i(int32(ints[0].(float64)), int32(ints[1].(float64)))
 		}
 	}
 

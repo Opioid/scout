@@ -21,10 +21,10 @@ func IntegrateGgxBrdf(numSamples uint32, buffer *texture.Buffer) {
 	dx := float32(dimensions.X - 1)
 	dy := float32(dimensions.Y - 1)
 
-	for y := 0; y < dimensions.Y; y++ {
+	for y := int32(0); y < dimensions.Y; y++ {
 		v := float32(y) / dy
 
-		for x := 0; x < dimensions.X; x++ {
+		for x := int32(0); x < dimensions.X; x++ {
 			roughness := float32(x) / dx
 
 			brdf := intefrateBrdf(roughness, v, numSamples)

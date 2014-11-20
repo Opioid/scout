@@ -9,7 +9,7 @@ type Image struct {
 	Buffers []Buffer
 }
 
-func (i *Image) resize(dimensions math.Vector2i, mipLevels int) {
+func (i *Image) resize(dimensions math.Vector2i, mipLevels int32) {
 	if mipLevels <= 0 {
 		mipLevels = countMipLevels(dimensions)
 	} else {
@@ -18,7 +18,7 @@ func (i *Image) resize(dimensions math.Vector2i, mipLevels int) {
 
 	i.Buffers = make([]Buffer, mipLevels)
 
-	for l := 0; l < mipLevels; l++ {
+	for l := int32(0); l < mipLevels; l++ {
 		i.Buffers[l].Resize(dimensions)
 
 		dimensions.X = math.Maxi(dimensions.X / 2, 1)
@@ -26,11 +26,11 @@ func (i *Image) resize(dimensions math.Vector2i, mipLevels int) {
 	}
 }
 
-func (i *Image) MipLevels() int {
-	return len(i.Buffers)
+func (i *Image) MipLevels() int32 {
+	return int32(len(i.Buffers))
 }
 
-func (i *Image) allocateMipLevels(mipLevels int) {
+func (i *Image) allocateMipLevels(mipLevels int32) {
 	buffers := make([]Buffer, mipLevels)
 
 	copy(buffers, i.Buffers)
@@ -49,8 +49,8 @@ func (i *Image) allocateMipLevels(mipLevels int) {
 	i.Buffers = buffers
 }
 
-func countMipLevels(dimensions math.Vector2i) int {
+func countMipLevels(dimensions math.Vector2i) int32 {
 	m := math.Maxi(dimensions.X, dimensions.Y)
 
-	return 1 + int(gomath.Log2(float64(m)))
+	return 1 + int32(gomath.Log2(float64(m)))
 }

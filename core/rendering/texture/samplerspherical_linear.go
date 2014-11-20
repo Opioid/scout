@@ -8,7 +8,7 @@ import (
 
 type SamplerSpherical_linear struct {
 	texture *Texture2D
-	maxMipLevel int
+	maxMipLevel int32
 }
 
 func NewSamplerSpherical_linear(t *Texture2D) *SamplerSpherical_linear {
@@ -33,8 +33,8 @@ func (sampler *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel flo
 
 	l0 := math.Floor(mipLevel)
 
-	l0i := int(l0)
-	l1i := math.Maxi(int(l0) + 1, sampler.maxMipLevel)
+	l0i := int32(l0)
+	l1i := math.Maxi(int32(l0) + 1, sampler.maxMipLevel)
 
 	c0 := sampler.sampleLevel(uv, l0i)
 	c1 := sampler.sampleLevel(uv, l1i)
@@ -44,7 +44,7 @@ func (sampler *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel flo
 	return c0.Lerp(c1, mipLevel - l0)
 }
 
-func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel int) math.Vector4 {
+func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel int32) math.Vector4 {
 	b := &sampler.texture.Image.Buffers[mipLevel]
 
 	u := uv.X * float32(b.dimensions.X) - 0.5
@@ -53,8 +53,8 @@ func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel in
 	fu := math.Floor(u)
 	fv := math.Floor(v)
 
-	x := int(fu)
-	y := int(fv)
+	x := int32(fu)
+	y := int32(fv)
 
 	x1 := x + 1
 

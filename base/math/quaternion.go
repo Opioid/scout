@@ -21,7 +21,7 @@ func MakeQuaternionFromMatrix3x3(m *Matrix3x3) Quaternion {
 		temp[1] = (m.m02 - m.m20) * s
 		temp[2] = (m.m10 - m.m01) * s
 	} else {
-		var i int
+		var i int32
 		if m.m00 < m.m11 {
 			if m.m11 < m.m22 {
 				i = 2

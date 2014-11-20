@@ -25,15 +25,15 @@ func NewUnfiltered(dimensions math.Vector2i, exposure float32, tonemapper tonema
 }
 
 func (f *Unfiltered) AddSample(sample *sampler.Sample, color math.Vector3) {
-	x, y := int(sample.Coordinates.X), int(sample.Coordinates.Y)
+	x, y := int32(sample.Coordinates.X), int32(sample.Coordinates.Y)
 
 	f.addPixel(x, y, color)
 }
 
 func (f *Unfiltered) RGBA() *image.RGBA {
-	target := image.NewRGBA(image.Rect(0, 0, f.dimensions.X, f.dimensions.Y))
+	target := image.NewRGBA(image.Rect(0, 0, int(f.dimensions.X), int(f.dimensions.Y)))
 
-	numTaks := runtime.GOMAXPROCS(0)
+	numTaks := int32(runtime.GOMAXPROCS(0))
 
 	a := f.dimensions.Y / numTaks
 
@@ -42,7 +42,7 @@ func (f *Unfiltered) RGBA() *image.RGBA {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < numTaks; i++ {
+	for i := int32(0); i < numTaks; i++ {
 		wg.Add(1)
 
 		go func (s, e math.Vector2i) {
@@ -75,7 +75,7 @@ func (f *Unfiltered) process(start, end math.Vector2i, target *image.RGBA) {
 			g := uint8(255.0 * color.LinearToSrgb(tonemapped.Y))
 			b := uint8(255.0 * color.LinearToSrgb(tonemapped.Z))
 
-			target.Set(x, y, gocolor.RGBA{r, g, b, 255})
+			target.Set(int(x), int(y), gocolor.RGBA{r, g, b, 255})
 		}
 	}
 }

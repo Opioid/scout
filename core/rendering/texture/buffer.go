@@ -23,15 +23,15 @@ func (b *Buffer) Resize(dimensions math.Vector2i) {
 	b.data = make([]math.Vector4, dimensions.X * dimensions.Y)
 }
 
-func (b *Buffer) At(x, y int) math.Vector4 {
+func (b *Buffer) At(x, y int32) math.Vector4 {
 	return b.data[b.dimensions.X * y + x]
 }
 
-func (b *Buffer) Set(x, y int, color math.Vector4) {
+func (b *Buffer) Set(x, y int32, color math.Vector4) {
 	b.data[b.dimensions.X * y + x] = color
 }
 
-func (b *Buffer) SetRgb(x, y int, color math.Vector3) {
+func (b *Buffer) SetRgb(x, y int32, color math.Vector3) {
 	v := &b.data[b.dimensions.X * y + x]
 
 	v.X = color.X
@@ -39,14 +39,14 @@ func (b *Buffer) SetRgb(x, y int, color math.Vector3) {
 	v.Z = color.Z
 }
 
-func (b *Buffer) SetChannel(x, y, c int, value float32) {
+func (b *Buffer) SetChannel(x, y, c int32, value float32) {
 	b.data[b.dimensions.X * y + x].Set(c, value)
 }
 
 func (b *Buffer) RGBA() *goimage.RGBA {
-	target := goimage.NewRGBA(goimage.Rect(0, 0, b.dimensions.X, b.dimensions.Y))
+	target := goimage.NewRGBA(goimage.Rect(0, 0, int(b.dimensions.X), int(b.dimensions.Y)))
 
-	numTaks := runtime.GOMAXPROCS(0)
+	numTaks := int32(runtime.GOMAXPROCS(0))
 
 	a := b.dimensions.Y / numTaks
 
@@ -55,7 +55,7 @@ func (b *Buffer) RGBA() *goimage.RGBA {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < numTaks; i++ {
+	for i := int32(0); i < numTaks; i++ {
 		wg.Add(1)
 
 		go func (s, e math.Vector2i) {
@@ -86,7 +86,7 @@ func (buf *Buffer) process(start, end math.Vector2i, target *goimage.RGBA) {
 			b := uint8(255.0 * color.LinearToSrgb(c.Z))
 			a := uint8(255.0 * c.W)
 
-			target.Set(x, y, gocolor.RGBA{r, g, b, a})
+			target.Set(int(x), int(y), gocolor.RGBA{r, g, b, a})
 		}
 	}
 }

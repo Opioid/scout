@@ -27,7 +27,7 @@ func (b *Builder) Build(indices []uint32, vertices []geometry.Vertex, maxPrimiti
 }
 
 type buildNode struct {
-	axis int
+	axis int32
 	splitPos float32
 
 //	indices []uint32
@@ -83,9 +83,9 @@ func (n *buildNode) assign(primitiveIndices []uint32, indices []uint32, vertices
 
 
 var axis = [...]math.Vector3{ 
-	math.MakeVector3(1.0, 0.0, 0.0),
-	math.MakeVector3(0.0, 1.0, 0.0),
-	math.MakeVector3(0.0, 0.0, 1.0), 
+	math.MakeVector3(1, 0, 0),
+	math.MakeVector3(0, 1, 0),
+	math.MakeVector3(0, 0, 1), 
 }
 
 func (n *buildNode) plane() math.Plane {
@@ -264,7 +264,7 @@ func triangleSide(a, b, c math.Vector3, p math.Plane) int {
 	}
 }
 
-func splittingPlane(aabb *bounding.AABB) (int, float32) {
+func splittingPlane(aabb *bounding.AABB) (int32, float32) {
 	position := aabb.Position()
 	halfsize := aabb.Halfsize()
 

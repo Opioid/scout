@@ -12,7 +12,7 @@ func (v Vector4) Vector3() Vector3 {
 	return Vector3{v.X, v.Y, v.Z}
 }
 
-func (a Vector4) At(i int) float32 {
+func (a Vector4) At(i int32) float32 {
 	switch i {
 	case 0:
 		return a.X
@@ -25,7 +25,7 @@ func (a Vector4) At(i int) float32 {
 	}
 }
 
-func (a *Vector4) Set(i int, value float32) {
+func (a *Vector4) Set(i int32, value float32) {
 	switch i {
 	case 0:
 		a.X = value

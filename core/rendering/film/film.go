@@ -38,11 +38,11 @@ func (f *film) resize(dimensions math.Vector2i) {
 	f.pixels = make([]pixel, dimensions.X * dimensions.Y)
 }
 
-func (f *film) at(x, y int) pixel {
+func (f *film) at(x, y int32) pixel {
 	return f.pixels[f.dimensions.X * y + x]
 }
 
-func (f *film) addPixel(x, y int, color math.Vector3) {
+func (f *film) addPixel(x, y int32, color math.Vector3) {
 	p := &f.pixels[f.dimensions.X * y + x]
 	p.color.AddAssign(color)
 	p.weightSum += 1.0

@@ -35,11 +35,11 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 		return nil
 	}
 
-	dimensions := math.MakeVector2i(sourceImage.Bounds().Max.X, sourceImage.Bounds().Max.Y)
+	dimensions := math.MakeVector2i(int32(sourceImage.Bounds().Max.X), int32(sourceImage.Bounds().Max.Y))
 
 	texture := NewTexture2D(dimensions, 1)
 
-	numTaks := runtime.GOMAXPROCS(0)
+	numTaks := int32(runtime.GOMAXPROCS(0))
 
 	a := dimensions.Y / numTaks
 
@@ -48,7 +48,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < numTaks; i++ {
+	for i := int32(0); i < numTaks; i++ {
 		wg.Add(1)
 
 		go func (start, end math.Vector2i) {
@@ -75,7 +75,7 @@ func process(start, end math.Vector2i, source goimage.Image, target *Buffer) {
 
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
-			r, g, b, a := source.At(x, y).RGBA()
+			r, g, b, a := source.At(int(x), int(y)).RGBA()
 
 			target.Set(x, y, math.MakeVector4(
 				color.SrgbToLinear(float32(r) / max), 

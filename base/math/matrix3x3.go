@@ -51,7 +51,7 @@ func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 	*/
 }
 
-func (m *Matrix3x3) Row(i int) Vector3 {
+func (m *Matrix3x3) Row(i int32) Vector3 {
 //	return MakeVector3(m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2])
 	switch i {
 	case 0:
@@ -75,7 +75,7 @@ func (m *Matrix3x3) Direction() Vector3 {
 	return MakeVector3(m.m20, m.m21, m.m22)
 }
 
-func (m *Matrix3x3) At(i, j int) float32 {
+func (m *Matrix3x3) At(i, j int32) float32 {
 	return m.Row(i).At(j)
 }
 

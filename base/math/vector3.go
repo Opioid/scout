@@ -16,7 +16,7 @@ func MakeVector3All(s float32) Vector3 {
 	return Vector3{s, s, s}
 }
 
-func (a Vector3) At(i int) float32 {
+func (a Vector3) At(i int32) float32 {
 	switch i {
 	case 0:
 		return a.X

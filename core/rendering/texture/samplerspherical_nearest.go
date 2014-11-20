@@ -24,8 +24,8 @@ func (sampler *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {
 
 	d := sampler.texture.Image.Buffers[0].dimensions
 
-	x := math.Mini(int(uv.X * float32(d.X)), d.X - 1)
-	y := math.Mini(int(uv.Y * float32(d.Y)), d.Y - 1)
+	x := math.Mini(int32(uv.X * float32(d.X)), d.X - 1)
+	y := math.Mini(int32(uv.Y * float32(d.Y)), d.Y - 1)
 
 	return sampler.texture.Image.Buffers[0].At(x, y)
 }
@@ -35,8 +35,8 @@ func (sampler *SamplerSpherical_nearest) SampleLod(xyz math.Vector3, mipLevel fl
 
 	b := &sampler.texture.Image.Buffers[int(mipLevel)]
 
-	x := int(uv.X * float32(b.dimensions.X - 1) + 0.5)
-	y := int(uv.Y * float32(b.dimensions.Y - 1) + 0.5)
+	x := int32(uv.X * float32(b.dimensions.X - 1) + 0.5)
+	y := int32(uv.Y * float32(b.dimensions.Y - 1) + 0.5)
 
 	return b.At(x, y)
 }

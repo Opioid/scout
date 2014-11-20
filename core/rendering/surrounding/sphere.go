@@ -5,6 +5,8 @@ import (
 	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
+	"os"
+	"fmt"
 )
 
 type sphere struct {
@@ -41,8 +43,18 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	roughnessIncrement := 1.0 / (s.mipLevels - 1) 
 
-	for i := 1; i < mipLevels; i++ {
+	for i := int32(1); i < mipLevels; i++ {
 		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 4, &sphericalTexture.Image.Buffers[i])
+	}
+
+	fo, err := os.Create("../cache/surrounding.sui")
+
+	if err == nil {
+		defer fo.Close()
+
+		if err := texture.Save(fo, sphericalTexture); err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	return s

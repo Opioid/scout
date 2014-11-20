@@ -21,10 +21,10 @@ func (a Vector2) Div(s float32) Vector2 {
 }
 
 type Vector2i struct {
-	X, Y int
+	X, Y int32
 }
 
-func MakeVector2i(x, y int) Vector2i {
+func MakeVector2i(x, y int32) Vector2i {
 	return Vector2i{x, y}
 }
 

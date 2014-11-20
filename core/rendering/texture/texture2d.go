@@ -5,10 +5,11 @@ import (
 )
 
 type Texture2D struct {
+	texture
 	Image Image
 }
 
-func NewTexture2D(dimensions math.Vector2i, mipLevels int) *Texture2D {
+func NewTexture2D(dimensions math.Vector2i, mipLevels int32) *Texture2D {
 	t := new(Texture2D)
 
 	t.Image.resize(dimensions, mipLevels)
@@ -16,6 +17,6 @@ func NewTexture2D(dimensions math.Vector2i, mipLevels int) *Texture2D {
 	return t
 }
 
-func (t *Texture2D) AllocateMipLevels(mipLevels int) {
+func (t *Texture2D) AllocateMipLevels(mipLevels int32) {
 	t.Image.allocateMipLevels(mipLevels)
 }

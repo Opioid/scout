@@ -29,8 +29,8 @@ func (u *Uniform) Resize(start, end math.Vector2i) {
 	ox := 1.0 / float32(u.samplesPerPixel.X)
 	oy := 1.0 / float32(u.samplesPerPixel.Y)
 
-	for y, i := 0, 0; y < u.samplesPerPixel.Y; y++ {
-		for x := 0; x < u.samplesPerPixel.X; x++ {
+	for y, i := int32(0), int32(0); y < u.samplesPerPixel.Y; y++ {
+		for x := int32(0); x < u.samplesPerPixel.X; x++ {
 			u.offsets[i] = math.MakeVector2((0.5 + float32(x)) * ox, (0.5 + float32(y)) * oy)
 			i++
 		}

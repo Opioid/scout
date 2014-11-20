@@ -30,8 +30,8 @@ func (s *Sampler2D_nearest) Sample(uv math.Vector2) math.Vector4 {
 
 	d := s.texture.Image.Buffers[0].dimensions
 
-	x := math.Mini(int(auv.X * float32(d.X)), d.X - 1)
-	y := math.Mini(int(auv.Y * float32(d.Y)), d.Y - 1)
+	x := math.Mini(int32(auv.X * float32(d.X)), d.X - 1)
+	y := math.Mini(int32(auv.Y * float32(d.Y)), d.Y - 1)
 
 	return s.texture.Image.Buffers[0].At(x, y)
 }
@@ -39,10 +39,10 @@ func (s *Sampler2D_nearest) Sample(uv math.Vector2) math.Vector4 {
 func (s *Sampler2D_nearest) SampleLod(uv math.Vector2, mipLevel float32) math.Vector4 {
 	auv := s.address.address2D(uv)
 
-	b := &s.texture.Image.Buffers[int(mipLevel)]
+	b := &s.texture.Image.Buffers[int32(mipLevel)]
 
-	x := int(auv.X * float32(b.dimensions.X - 1) + 0.5)
-	y := int(auv.Y * float32(b.dimensions.Y - 1) + 0.5)
+	x := int32(auv.X * float32(b.dimensions.X - 1) + 0.5)
+	y := int32(auv.Y * float32(b.dimensions.Y - 1) + 0.5)
 
 	return b.At(x, y)
 }

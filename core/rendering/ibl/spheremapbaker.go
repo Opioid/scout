@@ -21,14 +21,14 @@ func CalculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 //	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
 	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
 
-	for y := 0; y < dimensions.Y; y++ {
+	for y := int32(0); y < dimensions.Y; y++ {
 		ay := (float32(y) + 0.5) * sy
 	//	ay1 := (float32(y) + 1.0) * sy
 
 	//	vy := math.Cos(ay)
 		say := /*float32(1.0)//*/math.Sin(ay)
 
-		for x := 0; x < dimensions.X; x++ {
+		for x := int32(0); x < dimensions.X; x++ {
 		//	ax0 := (float32(x) + 0.5) * sx
 		//	ax1 := (float32(x) + 1.0) * sx
 
@@ -68,7 +68,7 @@ func CalculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSamples uint32, buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
-	numTaks := runtime.GOMAXPROCS(0)
+	numTaks := int32(runtime.GOMAXPROCS(0))
 
 	a := dimensions.Y / numTaks
 
@@ -77,7 +77,7 @@ func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSample
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < numTaks; i++ {
+	for i := int32(0); i < numTaks; i++ {
 		wg.Add(1)
 
 		go func (s, e math.Vector2i) {
@@ -179,7 +179,7 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
 	dimensions := buffer.Dimensions()
 
-	numTaks := runtime.GOMAXPROCS(0)
+	numTaks := int32(runtime.GOMAXPROCS(0))
 
 	a := dimensions.Y / numTaks
 
@@ -188,7 +188,7 @@ func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < numTaks; i++ {
+	for i := int32(0); i < numTaks; i++ {
 		wg.Add(1)
 
 		go func (s, e math.Vector2i) {

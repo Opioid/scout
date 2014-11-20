@@ -23,26 +23,26 @@ func (b *PixelBuffer) Dimensions() math.Vector2i {
 	return b.dimensions
 }
 
-func (b *PixelBuffer) At(x, y int) math.Vector4 {
+func (b *PixelBuffer) At(x, y int32) math.Vector4 {
 	return b.pixels[b.dimensions.X * y + x]
 }
 
-func (b *PixelBuffer) Set(x, y int, color math.Vector4) {
+func (b *PixelBuffer) Set(x, y int32, color math.Vector4) {
 	b.pixels[b.dimensions.X * y + x] = color
 }
 
 func (b *PixelBuffer) RGBA() *image.RGBA {
-	image := image.NewRGBA(image.Rect(0, 0, b.dimensions.X, b.dimensions.Y))
+	image := image.NewRGBA(image.Rect(0, 0, int(b.dimensions.X), int(b.dimensions.Y)))
 
-	for y := 0; y < b.dimensions.Y; y++ {
-		for x := 0; x < b.dimensions.X; x++ {
+	for y := int32(0); y < b.dimensions.Y; y++ {
+		for x := int32(0); x < b.dimensions.X; x++ {
 			pixel := b.At(x, y)
 			r := uint8(255.0 * pixel.X)
 			g := uint8(255.0 * pixel.Y)
 			b := uint8(255.0 * pixel.Z)
 			a := uint8(255.0 * pixel.W)
 
-			image.Set(x, y, color.RGBA{r, g, b, a})
+			image.Set(int(x), int(y), color.RGBA{r, g, b, a})
 		}
 	}
 
