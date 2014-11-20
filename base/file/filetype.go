@@ -3,25 +3,29 @@ package file
 import (
 	"os"
 	"bytes"
-	"fmt"
+	_ "fmt"
 )
 
-func QueryFileType(fi *os.File) string {
-	header := make([]byte, 3)
+const (
+	Unknown = iota
+	JPG     = iota
+	PNG     = iota
+)
 
-	n, err := fi.ReadAt(header, 0)
+func QueryFileType(fi *os.File) int {
+	header := make([]byte, 4)
+
+	_, err := fi.ReadAt(header, 0)
 
 	if err != nil {
-		return "Unknown"
+		return Unknown
 	}
 
 	if bytes.HasPrefix(header, []byte{255, 216}) {
-		return "JPG"
-	} else if bytes.Compare(header, []byte{'P', 'N', 'G'}) == 0 {
-		return "PNG"
+		return JPG
+	} else if bytes.Compare(header, []byte{137, 'P', 'N', 'G'}) == 0 {
+		return PNG
 	}
 
-	fmt.Println(header)
-
-	return string(header[:n])
+	return Unknown
 }
