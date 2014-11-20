@@ -18,6 +18,10 @@ func (b *Buffer) Dimensions() math.Vector2i {
 	return b.dimensions
 }
 
+func (b *Buffer) Data() []math.Vector4 {
+	return b.data
+}
+
 func (b *Buffer) Resize(dimensions math.Vector2i) {
 	b.dimensions = dimensions
 	b.data = make([]math.Vector4, dimensions.X * dimensions.Y)

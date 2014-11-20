@@ -2,6 +2,7 @@ package scene
 
 import (
 	"github.com/Opioid/scout/core/rendering/surrounding"
+	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/resource"
@@ -9,7 +10,8 @@ import (
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
 	"encoding/json"
-	_ "fmt"
+	"os"
+	"fmt"
 )
 
 type Loader struct {
@@ -56,7 +58,7 @@ func (loader *Loader) Load(filename string) error {
 	} 
 
 	if loader.scene.Surrounding == nil {
-		loader.scene.Surrounding = surrounding.NewUniform(math.MakeVector3(0.0, 0.0, 0.0))
+		loader.scene.Surrounding = surrounding.NewUniform(math.MakeVector3(0, 0, 0))
 	}
 
 	loader.scene.Compile()
@@ -81,7 +83,7 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 	switch typename {
 	case "Uniform": 
-		color := pkgjson.ReadVector3(surroundingNode, "color", math.MakeVector3(0.0, 0.0, 0.0))
+		color := pkgjson.ReadVector3(surroundingNode, "color", math.MakeVector3(0, 0, 0))
 		loader.scene.Surrounding = surrounding.NewUniform(color)
 
 	case "Textured":
@@ -96,9 +98,24 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 		filename := textureNode["file"].(string)
 
-		if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
-			loader.scene.Surrounding = surrounding.NewSphere(sphericalTexture)
+		fi, err := os.Open("../cache/surrounding.sui")
+		defer fi.Close()
+
+		if err == nil {
+			sphericalTexture, err := texture.Load(fi)
+
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				loader.scene.Surrounding = surrounding.NewSphere(sphericalTexture)
+			}
 		}
+
+		if loader.scene.Surrounding == nil {
+			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
+				loader.scene.Surrounding = surrounding.NewSphere(sphericalTexture)
+			}
+		} 
 	}
 }
 

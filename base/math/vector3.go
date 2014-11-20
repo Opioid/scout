@@ -134,6 +134,10 @@ func MakeVector3i(x, y, z int32) Vector3i {
 	return Vector3i{x, y, z}
 }
 
+func (a Vector3i) Vector2i() Vector2i {
+	return Vector2i{a.X, a.Y}
+}
+
 func (a Vector3i) Add(b Vector3i) Vector3i {
 	return Vector3i{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }

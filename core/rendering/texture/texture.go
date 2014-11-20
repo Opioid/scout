@@ -12,15 +12,16 @@ const (
 )
 
 type description struct {
-	textureType uint32
-	format uint32
+	TextureType uint32
+	Format uint32
 
-	dimensions math.Vector3i
+	Dimensions math.Vector3i
 
-	numLayers uint32
-	numSamples uint32
+	NumLayers    uint32
+	NumMipLevels uint32
+	NumSamples   uint32
 
-	shaderResource uint8
+	ShaderResource uint8
 }
 
 type texture struct {

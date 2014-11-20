@@ -12,5 +12,12 @@ func Save(w io.Writer, t *Texture2D) error {
 		return err
 	}
 
+	buffers := t.Image.Buffers
+	for i := range buffers {
+		if err := binary.Write(w, binary.LittleEndian, buffers[i].Data()); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

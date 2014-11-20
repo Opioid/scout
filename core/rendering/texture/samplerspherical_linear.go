@@ -8,13 +8,14 @@ import (
 
 type SamplerSpherical_linear struct {
 	texture *Texture2D
-	maxMipLevel int32
+	maxMipLevel uint32
 }
 
 func NewSamplerSpherical_linear(t *Texture2D) *SamplerSpherical_linear {
 	sampler := new(SamplerSpherical_linear)
 	sampler.texture = t
-	sampler.maxMipLevel = sampler.texture.Image.MipLevels() - 1
+	sampler.maxMipLevel = sampler.texture.Image.NumMipLevels() - 1
+
 	return sampler
 }
 
@@ -23,28 +24,26 @@ func (sampler *SamplerSpherical_linear) Texture() *Texture2D {
 }
 
 func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
 	return sampler.sampleLevel(uv, 0)
 }
 
 func (sampler *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
 
 	l0 := math.Floor(mipLevel)
 
-	l0i := int32(l0)
-	l1i := math.Maxi(int32(l0) + 1, sampler.maxMipLevel)
+	l0i := uint32(l0)
+	l1i := math.Minui(uint32(l0) + 1, sampler.maxMipLevel)
 
 	c0 := sampler.sampleLevel(uv, l0i)
 	c1 := sampler.sampleLevel(uv, l1i)
 
-//	fmt.Printf("%v %v\n", c0, c1)
-
 	return c0.Lerp(c1, mipLevel - l0)
 }
 
-func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel int32) math.Vector4 {
+func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel uint32) math.Vector4 {
 	b := &sampler.texture.Image.Buffers[mipLevel]
 
 	u := uv.X * float32(b.dimensions.X) - 0.5

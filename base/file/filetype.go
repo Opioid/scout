@@ -10,6 +10,7 @@ const (
 	Unknown = iota
 	JPG     = iota
 	PNG     = iota
+	SUI     = iota
 )
 
 func QueryFileType(fi *os.File) int {
@@ -25,6 +26,8 @@ func QueryFileType(fi *os.File) int {
 		return JPG
 	} else if bytes.Compare(header, []byte{137, 'P', 'N', 'G'}) == 0 {
 		return PNG
+	} else if bytes.Compare(header, []byte{'S', 'U', 'I'}) == 0 {
+		return SUI
 	}
 
 	return Unknown

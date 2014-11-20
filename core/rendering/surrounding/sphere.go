@@ -16,7 +16,7 @@ type sphere struct {
 
 	diffuseSampler texture.SamplerSphere
 
-	mipLevels float32
+	maxRoughnessMip float32
 }
 
 func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
@@ -35,23 +35,30 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
+	numMipLevels := sphericalTexture.Image.NumMipLevels()
+
+	if numMipLevels > 1 {
+		s.maxRoughnessMip = float32(numMipLevels - 1)
+		fmt.Println("We loaded the cache sometime previously.")
+		return s
+	}
+
 	sphericalTexture.AllocateMipLevels(8)
 
-	mipLevels := sphericalTexture.Image.MipLevels()
+	numMipLevels = sphericalTexture.Image.NumMipLevels()
 
-	s.mipLevels = float32(mipLevels)
+	s.maxRoughnessMip = float32(numMipLevels - 1)
 
-	roughnessIncrement := 1.0 / (s.mipLevels - 1) 
+	roughnessIncrement := 1 / s.maxRoughnessMip
 
-	for i := int32(1); i < mipLevels; i++ {
-		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 4, &sphericalTexture.Image.Buffers[i])
+	for i := uint32(1); i < numMipLevels; i++ {
+		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 128, &sphericalTexture.Image.Buffers[i])
 	}
 
 	fo, err := os.Create("../cache/surrounding.sui")
+	defer fo.Close()
 
 	if err == nil {
-		defer fo.Close()
-
 		if err := texture.Save(fo, sphericalTexture); err != nil {
 			fmt.Println(err)
 		}
@@ -72,7 +79,7 @@ func (s *sphere) SampleDiffuse(v math.Vector3) math.Vector3 {
 }
 
 func (s *sphere) SampleSpecular(v math.Vector3, roughness float32) math.Vector3 {
-	return s.sphereMap.SampleLod(v, s.mipLevels * roughness).Vector3()
+	return s.sphereMap.SampleLod(v, s.maxRoughnessMip * roughness).Vector3()
 }
 
 /*
