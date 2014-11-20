@@ -125,3 +125,23 @@ func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
 func (a Vector3) ContainsNaN() bool {
 	return IsNaN(a.X) || IsNaN(a.Y) || IsNaN(a.Z)
 }
+
+type Vector3i struct {
+	X, Y, Z int32
+}
+
+func MakeVector3i(x, y, z int32) Vector3i {
+	return Vector3i{x, y, z}
+}
+
+func (a Vector3i) Add(b Vector3i) Vector3i {
+	return Vector3i{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
+}
+
+func (a Vector3i) Min(b Vector3i) Vector3i {
+	return Vector3i{Mini(a.X, b.X), Mini(a.Y, b.Y), Mini(a.Z, b.Z)}
+}
+
+func (a Vector3i) Max(b Vector3i) Vector3i {
+	return Vector3i{Maxi(a.X, b.X), Maxi(a.Y, b.Y), Maxi(a.Z, b.Z)}
+}
