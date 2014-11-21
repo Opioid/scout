@@ -11,12 +11,16 @@ type SamplerSpherical_nearest struct {
 
 func NewSamplerSpherical_nearest(t *Texture2D) *SamplerSpherical_nearest {
 	s := new(SamplerSpherical_nearest)
-	s.texture = t
+	s.SetTexture(t)
 	return s
 }
 
 func (sampler *SamplerSpherical_nearest) Texture() *Texture2D {
 	return sampler.texture
+}
+
+func (sampler *SamplerSpherical_nearest) SetTexture(t *Texture2D) {
+	sampler.texture = t
 }
 
 func (sampler *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {

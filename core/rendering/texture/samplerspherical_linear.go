@@ -13,14 +13,19 @@ type SamplerSpherical_linear struct {
 
 func NewSamplerSpherical_linear(t *Texture2D) *SamplerSpherical_linear {
 	sampler := new(SamplerSpherical_linear)
-	sampler.texture = t
-	sampler.maxMipLevel = sampler.texture.Image.NumMipLevels() - 1
+	
+	sampler.SetTexture(t)
 
 	return sampler
 }
 
 func (sampler *SamplerSpherical_linear) Texture() *Texture2D {
 	return sampler.texture
+}
+
+func (sampler *SamplerSpherical_linear) SetTexture(t *Texture2D) {
+	sampler.texture = t
+	sampler.maxMipLevel = t.Image.NumMipLevels() - 1
 }
 
 func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {

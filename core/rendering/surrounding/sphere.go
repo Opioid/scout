@@ -45,6 +45,9 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	sphericalTexture.AllocateMipLevels(8)
 
+	// UGLY: have to reset the texture, so that the sampler registers the additional mip maps
+	s.sphereMap.SetTexture(sphericalTexture)
+
 	numMipLevels = sphericalTexture.Image.NumMipLevels()
 
 	s.maxRoughnessMip = float32(numMipLevels - 1)
@@ -52,7 +55,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 	roughnessIncrement := 1 / s.maxRoughnessMip
 
 	for i := uint32(1); i < numMipLevels; i++ {
-		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 128, &sphericalTexture.Image.Buffers[i])
+		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 512, &sphericalTexture.Image.Buffers[i])
 	}
 
 	fo, err := os.Create("../cache/surrounding.sui")
