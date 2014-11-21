@@ -46,26 +46,27 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 	v := ray.Direction.Scale(-1.0)
 
+	brdf := material.Evaluate(&intersection.Dg, v)
+
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
 
 		l.Samples(intersection.Dg.P, subsample, &w.sampler, &w.lightSamples)
 
-		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
+		numSamplesReciprocal := 1 / float32(len(w.lightSamples))
 
 		for _, s := range w.lightSamples {
 			shadowRay.SetDirection(s.L)
 
 			if !scene.IntersectP(&shadowRay) {
-				color, opacity := material.Evaluate(&intersection.Dg, s.L, v)
-				result.AddAssign(s.Energy.Mul(color.Scale(opacity)).Scale(numSamplesReciprocal))
+				r := brdf.Evaluate(s.L)
+				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
 			}
-
 		}
 	}
+
 	ambientColor := scene.Surrounding.SampleDiffuse(intersection.Dg.N)
-	color, opacity := material.EvaluateAmbient(&intersection.Dg)
-	result.AddAssign(ambientColor.Mul(color.Scale(opacity)))
+	result.AddAssign(ambientColor.Mul(brdf.DiffuseColor))
 
 	reflection := intersection.Dg.N.Reflect(ray.Direction)
 
@@ -74,24 +75,15 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 		environment := task.Li(scene, subsample, &secondaryRay)
 
-		n_dot_v := math.Maxf(intersection.Dg.N.Dot(v), 0.0)
+		pi_brdf := w.brdf.Sample(math.MakeVector2(0, brdf.N_dot_v))
 
-		brdf := w.brdf.Sample(math.MakeVector2(0, n_dot_v))
-
-		result.AddAssign(environment.Scale(brdf.X + brdf.Y))
+		result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
 	} else {
-		// pixel_out.color = cavity * prefiltered_environment * (f0 * brdf.x + brdf.y);
+		environment := scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
 
-		roughness := material.Roughness()
+		pi_brdf := w.brdf.Sample(math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
 
-		environment := scene.Surrounding.SampleSpecular(reflection, material.Roughness())
-	//	color, opacity := material.EvaluateAmbient(&intersection.Dg)
-
-		n_dot_v := math.Maxf(intersection.Dg.N.Dot(v), 0.0)
-
-		brdf := w.brdf.Sample(math.MakeVector2(roughness, n_dot_v))
-
-		result.AddAssign(environment.Scale(brdf.X + brdf.Y))
+		result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
 	}
 
 	return result

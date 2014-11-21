@@ -43,8 +43,8 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	}
 
 	color     := math.MakeVector3(0.75, 0.75, 0.75)
-	roughness := float32(1.0)
-	metallic  := float32(0.0)
+	roughness := float32(1)
+	metallic  := float32(0)
 	var colorMap texture.Sampler2D
 
 	for key, value := range renderingNode {
