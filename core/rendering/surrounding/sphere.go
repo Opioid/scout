@@ -5,7 +5,6 @@ import (
 	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
-	"os"
 	"fmt"
 )
 
@@ -58,16 +57,27 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 512, &sphericalTexture.Image.Buffers[i])
 	}
 
-	fo, err := os.Create("../cache/surrounding.sui")
-	defer fo.Close()
+	return s
+}
 
-	if err == nil {
-		if err := texture.Save(fo, sphericalTexture); err != nil {
-			fmt.Println(err)
-		}
-	}
+func NewSphereFromCache(diffuseTexture *texture.Texture2D, specularTexture *texture.Texture2D) *sphere {
+	s := new(sphere)
+
+	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuseTexture) 
+	s.sphereMap = texture.NewSamplerSpherical_linear(specularTexture)
+
+	numMipLevels := specularTexture.Image.NumMipLevels()
+	s.maxRoughnessMip = float32(numMipLevels - 1)
 
 	return s
+}
+
+func (s *sphere) DiffuseTexture() *texture.Texture2D {
+	return s.diffuseSampler.Texture()
+}
+
+func (s *sphere) SpecularTexture() *texture.Texture2D {
+	return s.sphereMap.Texture()
 }
 
 func (s *sphere) Sample(ray *math.OptimizedRay) (math.Vector3, float32) {

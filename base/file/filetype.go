@@ -3,6 +3,7 @@ package file
 import (
 	"os"
 	"bytes"
+	"path/filepath"
 	_ "fmt"
 )
 
@@ -31,4 +32,9 @@ func QueryFileType(fi *os.File) int {
 	}
 
 	return Unknown
+}
+
+func WithoutExt(path string) string {
+	ext := filepath.Ext(path)
+	return path[0:len(path) - len(ext)]
 }

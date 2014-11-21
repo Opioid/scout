@@ -8,9 +8,11 @@ import (
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
+	"github.com/Opioid/scout/base/file"
 	"io/ioutil"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"fmt"
 )
 
@@ -98,25 +100,62 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 		filename := textureNode["file"].(string)
 
-		fi, err := os.Open("../cache/surrounding.sui")
-		defer fi.Close()
+		filenameBase := file.WithoutExt(filepath.Base(filename))
 
-		if err == nil {
-			sphericalTexture, err := texture.Load(fi)
+		diffuseTextureName  := filenameBase  + "_diffuse.sui"
+		specularTextureName := filenameBase  + "_specular.sui"
 
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				loader.scene.Surrounding = surrounding.NewSphere(sphericalTexture)
+		diffuseTexture  := loadCachedTexture(diffuseTextureName)
+		specularTexture := loadCachedTexture(specularTextureName)
+
+		if diffuseTexture != nil && specularTexture != nil {
+			loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
+			fmt.Println("Found cached surrounding.")
+		} else {
+			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
+				s := surrounding.NewSphere(sphericalTexture)
+
+				loader.scene.Surrounding = s
+
+				saveCachedTexture(diffuseTextureName, s.DiffuseTexture())
+				saveCachedTexture(specularTextureName, s.SpecularTexture())
+
+				fmt.Println("Created cached surrounding.")
 			}
 		}
-
-		if loader.scene.Surrounding == nil {
-			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
-				loader.scene.Surrounding = surrounding.NewSphere(sphericalTexture)
-			}
-		} 
 	}
+}
+
+func saveCachedTexture(filename string, t *texture.Texture2D) error {
+	fo, err := os.Create("../cache/" + filename)
+	defer fo.Close()
+
+	if err == nil {
+		if err := texture.Save(fo, t); err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func loadCachedTexture(filename string) *texture.Texture2D {
+	fi, err := os.Open("../cache/" + filename)
+	defer fi.Close()
+
+	if err == nil {
+		texture, err := texture.Load(fi)
+
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		} else {
+			return texture
+		}
+	}	
+
+	return nil
 }
 
 func (loader *Loader) loadEntities(i interface{}) {
