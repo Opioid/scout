@@ -7,8 +7,8 @@ import (
 	"github.com/Opioid/scout/base/math"
 	_ "github.com/Opioid/scout/base/math/random"
 	_ "math"
-	"os"
-	"image/png"
+	_ "os"
+	_"image/png"
 	_ "runtime"
 	_ "sync"	
 	_ "strconv"
@@ -33,7 +33,7 @@ func IntegrateGgxBrdf(numSamples uint32, buffer *texture.Buffer) {
 		}
 	}
 
-	image := buffer.RGBA()
+/*	image := buffer.RGBA()
 
 	fo, err := os.Create("ggx_brdf.png")
 
@@ -43,7 +43,7 @@ func IntegrateGgxBrdf(numSamples uint32, buffer *texture.Buffer) {
 
 	defer fo.Close()
 
-	png.Encode(fo, image)
+	png.Encode(fo, image)*/
 }
 
 /*
@@ -99,7 +99,7 @@ func intefrateBrdf(roughness, n_dot_v float32, numSamples uint32) math.Vector2 {
 	for i := uint32(0); i < numSamples; i++ {
 		xi := math.Hammersley(i, numSamples)
 		h  := ggx.ImportanceSample(xi, roughness, n)
-		l  := h.Scale(2.0 * v.Dot(h)).Sub(v)
+		l  := h.Scale(2 * v.Dot(h)).Sub(v)
 
 		n_dot_l := math.Saturate(l.Z)
 		n_dot_h := math.Saturate(h.Z)

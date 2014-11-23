@@ -7,11 +7,11 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
 	gomath "math"
-	"os"
-	"image/png"
 	"runtime"
 	"sync"	
-	"strconv"
+	_ "os"
+	_ "image/png"	
+	_ "strconv"
 	_ "fmt"
 )
 
@@ -95,7 +95,7 @@ func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSample
 	}
 
 	wg.Wait()
-
+/*
 	image := buffer.RGBA()
 
 	fo, err := os.Create("sphere_map_diffuse.png")
@@ -107,6 +107,7 @@ func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSample
 	defer fo.Close()
 
 	png.Encode(fo, image)
+	*/
 }
 
 func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
@@ -206,7 +207,7 @@ func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float
 	}
 
 	wg.Wait()
-
+/*
 	image := buffer.RGBA()
 
 	fo, err := os.Create("sphere_map_specular_" + strconv.FormatFloat(float64(roughness), 'f', 2, 32) + ".png")
@@ -218,6 +219,7 @@ func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float
 	defer fo.Close()
 
 	png.Encode(fo, image)
+	*/
 }
 
 func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {

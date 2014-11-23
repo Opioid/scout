@@ -68,23 +68,21 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 	ambientColor := scene.Surrounding.SampleDiffuse(intersection.Dg.N)
 	result.AddAssign(ambientColor.Mul(brdf.DiffuseColor))
 
-	reflection := intersection.Dg.N.Reflect(ray.Direction)
+	reflection := intersection.Dg.N.Reflect(ray.Direction).Normalized()
+
+	var environment math.Vector3
 
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
-		environment := task.Li(scene, subsample, &secondaryRay)
-
-		pi_brdf := w.brdf.Sample(math.MakeVector2(0, brdf.N_dot_v))
-
-		result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
+		environment = task.Li(scene, subsample, &secondaryRay)
 	} else {
-		environment := scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
-
-		pi_brdf := w.brdf.Sample(math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
-
-		result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
+		environment = scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
 	}
+
+	pi_brdf := w.brdf.Sample(math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
+
+	result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
 
 	return result
 }
