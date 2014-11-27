@@ -112,7 +112,7 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 			loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
 			fmt.Println("Found cached surrounding.")
 		} else {
-			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename); sphericalTexture != nil {
+			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, false); sphericalTexture != nil {
 				s := surrounding.NewSphere(sphericalTexture)
 
 				loader.scene.Surrounding = s

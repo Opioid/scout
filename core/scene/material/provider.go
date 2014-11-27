@@ -45,7 +45,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	color     := math.MakeVector3(0.75, 0.75, 0.75)
 	roughness := float32(1)
 	metallic  := float32(0)
-	var colorMap texture.Sampler2D
+	var colorSampler texture.Sampler2D
 
 	for key, value := range renderingNode {
 		switch key {
@@ -57,9 +57,9 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 			}
 
 			for _, t := range textures {
-				filename = readFilename(t)
-				if colorTexture := tp.Load2D(filename); colorTexture != nil {
-					colorMap = texture.NewSampler2D_linear(colorTexture, new(texture.AddressMode_repeat))
+				filename, _ = readFilename(t)
+				if colorTexture := tp.Load2D(filename, false); colorTexture != nil {
+					colorSampler = texture.NewSampler2D_linear(colorTexture, new(texture.AddressMode_repeat))
 				}
 			}
 
@@ -72,21 +72,22 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 		}
 	}
 
-	if colorMap != nil {
-		return material.NewSubstitute_ColorMap(color, roughness, metallic, colorMap)
+	if colorSampler != nil {
+		return material.NewSubstitute_ColorMap(color, roughness, metallic, colorSampler)
 	} else {
 		return material.NewSubstitute_ColorConstant(color, roughness, metallic)
 	}
 }
 
-func readFilename(i interface{}) string {
+func readFilename(i interface{}) (string, string) {
 	node, ok := i.(map[string]interface{})
 
 	if !ok {
-		return ""
+		return "", ""
 	}
 
 	filename := node["file"].(string)
+	usage    := node["usage"].(string)
 
-	return filename
+	return filename, usage
 }

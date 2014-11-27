@@ -16,7 +16,7 @@ type Provider struct {
 
 }
 
-func (p *Provider) Load2D(filename string) *Texture2D {
+func (p *Provider) Load2D(filename string, treatAsLinear bool) *Texture2D {
 	fi, err := os.Open(filename)
 
 	if err != nil {
@@ -52,7 +52,12 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 		wg.Add(1)
 
 		go func (start, end math.Vector2i) {
-			process(start, end, sourceImage, &texture.Image.Buffers[0])
+			if treatAsLinear {
+				processLinear(start, end, sourceImage, &texture.Image.Buffers[0])
+			} else {
+				processSrgbToLinear(start, end, sourceImage, &texture.Image.Buffers[0])
+			}
+
 			wg.Done()
 		}(start, end)
 
@@ -70,7 +75,7 @@ func (p *Provider) Load2D(filename string) *Texture2D {
 	return texture
 }
 
-func process(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target *Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
@@ -87,51 +92,19 @@ func process(start, end math.Vector2i, source goimage.Image, target *Buffer) {
 	}
 }
 
+func processLinear(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+	max := float32(0xFFFF)
 
-/*
-
-	numTaks := runtime.GOMAXPROCS(0)
-
-	a := f.dimensions.Y / numTaks
-
-	start := math.Vector2i{0, 0}
-	end   := math.Vector2i{f.dimensions.X, a}
-
-	wg := sync.WaitGroup{}
-
-	for i := 0; i < numTaks; i++ {
-		wg.Add(1)
-
-		go func (s, e math.Vector2i, t *image.RGBA) {
-			f.process(s, e, t)
-			wg.Done()
-		}(start, end, target)
-
-		start.Y += a
-
-		if i == numTaks - 1 {
-			end.Y = f.dimensions.Y
-		} else {
-			end.Y += a
-		}
-	}
-
-	wg.Wait()
-
-	return target
-}
-
-func (f *Unfiltered) process(start, end math.Vector2i, target *image.RGBA) {
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
-			pixel := f.at(x, y)
-			iw := 1.0 / pixel.weightSum
-			r := uint8(255.0 * color.LinearToSrgb(pixel.color.X * iw))
-			g := uint8(255.0 * color.LinearToSrgb(pixel.color.Y * iw))
-			b := uint8(255.0 * color.LinearToSrgb(pixel.color.Z * iw))
+			r, g, b, a := source.At(int(x), int(y)).RGBA()
 
-			target.Set(x, y, gocolor.RGBA{r, g, b, 255})
+			target.Set(x, y, math.MakeVector4(
+				float32(r) / max, 
+				float32(g) / max, 
+				float32(b) / max, 
+				float32(a) / max,
+			))
 		}
 	}
 }
-*/
