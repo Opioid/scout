@@ -15,6 +15,27 @@ import (
 )
 
 func main() {
+/*
+	rgbe_file, err := os.Open("../data/textures/container_spherical.hdr")
+
+	defer rgbe_file.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	width, height, _, rerr := rgbe.Decode(rgbe_file)
+
+	if rerr != nil {
+		panic(rerr)
+	}
+
+	fmt.Printf("RGBE file %d x %d \n", width, height)
+
+	return
+*/
+	// ---
+
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 

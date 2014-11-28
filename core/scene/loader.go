@@ -104,14 +104,14 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 		diffuseTextureName  := filenameBase  + "_diffuse.sui"
 		specularTextureName := filenameBase  + "_specular.sui"
-
+/*
 		diffuseTexture  := loadCachedTexture(diffuseTextureName)
 		specularTexture := loadCachedTexture(specularTextureName)
 
 		if diffuseTexture != nil && specularTexture != nil {
 			loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
 			fmt.Println("Found cached surrounding.")
-		} else {
+		} else*/ {
 			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, false); sphericalTexture != nil {
 				s := surrounding.NewSphere(sphericalTexture)
 
@@ -121,7 +121,7 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 				saveCachedTexture(specularTextureName, s.SpecularTexture())
 
 				fmt.Println("Created cached surrounding.")
-			}
+			} 
 		}
 	}
 }

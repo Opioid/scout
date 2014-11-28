@@ -2,8 +2,9 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/core/rendering/texture/rgbe"
 	"github.com/Opioid/scout/base/rendering/color"
-	_ "github.com/Opioid/scout/base/file"
+	"github.com/Opioid/scout/base/file"
 	"os"
 	goimage "image"
 	_ "image/jpeg"
@@ -19,15 +20,52 @@ type Provider struct {
 func (p *Provider) Load2D(filename string, treatAsLinear bool) *Texture2D {
 	fi, err := os.Open(filename)
 
+	defer fi.Close()
+
 	if err != nil {
 		fmt.Printf("%s could not be loaded", filename)
 		return nil
 	}
 
-	defer fi.Close()
+	fileType := file.QueryFileType(fi)
 
-	// fmt.Println(file.QueryFileType(fi))
+	if file.RGBE == fileType {
+		return textureFromRgbe(fi)
+	} else {
+		return textureFromGoSupportedFile(fi, treatAsLinear)
+	}
+}
 
+func textureFromRgbe(fi *os.File) *Texture2D {
+	width, height, data, err := rgbe.Decode(fi)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	dimensions := math.MakeVector2i(int32(width), int32(height))
+
+	texture := NewTexture2D(dimensions, 1)
+
+	stride := dimensions.X * 3
+
+	for y := int32(0); y < dimensions.Y; y++ {
+		for x := int32(0); x < dimensions.X; x++ {
+			o := stride * y + x * 3
+
+			r := data[o + 0]
+			g := data[o + 1]
+			b := data[o + 2]
+
+			texture.Image.Buffers[0].Set(x, y, math.MakeVector4(r, g, b, 1))
+		}
+	}
+
+	return texture
+}
+
+func textureFromGoSupportedFile(fi *os.File, treatAsLinear bool) *Texture2D {
 	sourceImage, _, err := goimage.Decode(fi)
 
 	if err != nil {

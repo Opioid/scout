@@ -11,11 +11,12 @@ const (
 	Unknown = iota
 	JPG     = iota
 	PNG     = iota
+	RGBE    = iota
 	SUI     = iota
 )
 
 func QueryFileType(fi *os.File) int {
-	header := make([]byte, 4)
+	header := make([]byte, 10)
 
 	_, err := fi.ReadAt(header, 0)
 
@@ -25,9 +26,11 @@ func QueryFileType(fi *os.File) int {
 
 	if bytes.HasPrefix(header, []byte{255, 216}) {
 		return JPG
-	} else if bytes.Compare(header, []byte{137, 'P', 'N', 'G'}) == 0 {
+	} else if bytes.HasPrefix(header, []byte{137, 'P', 'N', 'G'}) {
 		return PNG
-	} else if bytes.Compare(header, []byte{'S', 'U', 'I'}) == 0 {
+	} else if bytes.HasPrefix(header, []byte{'#', '?', 'R', 'A', 'D', 'I', 'A', 'N', 'C', 'E'}) {
+		return RGBE
+	} else if bytes.HasPrefix(header, []byte{'S', 'U', 'I'}) {
 		return SUI
 	}
 
