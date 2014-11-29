@@ -2,12 +2,12 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
-	"github.com/Opioid/scout/core/rendering/texture/rgbe"
 	"github.com/Opioid/scout/base/rendering/color"
 	"github.com/Opioid/scout/base/file"
 	"os"
 	goimage "image"
 	_ "image/jpeg"
+	"github.com/Opioid/rgbe"
 	"runtime"
 	"sync"
 	"fmt"

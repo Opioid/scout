@@ -62,6 +62,16 @@ func ReadVector3(value map[string]interface{}, name string, defaultValue math.Ve
 	return defaultValue
 }
 
+func ReadString(value map[string]interface{}, name, defaultValue string) string {
+	if t, ok := value[name]; ok {
+		if s, isString := t.(string); isString {
+			return s
+		}
+	}
+
+	return defaultValue
+}
+
 func ParseRotationMatrix(value interface{}) math.Matrix3x3 {
 	rotation := ParseVector3(value)
 

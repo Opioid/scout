@@ -57,8 +57,8 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 			}
 
 			for _, t := range textures {
-				filename, _ = readFilename(t)
-				if colorTexture := tp.Load2D(filename, false); colorTexture != nil {
+				texturename, _ := readFilename(t)
+				if colorTexture := tp.Load2D(texturename, false); colorTexture != nil {
 					colorSampler = texture.NewSampler2D_linear(colorTexture, new(texture.AddressMode_repeat))
 				}
 			}
@@ -86,8 +86,8 @@ func readFilename(i interface{}) (string, string) {
 		return "", ""
 	}
 
-	filename := node["file"].(string)
-	usage    := node["usage"].(string)
+	filename := pkgjson.ReadString(node, "file", "")
+	usage    := pkgjson.ReadString(node, "usage", "")
 
 	return filename, usage
 }
