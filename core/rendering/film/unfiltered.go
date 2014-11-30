@@ -46,7 +46,7 @@ func (f *Unfiltered) RGBA() *image.RGBA {
 		wg.Add(1)
 
 		go func (s, e math.Vector2i) {
-			f.process(s, e, target)
+			f.processTonemapped(s, e, target)
 			wg.Done()
 		}(start, end)
 
@@ -64,16 +64,37 @@ func (f *Unfiltered) RGBA() *image.RGBA {
 	return target
 }
 
-func (f *Unfiltered) process(start, end math.Vector2i, target *image.RGBA) {
+func (f *Unfiltered) Float32x3() []float32 {
+	target := make([]float32, f.dimensions.X * f.dimensions.Y * 3)
+
+	for y := int32(0); y < f.dimensions.Y; y++ {
+		for x := int32(0); x < f.dimensions.X; x++ {
+			pixel := f.at(x, y)
+			c := pixel.color.Div(pixel.weightSum)
+
+			o := (f.dimensions.X * y + x) * 3
+
+			target[o + 0] = c.X
+			target[o + 1] = c.Y
+			target[o + 2] = c.Z
+		}
+	}
+
+	return target
+}
+
+func (f *Unfiltered) processTonemapped(start, end math.Vector2i, target *image.RGBA) {
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			pixel := f.at(x, y)
 			c := pixel.color.Div(pixel.weightSum)
+
 			exposed := expose(c, f.exposure)
+
 			tonemapped := f.tonemapper.Tonemap(exposed)
-			r := uint8(255.0 * color.LinearToSrgb(tonemapped.X))
-			g := uint8(255.0 * color.LinearToSrgb(tonemapped.Y))
-			b := uint8(255.0 * color.LinearToSrgb(tonemapped.Z))
+			r := uint8(255 * color.LinearToSrgb(tonemapped.X))
+			g := uint8(255 * color.LinearToSrgb(tonemapped.Y))
+			b := uint8(255 * color.LinearToSrgb(tonemapped.Z))
 
 			target.Set(int(x), int(y), gocolor.RGBA{r, g, b, 255})
 		}

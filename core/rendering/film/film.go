@@ -13,6 +13,8 @@ type Film interface {
 	AddSample(sample *sampler.Sample, color math.Vector3)
 
 	RGBA() *image.RGBA
+
+	Float32x3() []float32
 }
 
 type pixel struct {
@@ -45,7 +47,7 @@ func (f *film) at(x, y int32) pixel {
 func (f *film) addPixel(x, y int32, color math.Vector3) {
 	p := &f.pixels[f.dimensions.X * y + x]
 	p.color.AddAssign(color)
-	p.weightSum += 1.0
+	p.weightSum += 1
 }
 
 func expose(color math.Vector3, exposure float32) math.Vector3 {

@@ -1,6 +1,49 @@
+/*
 package main
 
 import (
+	"github.com/Opioid/rgbe"
+	"os"
+	"fmt"
+)
+
+func main() {
+	fi, err := os.Open("output.hdr")
+
+	defer fi.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	width, height, data, err := rgbe.Decode(fi)
+
+	if err != nil {
+		panic(err)
+	}
+
+	total := float32(width * height)
+
+	r, g, b := float32(0), float32(0), float32(0)
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			o := (width * y + x) * 3
+
+			r += data[o + 0] / total
+			g += data[o + 1] / total
+			b += data[o + 2] / total
+		}
+	}
+
+	fmt.Printf("RGBE image %d x %d size, average color [%v, %v, %v]\n", width, height, r, g, b)
+}
+*/
+
+package main
+
+import (
+	"github.com/Opioid/rgbe"
 	"github.com/Opioid/scout/scout/complex"
 	"github.com/Opioid/scout/core/rendering"
 	pkgscene "github.com/Opioid/scout/core/scene"
@@ -15,27 +58,6 @@ import (
 )
 
 func main() {
-/*
-	rgbe_file, err := os.Open("../data/textures/container_spherical.hdr")
-
-	defer rgbe_file.Close()
-
-	if err != nil {
-		panic(err)
-	}
-
-	width, height, _, rerr := rgbe.Decode(rgbe_file)
-
-	if rerr != nil {
-		panic(rerr)
-	}
-
-	fmt.Printf("RGBE file %d x %d \n", width, height)
-
-	return
-*/
-	// ---
-
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -84,17 +106,39 @@ func main() {
 	fmt.Printf("Saving...\n")
 	saveStart := time.Now()
 
-	image := take.Context.Camera.Film().RGBA()
+	film := take.Context.Camera.Film()
 
-	fo, err := os.Create("output.png")
+	{
+		fo, err := os.Create("output.png")
 
-	if err != nil {
-		panic(err)
+		defer fo.Close()
+
+		if err != nil {
+			panic(err)
+		}
+
+		image := film.RGBA()
+
+		png.Encode(fo, image)
 	}
 
-	defer fo.Close()
+	{
+		fo, err := os.Create("output.hdr")
 
-	png.Encode(fo, image)
+		defer fo.Close()
+
+		if err != nil {
+			panic(err)
+		}
+
+		data := film.Float32x3()
+
+		dimensions := film.Dimensions()
+
+		if err := rgbe.Encode(fo, int(dimensions.X), int(dimensions.Y), data); err != nil {
+			panic(err)
+		}
+	}
 
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0

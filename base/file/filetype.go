@@ -16,7 +16,7 @@ const (
 )
 
 func QueryFileType(fi *os.File) int {
-	header := make([]byte, 10)
+	header := make([]byte, 4)
 
 	_, err := fi.ReadAt(header, 0)
 
@@ -28,7 +28,7 @@ func QueryFileType(fi *os.File) int {
 		return JPG
 	} else if bytes.HasPrefix(header, []byte{137, 'P', 'N', 'G'}) {
 		return PNG
-	} else if bytes.HasPrefix(header, []byte{'#', '?', 'R', 'A', 'D', 'I', 'A', 'N', 'C', 'E'}) {
+	} else if bytes.HasPrefix(header, []byte{'#', '?' }) {
 		return RGBE
 	} else if bytes.HasPrefix(header, []byte{'S', 'U', 'I'}) {
 		return SUI

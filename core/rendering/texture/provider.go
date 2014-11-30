@@ -48,11 +48,9 @@ func textureFromRgbe(fi *os.File) *Texture2D {
 
 	texture := NewTexture2D(dimensions, 1)
 
-	stride := dimensions.X * 3
-
 	for y := int32(0); y < dimensions.Y; y++ {
 		for x := int32(0); x < dimensions.X; x++ {
-			o := stride * y + x * 3
+			o := (dimensions.X * y + x) * 3
 
 			r := data[o + 0]
 			g := data[o + 1]
