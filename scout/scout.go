@@ -1,45 +1,61 @@
-/*
+
 package main
 
 import (
 	"github.com/Opioid/rgbe"
 	"os"
+	"time"
 	"fmt"
 )
 
 func main() {
-	fi, err := os.Open("output.hdr")
-
-	defer fi.Close()
-
-	if err != nil {
-		panic(err)
+	files := []string{
+		"../data/textures/container_spherical.hdr",
+		"../data/textures/harbor_spherical.hdr",
+		"../data/textures/field_spherical.hdr",
+		"../data/textures/city_night_lights_spherical.hdr",
+		"../data/textures/river_road_spherical.hdr",
 	}
+		
+	start := time.Now()
 
-	width, height, data, err := rgbe.Decode(fi)
+	for _, file := range files {
+		fi, err := os.Open(file)
 
-	if err != nil {
-		panic(err)
-	}
+		if err != nil {
+			panic(err)
+		}
 
-	total := float32(width * height)
+		width, height, data, err := rgbe.Decode(fi)
 
-	r, g, b := float32(0), float32(0), float32(0)
+		if err != nil {
+			panic(err)
+		}
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			o := (width * y + x) * 3
+		fi.Close()
 
-			r += data[o + 0] / total
-			g += data[o + 1] / total
-			b += data[o + 2] / total
+		fo, err := os.Create(file + ".save.hdr")
+
+		if err != nil {
+			panic(err)
+		}
+
+		err = rgbe.Encode(fo, width, height, data)
+
+		fo.Close()
+
+		if err != nil {
+			panic(err)
 		}
 	}
 
-	fmt.Printf("RGBE image %d x %d size, average color [%v, %v, %v]\n", width, height, r, g, b)
+	duration := time.Since(start)
+	seconds := float64(duration.Nanoseconds()) / 1000000000.0
+	fmt.Printf("(%fs)\n", seconds)
 }
-*/
 
+
+/*
 package main
 
 import (
@@ -143,4 +159,4 @@ func main() {
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
-}
+}*/
