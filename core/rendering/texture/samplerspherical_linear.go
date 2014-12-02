@@ -29,13 +29,13 @@ func (sampler *SamplerSpherical_linear) SetTexture(t *Texture2D) {
 }
 
 func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math.FastAcos(xyz.Y) / gomath.Pi)
 
 	return sampler.sampleLevel(uv, 0)
 }
 
 func (sampler *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
+	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math.FastAcos(xyz.Y) / gomath.Pi)
 
 	l0 := math.Floor(mipLevel)
 

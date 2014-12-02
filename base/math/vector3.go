@@ -98,7 +98,10 @@ func (a Vector3) SquaredDistance(b Vector3) float32 {
 }
 
 func (a Vector3) Normalized() Vector3 {
-	return a.Div(a.Length())
+//	return a.Div(a.Length())
+	l := Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z)
+	s := 1 / l
+	return Vector3{a.X * s, a.Y * s, a.Z * s}
 }
 
 func (a Vector3) Saturated() Vector3 {

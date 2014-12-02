@@ -8,14 +8,30 @@ import (
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/core/take"
 	"github.com/Opioid/scout/core/progress"
+	_ "github.com/Opioid/scout/base/math"
 	"runtime"
 	"os"
 	"time"
 	"fmt"
 	"image/png"
+	_ "github.com/davecheney/profile"
 )
 
 func main() {
+ /*   cfg := profile.Config{
+        CPUProfile:     true,
+        ProfilePath:    ".",  // store profiles in current directory
+        NoShutdownHook: true, // do not hook SIGINT
+    }
+
+    // p.Stop() must be called before the program exits to
+	defer profile.Start(&cfg).Stop()
+*/
+
+//	s := float32(-1)
+//	fmt.Printf("Acos(%v) = %v, FastAcos(%v) = %v\n", s, math.Acos(s), s, math.FastAcos(s))
+
+
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 

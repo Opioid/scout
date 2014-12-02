@@ -8,11 +8,11 @@ import (
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
-	"github.com/Opioid/scout/base/file"
+	_ "github.com/Opioid/scout/base/file"
 	"io/ioutil"
 	"encoding/json"
 	"os"
-	"path/filepath"
+	_ "path/filepath"
 	"fmt"
 )
 
@@ -100,7 +100,7 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 		filename := textureNode["file"].(string)
 
-		filenameBase := file.WithoutExt(filepath.Base(filename))
+	/*	filenameBase := file.WithoutExt(filepath.Base(filename))
 
 		diffuseTextureName  := filenameBase  + "_diffuse.sui"
 		specularTextureName := filenameBase  + "_specular.sui"
@@ -111,16 +111,16 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 		if diffuseTexture != nil && specularTexture != nil {
 			loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
 			fmt.Println("Found cached surrounding.")
-		} else {
+		} else */{
 			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, false); sphericalTexture != nil {
 				s := surrounding.NewSphere(sphericalTexture)
 
 				loader.scene.Surrounding = s
 
-				saveCachedTexture(diffuseTextureName, s.DiffuseTexture())
-				saveCachedTexture(specularTextureName, s.SpecularTexture())
+			//	saveCachedTexture(diffuseTextureName, s.DiffuseTexture())
+			//	saveCachedTexture(specularTextureName, s.SpecularTexture())
 
-				fmt.Println("Created cached surrounding.")
+			//	fmt.Println("Created cached surrounding.")
 			} 
 		}
 	}
