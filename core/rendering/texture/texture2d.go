@@ -25,6 +25,10 @@ func (t *Texture2D) AllocateMipLevels(numMipLevels uint32) {
 	t.Image.allocateMipLevels(numMipLevels)
 }
 
+func (t *Texture2D) AllocateMipLevelsDownTo(dimensions math.Vector2i) {
+	t.Image.allocateMipLevelsDownTo(dimensions)
+}
+
 func (t *Texture2D) description() description {
 	d := description{}
 

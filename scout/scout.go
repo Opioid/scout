@@ -1,61 +1,3 @@
-
-package main
-
-import (
-	"github.com/Opioid/rgbe"
-	"os"
-	"time"
-	"fmt"
-)
-
-func main() {
-	files := []string{
-		"../data/textures/container_spherical.hdr",
-		"../data/textures/harbor_spherical.hdr",
-		"../data/textures/field_spherical.hdr",
-		"../data/textures/city_night_lights_spherical.hdr",
-		"../data/textures/river_road_spherical.hdr",
-	}
-		
-	start := time.Now()
-
-	for _, file := range files {
-		fi, err := os.Open(file)
-
-		if err != nil {
-			panic(err)
-		}
-
-		width, height, data, err := rgbe.Decode(fi)
-
-		if err != nil {
-			panic(err)
-		}
-
-		fi.Close()
-
-		fo, err := os.Create(file + ".save.hdr")
-
-		if err != nil {
-			panic(err)
-		}
-
-		err = rgbe.Encode(fo, width, height, data)
-
-		fo.Close()
-
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	duration := time.Since(start)
-	seconds := float64(duration.Nanoseconds()) / 1000000000.0
-	fmt.Printf("(%fs)\n", seconds)
-}
-
-
-/*
 package main
 
 import (
@@ -159,4 +101,4 @@ func main() {
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
-}*/
+}
