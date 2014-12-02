@@ -49,8 +49,31 @@ func (i *Image) allocateMipLevels(numMipLevels uint32) {
 	i.Buffers = buffers
 }
 
+func (i *Image) allocateMipLevelsDownTo(bottom math.Vector2i) {
+	numMipLevels := countMipLevelsDownTo(i.Buffers[0].Dimensions(), bottom)
+	
+	i.allocateMipLevels(numMipLevels)
+}
+
 func countMipLevels(dimensions math.Vector2i) uint32 {
 	m := math.Maxi(dimensions.X, dimensions.Y)
 
 	return 1 + uint32(gomath.Log2(float64(m)))
+}
+
+func countMipLevelsDownTo(top, bottom math.Vector2i) uint32 {
+	numMipLevels := uint32(0)
+
+	for {
+		if top.X < bottom.X || top.Y < bottom.Y {
+			break
+		}
+
+		top.X = math.Maxi(top.X / 2, 1)
+		top.Y = math.Maxi(top.Y / 2, 1)
+
+		numMipLevels++
+	}
+
+	return numMipLevels
 }

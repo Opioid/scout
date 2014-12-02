@@ -5,7 +5,10 @@ import (
 	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
-	"fmt"
+)
+
+const (
+	numSamples = 4096
 )
 
 type sphere struct {
@@ -24,37 +27,27 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 	s.sphereMap = texture.NewSamplerSpherical_linear(sphericalTexture)
 
 //	s.ambientCube = NewAmbientCubeFromSurrounding(s)
-
 	diffuse := texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
-//	diffuse := texture.NewTexture2D(math.MakeVector2i(256, 128), 1)
 
 	ibl.CalculateSphereMapSolidAngleWeights(&sphericalTexture.Image.Buffers[0])
 
-	ibl.IntegrateHemisphereSphereMap(s, 1024, &diffuse.Image.Buffers[0])
+	ibl.IntegrateHemisphereSphereMap(s, numSamples, &diffuse.Image.Buffers[0])
 
 	s.diffuseSampler = texture.NewSamplerSpherical_linear(diffuse) 
 
-	numMipLevels := sphericalTexture.Image.NumMipLevels()
-
-	if numMipLevels > 1 {
-		s.maxRoughnessMip = float32(numMipLevels - 1)
-		fmt.Println("We loaded the cache sometime previously.")
-		return s
-	}
-
-	sphericalTexture.AllocateMipLevels(8)
+	sphericalTexture.AllocateMipLevelsDownTo(math.MakeVector2i(20, 10))
 
 	// UGLY: have to reset the texture, so that the sampler registers the additional mip maps
 	s.sphereMap.SetTexture(sphericalTexture)
 
-	numMipLevels = sphericalTexture.Image.NumMipLevels()
+	numMipLevels := sphericalTexture.Image.NumMipLevels()
 
 	s.maxRoughnessMip = float32(numMipLevels - 1)
 
 	roughnessIncrement := 1 / s.maxRoughnessMip
 
 	for i := uint32(1); i < numMipLevels; i++ {
-		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, 1024, &sphericalTexture.Image.Buffers[i])
+		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, numSamples, &sphericalTexture.Image.Buffers[i])
 	}
 
 	return s
