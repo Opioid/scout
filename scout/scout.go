@@ -1,3 +1,105 @@
+
+package main
+
+import (
+	"github.com/Opioid/math32"
+	"github.com/Opioid/scout/base/math"
+	_ "math"
+	"time"
+	"fmt"
+)
+
+func main() {
+	fmt.Println("It runs...")
+
+	r := float32(100000)
+	a := float32(0.0125)
+
+/*
+	{
+		t := float32(0)
+
+		start := time.Now()
+
+		for i := 0; i < 10; i++ {
+			for x := float32(0); x <= r; x += a {
+				t += math32.Abs(x)
+			}
+
+			for x := float32(0); x <= r; x += a {
+				t -= math32.Abs(x)
+			}
+		}
+		
+		duration := time.Since(start)
+		seconds := float64(duration.Nanoseconds()) / 1000000000.0
+		fmt.Printf("math32.Abs %fs\n", seconds)
+
+		fmt.Printf("%v\n", t)
+	}
+
+	{
+		t := float32(0)
+
+		start := time.Now()
+
+		for i := 0; i < 10; i++ {
+			for x := float32(0); x <= r; x += a {
+				t += math.Absf(x)
+			}
+
+			for x := float32(0); x <= r; x += a {
+				t -= math.Absf(x)
+			}
+		}
+
+		duration := time.Since(start)
+		seconds := float64(duration.Nanoseconds()) / 1000000000.0
+		fmt.Printf("math.Abs %fs\n", seconds)
+
+		fmt.Printf("%v\n", t)
+	}
+*/
+
+	{
+		t := float32(0)
+
+		start := time.Now()
+
+	//	for x := -r; x <= r; x += a {
+			for y := -r; y <= r; y += a {
+				t += math32.Sin(y)
+			}
+	//	}
+
+		duration := time.Since(start)
+		seconds := float64(duration.Nanoseconds()) / 1000000000.0
+		fmt.Printf("math32.Sin %fs\n", seconds)
+
+		fmt.Printf("%v\n", t)
+	}
+
+	{
+		t := float32(0)
+
+		start := time.Now()
+
+	//	for x := -r; x <= r; x += a {
+			for y := -r; y <= r; y += a {
+				t += math.Sin(y)
+			}
+	//	}
+
+		duration := time.Since(start)
+		seconds := float64(duration.Nanoseconds()) / 1000000000.0
+		fmt.Printf("math.Sin %fs\n", seconds)
+
+		fmt.Printf("%v\n", t)
+	}	
+
+}
+
+/*
 package main
 
 import (
@@ -8,29 +110,23 @@ import (
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/core/take"
 	"github.com/Opioid/scout/core/progress"
-	_ "github.com/Opioid/scout/base/math"
 	"runtime"
 	"os"
 	"time"
 	"fmt"
 	"image/png"
-	_ "github.com/davecheney/profile"
+	// "github.com/davecheney/profile"
 )
 
 func main() {
- /*   cfg := profile.Config{
-        CPUProfile:     true,
-        ProfilePath:    ".",  // store profiles in current directory
-        NoShutdownHook: true, // do not hook SIGINT
-    }
+//	cfg := profile.Config{
+//       CPUProfile:     true,
+//       ProfilePath:    ".",  // store profiles in current directory
+//        NoShutdownHook: true, // do not hook SIGINT
+//    }
 
     // p.Stop() must be called before the program exits to
-	defer profile.Start(&cfg).Stop()
-*/
-
-//	s := float32(-1)
-//	fmt.Printf("Acos(%v) = %v, FastAcos(%v) = %v\n", s, math.Acos(s), s, math.FastAcos(s))
-
+//	defer profile.Start(&cfg).Stop()
 
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -117,4 +213,4 @@ func main() {
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
-}
+}*/
