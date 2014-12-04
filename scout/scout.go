@@ -1,9 +1,9 @@
-
+/*
 package main
 
 import (
 	"github.com/Opioid/math32"
-	"github.com/Opioid/scout/base/math"
+	_ "github.com/Opioid/scout/base/math"
 	_ "math"
 	"time"
 	"fmt"
@@ -12,54 +12,8 @@ import (
 func main() {
 	fmt.Println("It runs...")
 
-	r := float32(100000)
-	a := float32(0.0125)
-
-/*
-	{
-		t := float32(0)
-
-		start := time.Now()
-
-		for i := 0; i < 10; i++ {
-			for x := float32(0); x <= r; x += a {
-				t += math32.Abs(x)
-			}
-
-			for x := float32(0); x <= r; x += a {
-				t -= math32.Abs(x)
-			}
-		}
-		
-		duration := time.Since(start)
-		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("math32.Abs %fs\n", seconds)
-
-		fmt.Printf("%v\n", t)
-	}
-
-	{
-		t := float32(0)
-
-		start := time.Now()
-
-		for i := 0; i < 10; i++ {
-			for x := float32(0); x <= r; x += a {
-				t += math.Absf(x)
-			}
-
-			for x := float32(0); x <= r; x += a {
-				t -= math.Absf(x)
-			}
-		}
-
-		duration := time.Since(start)
-		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("math.Abs %fs\n", seconds)
-
-		fmt.Printf("%v\n", t)
-	}
-*/
+	r := float32(200000)
+	a := float32(0.01)
 
 	{
 		t := float32(0)
@@ -67,14 +21,14 @@ func main() {
 		start := time.Now()
 
 	//	for x := -r; x <= r; x += a {
-			for y := -r; y <= r; y += a {
-				t += math32.Sin(y)
+			for y := float32(0.1); y <= r; y += a {
+				t += math32.Rsqrt(y)
 			}
 	//	}
 
 		duration := time.Since(start)
 		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("math32.Sin %fs\n", seconds)
+		fmt.Printf("math32.Rsqrt %fs\n", seconds)
 
 		fmt.Printf("%v\n", t)
 	}
@@ -85,21 +39,21 @@ func main() {
 		start := time.Now()
 
 	//	for x := -r; x <= r; x += a {
-			for y := -r; y <= r; y += a {
-				t += math.Sin(y)
+			for y := float32(0.1); y <= r; y += a {
+				t += 1 / math32.Sqrt(y)
 			}
 	//	}
 
 		duration := time.Since(start)
 		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("math.Sin %fs\n", seconds)
+		fmt.Printf("1 / math32.Sqrt %fs\n", seconds)
 
 		fmt.Printf("%v\n", t)
 	}	
 
 }
+*/
 
-/*
 package main
 
 import (
@@ -213,4 +167,4 @@ func main() {
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
-}*/
+}

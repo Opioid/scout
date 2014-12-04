@@ -6,6 +6,7 @@ import (
 	_ "github.com/Opioid/scout/core/scene/surrounding"
 	"github.com/Opioid/scout/base/math"
 	_ "github.com/Opioid/scout/base/math/random"
+	"github.com/Opioid/math32"
 	_ "math"
 	_ "os"
 	_"image/png"
@@ -86,10 +87,10 @@ float2 integrate_brdf(float roughness, float n_dot_v, uint32_t num_samples)
 func intefrateBrdf(roughness, n_dot_v float32, numSamples uint32) math.Vector2 {
 	n := math.MakeVector3(0, 0, 1)
 
-	n_dot_v = math.Maxf(n_dot_v, 0.00001)
+	n_dot_v = math32.Max(n_dot_v, 0.00001)
 
 	var v math.Vector3
-	v.X = math.Sqrt(1 - n_dot_v * n_dot_v) // sin
+	v.X = math32.Sqrt(1 - n_dot_v * n_dot_v) // sin
 	v.Y = 0
 	v.Z = n_dot_v // cos
 

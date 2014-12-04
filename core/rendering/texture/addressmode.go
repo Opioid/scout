@@ -2,6 +2,7 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 	_ "fmt"
 )
 
@@ -13,8 +14,8 @@ type AddressMode_clamp struct {
 }
 
 func (a *AddressMode_clamp) address2D(uv math.Vector2) math.Vector2 {
-	u := math.Clampf(uv.X, 0.0, 1.0)
-	v := math.Clampf(uv.Y, 0.0, 1.0)
+	u := math32.Clamp(uv.X, 0, 1)
+	v := math32.Clamp(uv.Y, 0, 1)
 
 	return math.MakeVector2(u, v)
 }

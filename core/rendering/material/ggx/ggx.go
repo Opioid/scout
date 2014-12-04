@@ -1,6 +1,7 @@
 package ggx
 
 import (
+	"github.com/Opioid/math32"
 	"github.com/Opioid/scout/base/math"
 	gomath "math"
 )
@@ -34,15 +35,15 @@ func ImportanceSample(xi math.Vector2, roughness float32, n math.Vector3) math.V
 
 	phi := 2 * gomath.Pi * xi.X
 
-	cos_theta := math.Sqrt((1 - xi.Y) / (1 + (a * a - 1) * xi.Y))
+	cos_theta := math32.Sqrt((1 - xi.Y) / (1 + (a * a - 1) * xi.Y))
 
-	sin_theta := math.Sqrt(1 - cos_theta * cos_theta)
+	sin_theta := math32.Sqrt(1 - cos_theta * cos_theta)
 
 	h := math.MakeVector3(sin_theta * math.Cos(phi), sin_theta * math.Sin(phi), cos_theta)
 
 	var up math.Vector3
 
-	if math.Absf(n.Z) < 0.999 {
+	if math32.Abs(n.Z) < 0.999 {
 		up = math.MakeVector3(0, 0, 1)
 	} else {
 		up = math.MakeVector3(1, 0, 0)

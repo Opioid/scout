@@ -3,6 +3,7 @@ package light
 import (
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 )
 
 type Point struct {
@@ -19,9 +20,9 @@ func (l *Point) Samples(p math.Vector3, subsample uint32, sampler *sampler.Scram
 	v := l.entity.Transformation.Position.Sub(p)
 
 	d := v.SquaredLength()
-	i := 1.0 / d
+	i := 1 / d
 
-	result.L = v.Div(math.Sqrt(d))
+	result.L = v.Div(math32.Sqrt(d))
 	result.Energy = l.color.Scale(i * l.lumen)
 
 	*samples = append(*samples, result)

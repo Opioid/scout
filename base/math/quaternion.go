@@ -1,5 +1,9 @@
 package math
 
+import (
+	"github.com/Opioid/math32"
+)
+
 type Quaternion struct {
 	X, Y, Z, W float32
 }
@@ -13,7 +17,7 @@ func MakeQuaternionFromMatrix3x3(m *Matrix3x3) Quaternion {
 	var temp [4]float32
 
 	if trace > 0 {
-		s := Sqrt(trace + 1.0)
+		s := math32.Sqrt(trace + 1.0)
 		temp[3] = s * 0.5
 		s = 0.5 / s
 
@@ -39,7 +43,7 @@ func MakeQuaternionFromMatrix3x3(m *Matrix3x3) Quaternion {
 		j := (i + 1) % 3
 		k := (i + 2) % 3
 
-		s := Sqrt(m.At(i, i) - m.At(j, j) - m.At(k, k) + 1.0)
+		s := math32.Sqrt(m.At(i, i) - m.At(j, j) - m.At(k, k) + 1.0)
 		temp[i] = s * 0.5
 		s = 0.5 / s
 

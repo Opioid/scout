@@ -1,5 +1,9 @@
 package math
 
+import (
+	"github.com/Opioid/math32"
+)
+
 type Vector3 struct {
 	X, Y, Z float32
 }
@@ -90,7 +94,7 @@ func (a Vector3) SquaredLength() float32 {
 }
 
 func (a Vector3) Length() float32 {
-	return Sqrt(a.SquaredLength())
+	return math32.Sqrt(a.SquaredLength())
 }
 
 func (a Vector3) SquaredDistance(b Vector3) float32 {
@@ -99,13 +103,12 @@ func (a Vector3) SquaredDistance(b Vector3) float32 {
 
 func (a Vector3) Normalized() Vector3 {
 //	return a.Div(a.Length())
-	l := Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z)
-	s := 1 / l
-	return Vector3{a.X * s, a.Y * s, a.Z * s}
+	rl := math32.Rsqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z)
+	return Vector3{a.X * rl, a.Y * rl, a.Z * rl}
 }
 
 func (a Vector3) Saturated() Vector3 {
-	return Vector3{Clampf(a.X, 0, 1), Clampf(a.Y, 0, 1), Clampf(a.Z, 0, 1)}
+	return Vector3{math32.Clamp(a.X, 0, 1), math32.Clamp(a.Y, 0, 1), math32.Clamp(a.Z, 0, 1)}
 }
 
 func (a Vector3) Reflect(b Vector3) Vector3 {
@@ -113,11 +116,11 @@ func (a Vector3) Reflect(b Vector3) Vector3 {
 }
 
 func (a Vector3) Min(b Vector3) Vector3 {
-	return Vector3{Minf(a.X, b.X), Minf(a.Y, b.Y), Minf(a.Z, b.Z)}
+	return Vector3{math32.Min(a.X, b.X), math32.Min(a.Y, b.Y), math32.Min(a.Z, b.Z)}
 }
 
 func (a Vector3) Max(b Vector3) Vector3 {
-	return Vector3{Maxf(a.X, b.X), Maxf(a.Y, b.Y), Maxf(a.Z, b.Z)}
+	return Vector3{math32.Max(a.X, b.X), math32.Max(a.Y, b.Y), math32.Max(a.Z, b.Z)}
 }
 
 func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
@@ -126,7 +129,7 @@ func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
 }
 
 func (a Vector3) ContainsNaN() bool {
-	return IsNaN(a.X) || IsNaN(a.Y) || IsNaN(a.Z)
+	return math32.IsNaN(a.X) || math32.IsNaN(a.Y) || math32.IsNaN(a.Z)
 }
 
 type Vector3i struct {

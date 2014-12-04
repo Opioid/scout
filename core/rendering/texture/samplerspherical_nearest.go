@@ -2,6 +2,7 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 	gomath "math"
 )
 
@@ -24,7 +25,7 @@ func (sampler *SamplerSpherical_nearest) SetTexture(t *Texture2D) {
 }
 
 func (sampler *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
+	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
 	d := sampler.texture.Image.Buffers[0].dimensions
 
@@ -35,7 +36,7 @@ func (sampler *SamplerSpherical_nearest) Sample(xyz math.Vector3) math.Vector4 {
 }
 
 func (sampler *SamplerSpherical_nearest) SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4 {
-	uv := math.MakeVector2((math.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math.Acos(xyz.Y) / gomath.Pi)
+	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
 	b := &sampler.texture.Image.Buffers[int(mipLevel)]
 

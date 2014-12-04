@@ -2,6 +2,7 @@ package material
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 	gomath "math"
 )
 
@@ -15,8 +16,8 @@ func specular_d(n_dot_h, a2 float32) float32 {
 }
 
 func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
-	g_v := n_dot_v + math.Sqrt((n_dot_v - n_dot_v * a2) * n_dot_v + a2)
-	g_l := n_dot_l + math.Sqrt((n_dot_l - n_dot_l * a2) * n_dot_l + a2)
+	g_v := n_dot_v + math32.Sqrt((n_dot_v - n_dot_v * a2) * n_dot_v + a2)
+	g_l := n_dot_l + math32.Sqrt((n_dot_l - n_dot_l * a2) * n_dot_l + a2)
 	return math.InverseSqrt(g_v * g_l)
 }
 
@@ -63,7 +64,7 @@ func MakeSubstituteBrdf(color math.Vector3, opacity, roughness, metallic float32
 	brdf.Opacity = opacity
 	brdf.n = n
 	brdf.v = v
-	brdf.N_dot_v = math.Maxf(n.Dot(v), 0)
+	brdf.N_dot_v = math32.Max(n.Dot(v), 0)
 
 	brdf.F0 = math.MakeVector3(0.03, 0.03, 0.03).Lerp(color, metallic).Scale(opacity)
 	
@@ -95,7 +96,7 @@ func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
 	return diffuse.Add(specular).Scale(n_dot_l), 1.0
 	*/
 
-	n_dot_l := math.Maxf(brdf.n.Dot(l), 0.00001)
+	n_dot_l := math32.Max(brdf.n.Dot(l), 0.00001)
 
 	h := brdf.v.Add(l).Normalized()
 

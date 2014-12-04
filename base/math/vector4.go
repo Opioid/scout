@@ -1,5 +1,9 @@
 package math
 
+import (
+	"github.com/Opioid/math32"
+)
+
 type Vector4 struct {
 	X, Y, Z, W float32
 }
@@ -67,7 +71,7 @@ func (a Vector4) SquaredLength() float32 {
 }
 
 func (a Vector4) Length() float32 {
-	return Sqrt(a.SquaredLength())
+	return math32.Sqrt(a.SquaredLength())
 }
 
 func (a Vector4) Lerp(b Vector4, t float32) Vector4 {
