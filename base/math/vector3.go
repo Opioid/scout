@@ -112,7 +112,7 @@ func (a Vector3) Saturated() Vector3 {
 }
 
 func (a Vector3) Reflect(b Vector3) Vector3 {
-	return b.Sub(a.Scale(2.0 * b.Dot(a)))
+	return b.Sub(a.Scale(2 * b.Dot(a)))
 }
 
 func (a Vector3) Min(b Vector3) Vector3 {
