@@ -38,7 +38,7 @@ func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {
 func (sampler *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4 {
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
-	l0 := math.Floor(mipLevel)
+	l0 := math32.Floor(mipLevel)
 
 	l0i := uint32(l0)
 	l1i := math.Minui(uint32(l0) + 1, sampler.maxMipLevel)
@@ -55,8 +55,8 @@ func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel ui
 	u := uv.X * float32(b.dimensions.X) - 0.5
 	v := uv.Y * float32(b.dimensions.Y) - 0.5
 
-	fu := math.Floor(u)
-	fv := math.Floor(v)
+	fu := math32.Floor(u)
+	fv := math32.Floor(v)
 
 	x := int32(fu)
 	y := int32(fv)

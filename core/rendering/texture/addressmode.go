@@ -24,8 +24,8 @@ type AddressMode_repeat struct {
 }
 
 func (a *AddressMode_repeat) address2D(uv math.Vector2) math.Vector2 {
-	u := uv.X - math.Floor(uv.X)
-	v := uv.Y - math.Floor(uv.Y)
+	u := uv.X - math32.Floor(uv.X)
+	v := uv.Y - math32.Floor(uv.Y)
 
 	return math.MakeVector2(u, v)
 }

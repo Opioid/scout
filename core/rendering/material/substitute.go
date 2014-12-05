@@ -18,7 +18,7 @@ func specular_d(n_dot_h, a2 float32) float32 {
 func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
 	g_v := n_dot_v + math32.Sqrt((n_dot_v - n_dot_v * a2) * n_dot_v + a2)
 	g_l := n_dot_l + math32.Sqrt((n_dot_l - n_dot_l * a2) * n_dot_l + a2)
-	return math.InverseSqrt(g_v * g_l)
+	return math32.Rsqrt(g_v * g_l)
 }
 
 /*

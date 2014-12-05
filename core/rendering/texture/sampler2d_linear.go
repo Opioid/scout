@@ -2,6 +2,7 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 )
 
 type Sampler2D_linear struct {
@@ -24,8 +25,8 @@ func (sampler *Sampler2D_linear) Sample(uv math.Vector2) math.Vector4 {
 	u := auv.X * float32(d.X) - 0.5
 	v := auv.Y * float32(d.Y) - 0.5
 
-	fu := math.Floor(u)
-	fv := math.Floor(v)
+	fu := math32.Floor(u)
+	fv := math32.Floor(v)
 
 	x := int32(fu)
 	y := int32(fv)

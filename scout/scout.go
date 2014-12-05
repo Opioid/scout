@@ -11,45 +11,51 @@ import (
 
 func main() {
 	fmt.Println("It runs...")
-
-	r := float32(200000)
-	a := float32(0.01)
+	
+	r := float32(30000)
+	a := float32(0.001)
 
 	{
 		t := float32(0)
+		u := float32(0)
 
 		start := time.Now()
 
-	//	for x := -r; x <= r; x += a {
-			for y := float32(0.1); y <= r; y += a {
-				t += math32.Rsqrt(y)
-			}
-	//	}
+		for x := float32(0); x < r; x += a {
+			f0, f1 := math32.PlainFloor2(x, -x)
+			t += f0
+			u += f1
+		}
 
 		duration := time.Since(start)
 		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("math32.Rsqrt %fs\n", seconds)
+		fmt.Printf("(%fs)\n", seconds)
 
-		fmt.Printf("%v\n", t)
+		fmt.Printf("%v %v\n", t, u)
 	}
 
 	{
 		t := float32(0)
+		u := float32(0)
 
 		start := time.Now()
 
-	//	for x := -r; x <= r; x += a {
-			for y := float32(0.1); y <= r; y += a {
-				t += 1 / math32.Sqrt(y)
-			}
-	//	}
+		for x := float32(0); x < r; x += a {
+			f0, f1 := math32.Floor2(x, -x)
+			t += f0
+			u += f1
+		}
 
 		duration := time.Since(start)
 		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("1 / math32.Sqrt %fs\n", seconds)
+		fmt.Printf("(%fs)\n", seconds)
 
-		fmt.Printf("%v\n", t)
-	}	
+		fmt.Printf("%v %v\n", t, u)
+	}
+
+
+	fmt.Println(math32.Floor2(-5.3, 3.4))
+//	fmt.Println(math.Floor(-5.3))
 
 }
 */

@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
+	"github.com/Opioid/math32"
 )
 
 type Plane struct {
@@ -37,10 +38,10 @@ func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 		dg.N = normal
 
 		u := transformation.ObjectToWorld.Row(0).Vector3().Dot(dg.P)
-		dg.UV.X = u - math.Floor(u)
+		dg.UV.X = u - math32.Floor(u)
 
 		v := transformation.ObjectToWorld.Row(1).Vector3().Dot(dg.P)
-		dg.UV.Y = v - math.Floor(v)
+		dg.UV.Y = v - math32.Floor(v)
 
 		return true
 	} 
