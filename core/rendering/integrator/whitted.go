@@ -17,6 +17,11 @@ type whittedSettings struct {
 	bounceDepth uint32
 
 	maxLightSamples uint32
+
+	linearSampler_repeat texture.Sampler2D
+	linearSampler_clamp  texture.Sampler2D
+
+	brdf *texture.Texture2D	
 }
 
 type whitted struct {
@@ -26,8 +31,6 @@ type whitted struct {
 	sampler pkgsampler.ScrambledHammersley
 
 	lightSamples []light.Sample
-
-	brdf texture.Sampler2D
 }
 
 func (w *whitted) FirstSample(numSamples uint32) {
@@ -46,7 +49,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 	v := ray.Direction.Scale(-1.0)
 
-	brdf := material.Evaluate(&intersection.Dg, v)
+	brdf := material.Evaluate(&intersection.Dg, v, w.linearSampler_repeat)
 
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
@@ -80,7 +83,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 		environment = scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
 	}
 
-	pi_brdf := w.brdf.Sample(math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
+	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
 
 	result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
 
@@ -89,8 +92,6 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 type whittedFactory struct {
 	whittedSettings
-
-	brdf texture.Sampler2D
 }
 
 func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
@@ -99,9 +100,11 @@ func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
 	f.bounceDepth = bounceDepth
 	f.maxLightSamples = maxLightSamples
 
-	brdf := texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
-	ibl.IntegrateGgxBrdf(1024, &brdf.Image.Buffers[0])
-	f.brdf = texture.NewSampler2D_linear(brdf, new(texture.AddressMode_clamp)) 
+	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat)) 
+	f.linearSampler_clamp = texture.NewSampler2D_linear(new(texture.AddressMode_clamp)) 
+
+	f.brdf = texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
+	ibl.IntegrateGgxBrdf(1024, &f.brdf.Image.Buffers[0])
 
 	return &f
 }
@@ -118,6 +121,8 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w.sampler.Resize(w.maxLightSamples)
 	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
 
+	w.linearSampler_repeat = f.linearSampler_repeat
+	w.linearSampler_clamp  = f.linearSampler_clamp
 	w.brdf = f.brdf
 
 	return &w

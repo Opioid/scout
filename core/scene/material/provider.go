@@ -45,7 +45,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	color     := math.MakeVector3(0.75, 0.75, 0.75)
 	roughness := float32(1)
 	metallic  := float32(0)
-	var colorSampler texture.Sampler2D
+	var colorMap *texture.Texture2D
 
 	for key, value := range renderingNode {
 		switch key {
@@ -58,9 +58,10 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 
 			for _, t := range textures {
 				texturename, _ := readFilename(t)
-				if colorTexture := tp.Load2D(texturename, false); colorTexture != nil {
-					colorSampler = texture.NewSampler2D_linear(colorTexture, new(texture.AddressMode_repeat))
-				}
+				colorMap = tp.Load2D(texturename, false)
+			//	if colorTexture := tp.Load2D(texturename, false); colorTexture != nil {
+			//		colorSampler = texture.NewSampler2D_linear(colorTexture, new(texture.AddressMode_repeat))
+			//	}
 			}
 
 		case "color":
@@ -72,8 +73,8 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 		}
 	}
 
-	if colorSampler != nil {
-		return material.NewSubstitute_ColorMap(color, roughness, metallic, colorSampler)
+	if colorMap != nil {
+		return material.NewSubstitute_ColorMap(color, roughness, metallic, colorMap)
 	} else {
 		return material.NewSubstitute_ColorConstant(color, roughness, metallic)
 	}

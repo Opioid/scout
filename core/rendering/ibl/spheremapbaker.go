@@ -124,9 +124,9 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 	integrateHemisphere := func (n math.Vector3) math.Vector3 {
 		basis.SetBasis(n)
 
-		result := math.MakeVector3(0.0, 0.0, 0.0)
+		result := math.MakeVector3(0, 0, 0)
 
-		weightSum := float32(0.0)
+		weightSum := float32(0)
 
 		rn := rng.RandomUint32()
 
@@ -138,7 +138,7 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 			v := basis.TransformVector3(s)
 			ray.SetDirection(v)
 			
-			c, w := surrounding.Sample(&ray)
+			c, w := surrounding.SampleSecondary(&ray)
 
 			weightSum += w
 
@@ -153,8 +153,8 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 
 	dimensions := buffer.Dimensions()
 
-	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
-	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
+	sx := 1 / float32(dimensions.X) * gomath.Pi * 2
+	sy := 1 / float32(dimensions.Y) * gomath.Pi
 
 	for y := start.Y; y < end.Y; y++ {
 		ay := (float32(y) + 0.5) * sy
@@ -172,7 +172,7 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 
 			c := integrateHemisphere(v)
 
-			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
+			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1))
 		}
 	}
 }
@@ -234,9 +234,9 @@ func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness f
 	integrateCone := func (n math.Vector3) math.Vector3 {
 		v := n
 
-		result := math.MakeVector3(0.0, 0.0, 0.0)
+		result := math.MakeVector3(0, 0, 0)
 
-		weightSum := float32(0.0)
+		weightSum := float32(0)
 
 		rn := rng.RandomUint32()
 
@@ -245,14 +245,14 @@ func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness f
 			h  := ggx.ImportanceSample(xi, roughness, n)
 
 			// normalizing here prevents some NaN where l.Y is beyond either -1 or 1
-			l := h.Scale(2.0 * v.Dot(h)).Sub(v).Normalized()
+			l := h.Scale(2 * v.Dot(h)).Sub(v).Normalized()
 
 			n_dot_l := math.Saturate(n.Dot(l))
 
-			if n_dot_l > 0.0 {
+			if n_dot_l > 0 {
 				ray.SetDirection(l)
 			
-				c, _ := surrounding.Sample(&ray)
+				c, _ := surrounding.SampleSecondary(&ray)
 
 				result.AddAssign(c.Scale(n_dot_l))
 
@@ -268,15 +268,15 @@ func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness f
 		//	}
 		}
 
-		result.ScaleAssign(1.0 / weightSum)
+		result.ScaleAssign(1 / weightSum)
 
 		return result
 	}
 
 	dimensions := buffer.Dimensions()
 
-	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
-	sy := 1.0 / float32(dimensions.Y) * gomath.Pi
+	sx := 1 / float32(dimensions.X) * gomath.Pi * 2
+	sy := 1 / float32(dimensions.Y) * gomath.Pi
 
 	for y := start.Y; y < end.Y; y++ {
 		ay := (float32(y) + 0.5) * sy
@@ -294,7 +294,7 @@ func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness f
 
 			c := integrateCone(v)
 
-			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1.0))
+			buffer.Set(x, y, math.MakeVector4(c.X, c.Y, c.Z, 1))
 		}
 	}
 }

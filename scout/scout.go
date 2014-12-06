@@ -16,45 +16,39 @@ func main() {
 	a := float32(0.001)
 
 	{
-		t := float32(0)
-		u := float32(0)
+		t := int32(0)
 
 		start := time.Now()
 
-		for x := float32(0); x < r; x += a {
-			f0, f1 := math32.PlainFloor2(x, -x)
-			t += f0
-			u += f1
+		for x := -r; x < r; x += a {
+			t += math32.ConvertFloatToInt(x)
 		}
 
 		duration := time.Since(start)
 		seconds := float64(duration.Nanoseconds()) / 1000000000.0
 		fmt.Printf("(%fs)\n", seconds)
 
-		fmt.Printf("%v %v\n", t, u)
+		fmt.Printf("%v\n", t)
 	}
 
 	{
-		t := float32(0)
-		u := float32(0)
+		t := int32(0)
 
 		start := time.Now()
 
-		for x := float32(0); x < r; x += a {
-			f0, f1 := math32.Floor2(x, -x)
-			t += f0
-			u += f1
+		for x := -r; x < r; x += a {
+			t += int32(x)
 		}
 
 		duration := time.Since(start)
 		seconds := float64(duration.Nanoseconds()) / 1000000000.0
 		fmt.Printf("(%fs)\n", seconds)
 
-		fmt.Printf("%v %v\n", t, u)
+		fmt.Printf("%v\n", t)
 	}
 
 
-	fmt.Println(math32.Floor2(-5.3, 3.4))
+//	fmt.Println(math32.Floor2(-5.3, 3.4))
 //	fmt.Println(math.Floor(-5.3))
 
 }
@@ -79,13 +73,12 @@ import (
 )
 
 func main() {
-//	cfg := profile.Config{
-//       CPUProfile:     true,
-//       ProfilePath:    ".",  // store profiles in current directory
-//        NoShutdownHook: true, // do not hook SIGINT
-//    }
-
-    // p.Stop() must be called before the program exits to
+//		CPUProfile:     true,
+//		ProfilePath:    ".",  // store profiles in current directory
+//		NoShutdownHook: true, // do not hook SIGINT
+//	}
+//
+//   // p.Stop() must be called before the program exits to
 //	defer profile.Start(&cfg).Stop()
 
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())

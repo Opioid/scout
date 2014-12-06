@@ -5,11 +5,7 @@ import (
 )
 
 type SamplerSphere interface {
-	Texture() *Texture2D
+	Sample(texture *Texture2D, xyz math.Vector3) math.Vector4
 
-	SetTexture(t *Texture2D)
-
-	Sample(xyz math.Vector3) math.Vector4
-
-	SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4
+	SampleLod(texture *Texture2D, xyz math.Vector3, mipLevel float32) math.Vector4
 }

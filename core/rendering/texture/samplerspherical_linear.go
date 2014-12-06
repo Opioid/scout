@@ -8,49 +8,36 @@ import (
 )
 
 type SamplerSpherical_linear struct {
-	texture *Texture2D
-	maxMipLevel uint32
 }
 
-func NewSamplerSpherical_linear(t *Texture2D) *SamplerSpherical_linear {
+func NewSamplerSpherical_linear() *SamplerSpherical_linear {
 	sampler := new(SamplerSpherical_linear)
 	
-	sampler.SetTexture(t)
-
 	return sampler
 }
 
-func (sampler *SamplerSpherical_linear) Texture() *Texture2D {
-	return sampler.texture
-}
-
-func (sampler *SamplerSpherical_linear) SetTexture(t *Texture2D) {
-	sampler.texture = t
-	sampler.maxMipLevel = t.Image.NumMipLevels() - 1
-}
-
-func (sampler *SamplerSpherical_linear) Sample(xyz math.Vector3) math.Vector4 {
+func (sampler *SamplerSpherical_linear) Sample(texture *Texture2D, xyz math.Vector3) math.Vector4 {
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
-	return sampler.sampleLevel(uv, 0)
+	return sampler.sampleLevel(texture, uv, 0)
 }
 
-func (sampler *SamplerSpherical_linear) SampleLod(xyz math.Vector3, mipLevel float32) math.Vector4 {
+func (sampler *SamplerSpherical_linear) SampleLod(texture *Texture2D, xyz math.Vector3, mipLevel float32) math.Vector4 {
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
 	l0 := math32.Floor(mipLevel)
 
 	l0i := uint32(l0)
-	l1i := math.Minui(uint32(l0) + 1, sampler.maxMipLevel)
+	l1i := math.Minui(l0i + 1, texture.MaxMipLevel)
 
-	c0 := sampler.sampleLevel(uv, l0i)
-	c1 := sampler.sampleLevel(uv, l1i)
+	c0 := sampler.sampleLevel(texture, uv, l0i)
+	c1 := sampler.sampleLevel(texture, uv, l1i)
 
 	return c0.Lerp(c1, mipLevel - l0)
 }
 
-func (sampler *SamplerSpherical_linear) sampleLevel(uv math.Vector2, mipLevel uint32) math.Vector4 {
-	b := &sampler.texture.Image.Buffers[mipLevel]
+func (sampler *SamplerSpherical_linear) sampleLevel(texture *Texture2D, uv math.Vector2, mipLevel uint32) math.Vector4 {
+	b := &texture.Image.Buffers[mipLevel]
 
 	u := uv.X * float32(b.dimensions.X) - 0.5
 	v := uv.Y * float32(b.dimensions.Y) - 0.5

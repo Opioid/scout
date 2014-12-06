@@ -7,6 +7,7 @@ import (
 type Texture2D struct {
 	texture
 	Image Image
+	MaxMipLevel uint32
 }
 
 func NewTexture2D(dimensions math.Vector2i, numMipLevels uint32) *Texture2D {
@@ -23,10 +24,16 @@ func NewTexture2DFromDescription(description *description) *Texture2D {
 
 func (t *Texture2D) AllocateMipLevels(numMipLevels uint32) {
 	t.Image.allocateMipLevels(numMipLevels)
+	t.updateMaxMipLevel()
 }
 
 func (t *Texture2D) AllocateMipLevelsDownTo(dimensions math.Vector2i) {
 	t.Image.allocateMipLevelsDownTo(dimensions)
+	t.updateMaxMipLevel()
+}
+
+func (t *Texture2D) updateMaxMipLevel() {
+	t.MaxMipLevel = t.Image.NumMipLevels() - 1
 }
 
 func (t *Texture2D) description() description {

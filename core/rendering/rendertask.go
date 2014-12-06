@@ -23,7 +23,7 @@ func (r *RenderTask) Li(scene *pkgscene.Scene, subsample uint32, ray *math.Optim
 		c := r.integrator.Li(scene, r, subsample, ray, &intersection) 
 		return c
 	} else {
-		c, _ := scene.Surrounding.Sample(ray)
+		c := scene.Surrounding.Sample(ray)
 		return c
 	}
 }

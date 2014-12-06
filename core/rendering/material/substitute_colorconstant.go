@@ -2,6 +2,7 @@ package material
 
 import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
+	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -22,7 +23,7 @@ func NewSubstitute_ColorConstant(color math.Vector3, roughness, metallic float32
 	return m
 }
 
-func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, v math.Vector3) SubstituteBrdf {
+func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
 	return MakeSubstituteBrdf(m.color, 1, m.roughness, m.metallic, dg.N, v)
 }
 

@@ -10,10 +10,10 @@ type Substitute_ColorMap struct {
 	color math.Vector3
 	metallic float32
 	roughness, a2 float32
-	colorMap texture.Sampler2D
+	colorMap *texture.Texture2D
 }
 
-func NewSubstitute_ColorMap(color math.Vector3, roughness, metallic float32, colorMap texture.Sampler2D) *Substitute_ColorMap {
+func NewSubstitute_ColorMap(color math.Vector3, roughness, metallic float32, colorMap *texture.Texture2D) *Substitute_ColorMap {
 	m := new(Substitute_ColorMap)
 	m.color = color
 	m.metallic = metallic
@@ -24,8 +24,8 @@ func NewSubstitute_ColorMap(color math.Vector3, roughness, metallic float32, col
 	return m
 }
 
-func (m *Substitute_ColorMap) Evaluate(dg *geometry.Differential, v math.Vector3) SubstituteBrdf {
-	cs  := m.colorMap.Sample(dg.UV)
+func (m *Substitute_ColorMap) Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
+	cs  := sampler.Sample(m.colorMap, dg.UV)
 	return MakeSubstituteBrdf(cs.Vector3(), cs.W, m.roughness, m.metallic, dg.N, v)
 }
 

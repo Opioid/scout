@@ -6,21 +6,19 @@ import (
 )
 
 type Sampler2D_linear struct {
-	texture *Texture2D
 	address addressMode
 }
 
-func NewSampler2D_linear(t *Texture2D, address addressMode) *Sampler2D_linear {
+func NewSampler2D_linear(address addressMode) *Sampler2D_linear {
 	s := new(Sampler2D_linear)
-	s.texture = t
 	s.address = address
 	return s
 }
 
-func (sampler *Sampler2D_linear) Sample(uv math.Vector2) math.Vector4 {
+func (sampler *Sampler2D_linear) Sample(texture *Texture2D, uv math.Vector2) math.Vector4 {
 	auv := sampler.address.address2D(uv)
 
-	d := sampler.texture.Image.Buffers[0].dimensions
+	d := texture.Image.Buffers[0].dimensions
 
 	u := auv.X * float32(d.X) - 0.5
 	v := auv.Y * float32(d.Y) - 0.5
@@ -37,10 +35,10 @@ func (sampler *Sampler2D_linear) Sample(uv math.Vector2) math.Vector4 {
 	x = math.Maxi(x, 0)
 	y = math.Maxi(y, 0)	
 
-	c00 := sampler.texture.Image.Buffers[0].At(x,  y)	
-	c01 := sampler.texture.Image.Buffers[0].At(x,  y1)	
-	c10 := sampler.texture.Image.Buffers[0].At(x1, y)	
-	c11 := sampler.texture.Image.Buffers[0].At(x1, y1)
+	c00 := texture.Image.Buffers[0].At(x,  y)	
+	c01 := texture.Image.Buffers[0].At(x,  y1)	
+	c10 := texture.Image.Buffers[0].At(x1, y)	
+	c11 := texture.Image.Buffers[0].At(x1, y1)
 
 	s := u - fu
 	t := v - fv
@@ -48,10 +46,10 @@ func (sampler *Sampler2D_linear) Sample(uv math.Vector2) math.Vector4 {
 	return bilinear(c00, c01, c10, c11, s, t)
 }
 
-func (s *Sampler2D_linear) SampleLod(uv math.Vector2, mipLevel float32) math.Vector4 {
+func (s *Sampler2D_linear) SampleLod(texture *Texture2D, uv math.Vector2, mipLevel float32) math.Vector4 {
 	auv := s.address.address2D(uv)
 
-	b := &s.texture.Image.Buffers[int(mipLevel)]
+	b := &texture.Image.Buffers[int(mipLevel)]
 
 	x := int32(auv.X * float32(b.dimensions.X - 1) + 0.5)
 	y := int32(auv.Y * float32(b.dimensions.Y - 1) + 0.5)
