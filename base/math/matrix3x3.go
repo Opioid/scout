@@ -14,9 +14,17 @@ type Matrix3x3 struct {
 
 func MakeIdentityMatrix3x3() Matrix3x3 {
 	return Matrix3x3{
-		1.0, 0.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1,
+	}
+}
+
+func MakeMatrix3x3FromAxes(x, y, z Vector3) Matrix3x3 {
+	return Matrix3x3{
+		x.X, x.Y, x.Z,
+		y.X, y.Y, y.Z,
+		z.X, z.Y, z.Z,
 	}
 }
 
@@ -186,15 +194,17 @@ func (m *Matrix3x3) SetRotationZ(a float32) {
 }
 
 func (m *Matrix3x3) TransformVector3(v Vector3) Vector3 {
-	/*
-	return Vector3<T>(v.x * m.m00 + v.y * m.m10 + v.z * m.m20,
-					  v.x * m.m01 + v.y * m.m11 + v.z * m.m21,
-					  v.x * m.m02 + v.y * m.m12 + v.z * m.m22);
-	*/
-
 	return MakeVector3(
 		v.X * m.m00 + v.Y * m.m10 + v.Z * m.m20,
 		v.X * m.m01 + v.Y * m.m11 + v.Z * m.m21,
 		v.X * m.m02 + v.Y * m.m12 + v.Z * m.m22,
+	)
+}
+
+func (m *Matrix3x3) TransposedTransformVector3(v Vector3) Vector3 {
+	return MakeVector3(
+		v.X * m.m00 + v.Y * m.m01 + v.Z * m.m02,
+		v.X * m.m10 + v.Y * m.m11 + v.Z * m.m12,
+		v.X * m.m20 + v.Y * m.m21 + v.Z * m.m22,
 	)
 }

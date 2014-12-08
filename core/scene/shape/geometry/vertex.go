@@ -5,6 +5,7 @@ import (
 )
 
 type Vertex struct {
-	P, N math.Vector3
+	P, N, T math.Vector3
+	BitangentSign float32
 	UV math.Vector2
 }

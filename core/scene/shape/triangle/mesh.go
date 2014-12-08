@@ -33,9 +33,9 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 						 thit *float32, epsilon *float32, dg *geometry.Differential) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.SetDirection(transformation.WorldToObject.TransformVector(ray.Direction))
+	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 
-	intersection := primitive.Intersection{T: ray.MaxT}
+	intersection := primitive.Intersection{ T: ray.MaxT }
 
 	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
 
@@ -52,9 +52,15 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 			           		&dg.N, &dg.UV)
 			          		
 */
-		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.UV)
+		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
 
-		dg.N = transformation.WorldToObject.TransposedTransformVector(dg.N)
+		dg.N = transformation.WorldToObject.TransposedTransformVector3(dg.N)
+		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
+
+	//	dg.B = dg.N.Cross(dg.T).Scale(-intersection.Triangle.A.BitangentSign)
+
+	//	dg.B = dg.N.Cross(dg.T).Scale(-1)
+		dg.B = dg.T.Cross(dg.N)//.Scale(-intersection.Triangle.A.BitangentSign)
 	}
 
 	return hit
@@ -63,7 +69,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.SetDirection(transformation.WorldToObject.TransformVector(ray.Direction))
+	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 
 	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices)
 }
@@ -90,6 +96,11 @@ func (m *Mesh) SetPosition(index uint32, p math.Vector3) {
 
 func (m *Mesh) SetNormal(index uint32, n math.Vector3) {
 	m.vertices[index].N = n
+}
+
+func (m *Mesh) SetTangentAndSign(index uint32, t math.Vector3, s float32) {
+	m.vertices[index].T = t
+	m.vertices[index].BitangentSign = s
 }
 
 func (m *Mesh) SetUV(index uint32, uv math.Vector2) {

@@ -88,7 +88,7 @@ func (m *Matrix4x4) TransformPoint(v Vector3) Vector3 {
 	)
 }
 
-func (m *Matrix4x4) TransformVector(v Vector3) Vector3 {
+func (m *Matrix4x4) TransformVector3(v Vector3) Vector3 {
 	return MakeVector3(
 		v.X * m.m00 + v.Y * m.m10 + v.Z * m.m20,
 		v.X * m.m01 + v.Y * m.m11 + v.Z * m.m21,
@@ -96,7 +96,7 @@ func (m *Matrix4x4) TransformVector(v Vector3) Vector3 {
 	)
 }
 
-func (m *Matrix4x4) TransposedTransformVector(v Vector3) Vector3 {
+func (m *Matrix4x4) TransposedTransformVector3(v Vector3) Vector3 {
 	return MakeVector3(
 		v.X * m.m00 + v.Y * m.m01 + v.Z * m.m02,
 		v.X * m.m10 + v.Y * m.m11 + v.Z * m.m12,

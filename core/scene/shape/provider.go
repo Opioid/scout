@@ -88,6 +88,15 @@ func loadGeometry(i interface{}) Shape {
 		}
 	}
 
+	if t, ok := geometryNode["tangents_and_bitangent_signs"]; ok {
+		tangents := t.([]interface{})
+
+		for i, tangent := range tangents {
+			tas := pkgjson.ParseVector4(tangent)
+			m.SetTangentAndSign(uint32(i), tas.Vector3(), tas.W)
+		}
+	}
+
 	if u, ok := geometryNode["texture_coordinates_0"]; ok {
 		uvs := u.([]interface{})
 

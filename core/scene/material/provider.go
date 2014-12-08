@@ -45,7 +45,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	color     := math.MakeVector3(0.75, 0.75, 0.75)
 	roughness := float32(1)
 	metallic  := float32(0)
-	var colorMap *texture.Texture2D
+	var colorMap, normalMap *texture.Texture2D
 
 	for key, value := range renderingNode {
 		switch key {
@@ -57,11 +57,14 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 			}
 
 			for _, t := range textures {
-				texturename, _ := readFilename(t)
-				colorMap = tp.Load2D(texturename, false)
-			//	if colorTexture := tp.Load2D(texturename, false); colorTexture != nil {
-			//		colorSampler = texture.NewSampler2D_linear(colorTexture, new(texture.AddressMode_repeat))
-			//	}
+				texturename, usage := readFilename(t)
+
+				if usage == "Color" {
+					colorMap = tp.Load2D(texturename, false, false)
+				} else if usage == "Normals" {
+					normalMap = tp.Load2D(texturename, true, true)
+				}
+
 			}
 
 		case "color":
@@ -74,7 +77,11 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	}
 
 	if colorMap != nil {
-		return material.NewSubstitute_ColorMap(color, roughness, metallic, colorMap)
+		if normalMap != nil {
+			return material.NewSubstitute_ColorMap_NormalMap(color, roughness, metallic, colorMap, normalMap)
+		} else {
+			return material.NewSubstitute_ColorMap(color, roughness, metallic, colorMap)
+		}
 	} else {
 		return material.NewSubstitute_ColorConstant(color, roughness, metallic)
 	}
@@ -88,7 +95,7 @@ func readFilename(i interface{}) (string, string) {
 	}
 
 	filename := pkgjson.ReadString(node, "file", "")
-	usage    := pkgjson.ReadString(node, "usage", "")
+	usage    := pkgjson.ReadString(node, "usage", "Color")
 
 	return filename, usage
 }

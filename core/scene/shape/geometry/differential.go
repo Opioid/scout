@@ -5,6 +5,6 @@ import (
 )
 
 type Differential struct {
-	P, N math.Vector3
+	P, N, T, B math.Vector3
 	UV math.Vector2
 }

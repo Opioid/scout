@@ -62,6 +62,14 @@ func ReadVector3(value map[string]interface{}, name string, defaultValue math.Ve
 	return defaultValue
 }
 
+func ParseVector4(value interface{}) math.Vector4 {
+	if floats, ok := value.([]interface{}); ok {
+		return math.MakeVector4(float32(floats[0].(float64)), float32(floats[1].(float64)), float32(floats[2].(float64)), float32(floats[3].(float64)))
+	} 
+		
+	return math.Vector4{}
+}
+
 func ReadString(value map[string]interface{}, name, defaultValue string) string {
 	if t, ok := value[name]; ok {
 		if s, isString := t.(string); isString {
