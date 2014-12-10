@@ -45,22 +45,12 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 		dg.P = ray.Point(*thit)
 
-/*		interpolateVertices(&m.vertices[m.indices[intersection.Index + 0]],
-			          	 	&m.vertices[m.indices[intersection.Index + 1]],
-			           		&m.vertices[m.indices[intersection.Index + 2]],
-			           		intersection.U, intersection.V,
-			           		&dg.N, &dg.UV)
-			          		
-*/
 		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
 
 		dg.N = transformation.WorldToObject.TransposedTransformVector3(dg.N)
 		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
 
-	//	dg.B = dg.N.Cross(dg.T).Scale(-intersection.Triangle.A.BitangentSign)
-
-	//	dg.B = dg.N.Cross(dg.T).Scale(-1)
-		dg.B = dg.T.Cross(dg.N)//.Scale(-intersection.Triangle.A.BitangentSign)
+		dg.B = dg.N.Cross(dg.T)
 	}
 
 	return hit

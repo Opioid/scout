@@ -5,6 +5,7 @@ import (
 )
 
 type Differential struct {
-	P, N, T, B math.Vector3
-	UV math.Vector2
+	P math.Vector3			// posisition in world space
+	T, B, N math.Vector3	// tangent frame in world space
+	UV math.Vector2			// texture coordinates
 }

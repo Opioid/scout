@@ -17,7 +17,7 @@ type Provider struct {
 
 }
 
-func (p *Provider) Load2D(filename string, treatAsLinear, encodedFloats bool) *Texture2D {
+func (p *Provider) Load2D(filename string, config Config) *Texture2D {
 	fi, err := os.Open(filename)
 
 	defer fi.Close()
@@ -32,7 +32,7 @@ func (p *Provider) Load2D(filename string, treatAsLinear, encodedFloats bool) *T
 	if file.RGBE == fileType {
 		return textureFromRgbe(fi)
 	} else {
-		return textureFromGoSupportedFile(fi, treatAsLinear, encodedFloats)
+		return textureFromGoSupportedFile(fi, config)
 	}
 }
 
@@ -63,7 +63,7 @@ func textureFromRgbe(fi *os.File) *Texture2D {
 	return texture
 }
 
-func textureFromGoSupportedFile(fi *os.File, treatAsLinear, encodedFloats bool) *Texture2D {
+func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 	sourceImage, _, err := goimage.Decode(fi)
 
 	if err != nil {
@@ -88,10 +88,8 @@ func textureFromGoSupportedFile(fi *os.File, treatAsLinear, encodedFloats bool) 
 		wg.Add(1)
 
 		go func (start, end math.Vector2i) {
-			if encodedFloats {
-				processEncodedFloats(start, end, sourceImage, &texture.Image.Buffers[0])
-			} else if treatAsLinear {
-				processLinear(start, end, sourceImage, &texture.Image.Buffers[0])
+			if config.Usage == Normals {
+				processNormals(start, end, sourceImage, &texture.Image.Buffers[0])
 			} else {
 				processSrgbToLinear(start, end, sourceImage, &texture.Image.Buffers[0])
 			}
@@ -147,7 +145,7 @@ func processLinear(start, end math.Vector2i, source goimage.Image, target *Buffe
 	}
 }
 
-func processEncodedFloats(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processNormals(start, end math.Vector2i, source goimage.Image, target *Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {

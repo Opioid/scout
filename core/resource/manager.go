@@ -25,8 +25,8 @@ func (m *Manager) LoadShape(filename string) shape.Shape {
 	return m.shapeProvider.Load(filename)
 }
 
-func (m *Manager) LoadTexture2D(filename string, treatAsLinear, encodedFloats bool) *texture.Texture2D {
-	return m.textureProvider.Load2D(filename, treatAsLinear, encodedFloats)
+func (m *Manager) LoadTexture2D(filename string, config texture.Config) *texture.Texture2D {
+	return m.textureProvider.Load2D(filename, config)
 }
 
 func (m *Manager) LoadMaterial(filename string) material.Material {

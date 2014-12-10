@@ -60,9 +60,9 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 				texturename, usage := readFilename(t)
 
 				if usage == "Color" {
-					colorMap = tp.Load2D(texturename, false, false)
+					colorMap = tp.Load2D(texturename, texture.Config{Usage: texture.RGBA})
 				} else if usage == "Normals" {
-					normalMap = tp.Load2D(texturename, true, true)
+					normalMap = tp.Load2D(texturename, texture.Config{Usage: texture.Normals})
 				}
 
 			}
@@ -78,12 +78,16 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 
 	if colorMap != nil {
 		if normalMap != nil {
-			return material.NewSubstitute_ColorMap_NormalMap(color, roughness, metallic, colorMap, normalMap)
+			return material.NewSubstitute_ColorMap_NormalMap(roughness, metallic, colorMap, normalMap)
 		} else {
-			return material.NewSubstitute_ColorMap(color, roughness, metallic, colorMap)
+			return material.NewSubstitute_ColorMap(roughness, metallic, colorMap)
 		}
 	} else {
-		return material.NewSubstitute_ColorConstant(color, roughness, metallic)
+		if normalMap != nil {
+			return material.NewSubstitute_ColorConstant_NormalMap(color, roughness, metallic, normalMap)
+		} else {		
+			return material.NewSubstitute_ColorConstant(color, roughness, metallic)
+		}
 	}
 }
 

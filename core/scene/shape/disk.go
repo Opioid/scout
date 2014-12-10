@@ -40,15 +40,17 @@ func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *
 			*epsilon = 5e-4 * *thit
 
 			dg.P = p
+			dg.T = transformation.Rotation.Row(0)
+			dg.B = transformation.Rotation.Row(1)	
 			dg.N = normal
 
 			sk := k.Div(radius)
 
 			u := transformation.Rotation.Row(0).Dot(sk)
-			dg.UV.X = (u + 1.0) * 0.5
+			dg.UV.X = (u + 1) * 0.5
 
 			v := transformation.Rotation.Row(1).Dot(sk)
-			dg.UV.Y = (v + 1.0) * 0.5
+			dg.UV.Y = (v + 1) * 0.5
 
 			return true
 		}

@@ -7,15 +7,13 @@ import (
 )
 
 type Substitute_ColorMap struct {
-	color math.Vector3
 	metallic float32
 	roughness, a2 float32
 	colorMap *texture.Texture2D
 }
 
-func NewSubstitute_ColorMap(color math.Vector3, roughness, metallic float32, colorMap *texture.Texture2D) *Substitute_ColorMap {
+func NewSubstitute_ColorMap(roughness, metallic float32, colorMap *texture.Texture2D) *Substitute_ColorMap {
 	m := new(Substitute_ColorMap)
-	m.color = color
 	m.metallic = metallic
 	m.roughness = roughness
 	a := roughness * roughness
