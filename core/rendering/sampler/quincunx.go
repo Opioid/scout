@@ -53,6 +53,7 @@ func (q *Quincunx) GenerateNewSample(s *Sample) bool {
 	o := quincunxOffsets[q.currentSample]
 
 	s.Coordinates = math.MakeVector2(float32(q.currentPixel.X) + o.X, float32(q.currentPixel.Y) + o.Y)
+	s.RelativeOffset = math.MakeVector2(o.X - 0.5, o.Y - 0.5)
 	s.Id = uint32(q.currentSample)
 
 	q.currentSample++

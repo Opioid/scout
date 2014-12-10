@@ -59,6 +59,7 @@ func (u *Uniform) GenerateNewSample(s *Sample) bool {
 	o := u.offsets[u.currentSample]
 
 	s.Coordinates = math.MakeVector2(float32(u.currentPixel.X) + o.X, float32(u.currentPixel.Y) + o.Y)
+	s.RelativeOffset = math.MakeVector2(o.X - 0.5, o.Y - 0.5)
 	s.Id = uint32(u.currentSample)
 
 	u.currentSample++
