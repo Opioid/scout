@@ -44,10 +44,10 @@ func (f *film) at(x, y int32) pixel {
 	return f.pixels[f.dimensions.X * y + x]
 }
 
-func (f *film) addPixel(x, y int32, color math.Vector3) {
+func (f *film) addPixel(x, y int32, color math.Vector3, weight float32) {
 	p := &f.pixels[f.dimensions.X * y + x]
 	p.color.AddAssign(color)
-	p.weightSum += 1
+	p.weightSum += weight
 }
 
 func expose(color math.Vector3, exposure float32) math.Vector3 {

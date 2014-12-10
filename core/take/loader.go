@@ -125,6 +125,8 @@ func loadSampler(s interface{}) sampler.Sampler {
 		switch key {
 		case "Uniform":
 			return loadUniformSampler(value)
+		case "Quincunx":
+			return loadQuincunxSampler(value)
 		}
 	}
 
@@ -148,6 +150,10 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 	}
 
 	return sampler.NewUniform(math.Vector2i{}, math.Vector2i{}, samplesPerPixel)
+}
+
+func loadQuincunxSampler(s interface{}) sampler.Sampler {
+	return sampler.NewQuincunx(math.Vector2i{}, math.Vector2i{})
 }
 
 func loadFilm(f interface{}) pkgfilm.Film {

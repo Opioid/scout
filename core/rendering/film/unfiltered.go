@@ -27,7 +27,7 @@ func NewUnfiltered(dimensions math.Vector2i, exposure float32, tonemapper tonema
 func (f *Unfiltered) AddSample(sample *sampler.Sample, color math.Vector3) {
 	x, y := int32(sample.Coordinates.X), int32(sample.Coordinates.Y)
 
-	f.addPixel(x, y, color)
+	f.addPixel(x, y, color, 1)
 }
 
 func (f *Unfiltered) RGBA() *image.RGBA {

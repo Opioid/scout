@@ -2,7 +2,7 @@ package sampler
 
 import (
 	"github.com/Opioid/scout/base/math"
-	_"fmt"
+	_ "fmt"
 )
 
 type Uniform struct {
@@ -26,8 +26,8 @@ func (u *Uniform) Resize(start, end math.Vector2i) {
 	u.start = start
 	u.end = end
 
-	ox := 1.0 / float32(u.samplesPerPixel.X)
-	oy := 1.0 / float32(u.samplesPerPixel.Y)
+	ox := 1 / float32(u.samplesPerPixel.X)
+	oy := 1 / float32(u.samplesPerPixel.Y)
 
 	for y, i := int32(0), int32(0); y < u.samplesPerPixel.Y; y++ {
 		for x := int32(0); x < u.samplesPerPixel.X; x++ {
