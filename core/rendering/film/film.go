@@ -121,6 +121,10 @@ func (f *film) at(x, y int32) pixel {
 }
 
 func (f *film) addPixel(x, y int32, color math.Vector3, weight float32) {
+	if x < 0 || x >= f.dimensions.X || y < 0 || y >= f.dimensions.Y {
+		return
+	}
+
 	p := &f.pixels[f.dimensions.X * y + x]
 	p.color.AddAssign(color.Scale(weight))
 	p.weightSum += weight

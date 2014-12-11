@@ -4,7 +4,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
 	gomath "math"
-	 "fmt"
+	_ "fmt"
 )
 
 const (
@@ -34,7 +34,7 @@ type SubstituteBrdf struct {
 	DiffuseColor math.Vector3
  	Opacity float32
 
- 	n, v math.Vector3
+ 	N, v math.Vector3
  	N_dot_v float32
 
  	F0 math.Vector3
@@ -48,7 +48,7 @@ func MakeSubstituteBrdf(color math.Vector3, opacity, roughness, metallic float32
 	brdf.Color = color
 	brdf.DiffuseColor = color.Scale(1 - metallic).Scale(opacity)
 	brdf.Opacity = opacity
-	brdf.n = n
+	brdf.N = n
 	brdf.v = v
 	brdf.N_dot_v = math32.Max(n.Dot(v), 0)
 
@@ -62,32 +62,16 @@ func MakeSubstituteBrdf(color math.Vector3, opacity, roughness, metallic float32
 }
 
 func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
-	n_dot_l := math32.Max(brdf.n.Dot(l), 0.00001)
+	n_dot_l := math32.Max(brdf.N.Dot(l), 0.00001)
 
 	h := brdf.v.Add(l).Normalized()
 
-	n_dot_h := brdf.n.Dot(h)
+	n_dot_h := brdf.N.Dot(h)
 	v_dot_h := brdf.v.Dot(h)
 
 	specular := specular_f(v_dot_h, brdf.F0).Scale(specular_d(n_dot_h, brdf.a2)).Scale(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))
 
 	r := brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
-
-	if r.ContainsInf() || r.ContainsNaN() {
-		/*
-func specular_d(n_dot_h, a2 float32) float32 {
-	d := n_dot_h * n_dot_h * (a2 - 1) + 1
-	return a2 / (gomath.Pi * d * d)
-}
-*/
-		fmt.Println("Alarm")
-
-		a2 := brdf.a2
-		d := n_dot_h * n_dot_h * (a2 - 1) + 1
-		s_d := a2 / (gomath.Pi * d * d)
-
-		fmt.Printf("\n%v %v %v %v\n", s_d, specular_d(n_dot_h, brdf.a2), d, brdf.a2)
-	}
 
 	return r
 }

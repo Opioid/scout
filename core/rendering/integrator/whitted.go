@@ -71,15 +71,15 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 
 
-	ambientColor := scene.Surrounding.SampleDiffuse(intersection.Dg.N)
+	ambientColor := scene.Surrounding.SampleDiffuse(brdf.N)
 	result.AddAssign(ambientColor.Mul(brdf.DiffuseColor))
 
-	reflection := intersection.Dg.N.Reflect(ray.Direction).Normalized()
+	reflection := brdf.N.Reflect(ray.Direction).Normalized()
 
 	var environment math.Vector3
 
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
-		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
+		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000, ray.Depth + 1)
 
 		environment = task.Li(scene, subsample, &secondaryRay)
 	} else {

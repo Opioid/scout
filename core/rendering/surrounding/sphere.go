@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	numSamples = 128
+	numSamples = 1024
 )
 
 type sphere struct {
