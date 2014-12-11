@@ -28,3 +28,7 @@ func Saturate(x float32) float32 {
 func DegreesToRadians(x float32) float32 {
 	return x * math.Pi / 180;
 }
+
+func IsInf(x float32) bool {
+	return math.IsInf(float64(x), 0)
+}

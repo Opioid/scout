@@ -132,6 +132,10 @@ func (a Vector3) ContainsNaN() bool {
 	return math32.IsNaN(a.X) || math32.IsNaN(a.Y) || math32.IsNaN(a.Z)
 }
 
+func (a Vector3) ContainsInf() bool {
+	return IsInf(a.X) || IsInf(a.Y) || IsInf(a.Z)
+}
+
 type Vector3i struct {
 	X, Y, Z int32
 }

@@ -4,12 +4,13 @@ import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 )
 
 type Substitute_ColorConstant_NormalMap struct {
 	color math.Vector3
 	metallic float32
-	roughness, a2 float32
+	roughness float32
 	normalMap *texture.Texture2D
 }
 
@@ -17,9 +18,7 @@ func NewSubstitute_ColorConstant_NormalMap(color math.Vector3, roughness, metall
 	m := new(Substitute_ColorConstant_NormalMap)
 	m.color = color
 	m.metallic = metallic
-	m.roughness = roughness
-	a := roughness * roughness
-	m.a2 = a * a
+	m.roughness = math32.Max(roughness, minRoughness)
 	m.normalMap = normalMap
 	return m
 }
@@ -35,5 +34,5 @@ func (m *Substitute_ColorConstant_NormalMap) Evaluate(dg *geometry.Differential,
 }
 
 func (m *Substitute_ColorConstant_NormalMap) IsMirror() bool {
-	return m.a2 == 0
+	return m.roughness <= minRoughness
 }

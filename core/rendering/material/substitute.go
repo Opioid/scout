@@ -4,15 +4,23 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
 	gomath "math"
+	 "fmt"
+)
+
+const (
+	// magic roughness constant that doesn't cause INF in specular_d
+	// instead there is a max() now
+	// 0.01313900625 
+	minRoughness = 0// 0.01313900625
 )
 
 func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
-	return f0.Add(math.MakeVector3(1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z).Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
+	return f0.Add(math.MakeVector3(1 - f0.X, 1 - f0.Y, 1 - f0.Z).Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
 }
 
 func specular_d(n_dot_h, a2 float32) float32 {
-	d := n_dot_h * n_dot_h * (a2 - 1.0) + 1.0
-	return a2 / (gomath.Pi * d * d)
+	d := n_dot_h * n_dot_h * (a2 - 1) + 1
+	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
 }
 
 func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
@@ -20,28 +28,6 @@ func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
 	g_l := n_dot_l + math32.Sqrt((n_dot_l - n_dot_l * a2) * n_dot_l + a2)
 	return math32.Rsqrt(g_v * g_l)
 }
-
-/*
-// GGX/Trowbridge-Reitz
-float specular_d(float n_dot_h, float a2)
-{
-	float d = n_dot_h * n_dot_h * (a2 - 1.f) + 1.f;
-	return a2 / (pi * d * d);
-}
-
-vec3 specular_f(float v_dot_h, vec3 f0)
-{
-	return f0 + (1.f - f0) * exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h);
-}
-
-float specular_g(float n_dot_l, float n_dot_v, float a2)
-{
-	float G_V = n_dot_v + sqrt((n_dot_v - n_dot_v * a2) * n_dot_v + a2);
-	float G_L = n_dot_l + sqrt((n_dot_l - n_dot_l * a2) * n_dot_l + a2);
-	return inversesqrt(G_V * G_L);
-}
-
-*/
 
 type SubstituteBrdf struct {
 	Color   math.Vector3
@@ -76,26 +62,6 @@ func MakeSubstituteBrdf(color math.Vector3, opacity, roughness, metallic float32
 }
 
 func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
-//	return math.MakeVector3(1, 1, 1)
-
-/*
-	n_dot_l := math.Maxf(dg.N.Dot(l), 0.00001)
-	n_dot_v := math.Maxf(dg.N.Dot(v), 0.0)
-
-	h := v.Add(l).Normalized()
-
-	n_dot_h := dg.N.Dot(h)
-	v_dot_h := v.Dot(h)
-
-	f0 := math.MakeVector3(0.03, 0.03, 0.03).Lerp(m.color, m.metallic)
-
-	specular := specular_f(v_dot_h, f0).Scale(specular_d(n_dot_h, m.a2)).Scale(specular_g(n_dot_l, n_dot_v, m.a2))
-
-	diffuse := m.color.Scale(1.0 - m.metallic)
-
-	return diffuse.Add(specular).Scale(n_dot_l), 1.0
-	*/
-
 	n_dot_l := math32.Max(brdf.n.Dot(l), 0.00001)
 
 	h := brdf.v.Add(l).Normalized()
@@ -105,5 +71,23 @@ func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
 
 	specular := specular_f(v_dot_h, brdf.F0).Scale(specular_d(n_dot_h, brdf.a2)).Scale(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))
 
-	return brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
+	r := brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
+
+	if r.ContainsInf() || r.ContainsNaN() {
+		/*
+func specular_d(n_dot_h, a2 float32) float32 {
+	d := n_dot_h * n_dot_h * (a2 - 1) + 1
+	return a2 / (gomath.Pi * d * d)
+}
+*/
+		fmt.Println("Alarm")
+
+		a2 := brdf.a2
+		d := n_dot_h * n_dot_h * (a2 - 1) + 1
+		s_d := a2 / (gomath.Pi * d * d)
+
+		fmt.Printf("\n%v %v %v %v\n", s_d, specular_d(n_dot_h, brdf.a2), d, brdf.a2)
+	}
+
+	return r
 }

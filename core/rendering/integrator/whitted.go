@@ -38,16 +38,16 @@ func (w *whitted) FirstSample(numSamples uint32) {
 }
 
 func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
-	result := math.MakeVector3(0.0, 0.0, 0.0)
+	result := math.MakeVector3(0, 0, 0)
 
 	material := intersection.Prop.Material
 
 	shadowRay := math.OptimizedRay{}
 	shadowRay.Origin = intersection.Dg.P
 	shadowRay.MinT = intersection.Epsilon
-	shadowRay.MaxT = 1000.0
+	shadowRay.MaxT = 1000
 
-	v := ray.Direction.Scale(-1.0)
+	v := ray.Direction.Scale(-1)
 
 	brdf := material.Evaluate(&intersection.Dg, v, w.linearSampler_repeat)
 
@@ -63,10 +63,13 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 			if !scene.IntersectP(&shadowRay) {
 				r := brdf.Evaluate(s.L)
-				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
+
+				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))		
 			}
 		}
 	}
+
+
 
 	ambientColor := scene.Surrounding.SampleDiffuse(intersection.Dg.N)
 	result.AddAssign(ambientColor.Mul(brdf.DiffuseColor))

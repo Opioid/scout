@@ -9,23 +9,23 @@ import (
 	_"fmt"
 )
 
-type Triangle struct {
+type Filtered struct {
 	film
 	filter filter.Triangle
 }
 
-func NewTriangle(dimensions math.Vector2i, exposure float32, tonemapper tonemapping.Tonemapper) *Triangle {
-	f := new(Triangle)
+func NewFiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapping.Tonemapper) *Filtered {
+	f := new(Filtered)
 	f.resize(dimensions)
 	f.exposure = exposure
 	f.tonemapper = tonemapper
 
-	radius := math32.Sqrt(2)
+	radius := math32.Sqrt(0.5)
 	f.filter.SetWidth(math.MakeVector2(radius, radius))
 	return f
 }
 
-func (f *Triangle) AddSample(sample *sampler.Sample, color math.Vector3) {
+func (f *Filtered) AddSample(sample *sampler.Sample, color math.Vector3) {
 	x, y := int32(sample.Coordinates.X), int32(sample.Coordinates.Y)
 
 	w := f.filter.Evaluate(sample.RelativeOffset)
