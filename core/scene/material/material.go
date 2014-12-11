@@ -8,7 +8,7 @@ import (
 )
 
 type Material interface {
-	Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) renderermaterial.SubstituteBrdf
+	Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) renderermaterial.SubstituteBrdf
 
 	IsMirror() bool
 }

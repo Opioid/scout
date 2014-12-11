@@ -17,6 +17,10 @@ func Pow(x, y float32) float32 {
 	return float32(math.Pow(float64(x), float64(y)))
 }
 
+func Exp(x float32) float32 {
+	return float32(math.Exp(float64(x)))
+}
+
 func Exp2(x float32) float32 {
 	return float32(math.Exp2(float64(x)))
 }

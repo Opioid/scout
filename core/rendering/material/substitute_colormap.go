@@ -21,7 +21,7 @@ func NewSubstitute_ColorMap(roughness, metallic float32, colorMap *texture.Textu
 	return m
 }
 
-func (m *Substitute_ColorMap) Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
+func (m *Substitute_ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
 	cs  := sampler.Sample(m.colorMap, dg.UV)
 	return MakeSubstituteBrdf(cs.Vector3(), cs.W, m.roughness, m.metallic, dg.N, v)
 }

@@ -22,7 +22,7 @@ func NewSubstitute_ColorConstant(color math.Vector3, roughness, metallic float32
 	return m
 }
 
-func (m *Substitute_ColorConstant) Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
+func (m *Substitute_ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
 	return MakeSubstituteBrdf(m.color, 1, m.roughness, m.metallic, dg.N, v)
 }
 

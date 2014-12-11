@@ -11,7 +11,7 @@ import (
 
 type Filtered struct {
 	film
-	filter filter.Triangle
+	filter filter.Filter
 }
 
 func NewFiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapping.Tonemapper) *Filtered {
@@ -21,7 +21,11 @@ func NewFiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapp
 	f.tonemapper = tonemapper
 
 	radius := float32(1)//*/math32.Sqrt(0.5)
-	f.filter.SetWidth(math.MakeVector2(radius, radius))
+
+//	f.filter = filter.NewTriangle(math.MakeVector2(radius, radius))
+//	f.filter = filter.NewGaussian(math.MakeVector2(radius, radius), 0.2)
+	f.filter = filter.NewMitchell(math.MakeVector2(radius, radius), 0.33, 0.33)
+
 	return f
 }
 

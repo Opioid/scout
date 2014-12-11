@@ -22,7 +22,7 @@ func NewSubstitute_ColorMap_NormalMap(roughness, metallic float32, colorMap, nor
 	return m
 }
 
-func (m *Substitute_ColorMap_NormalMap) Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
+func (m *Substitute_ColorMap_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
 //	cs  := sampler.Sample(m.colorMap, dg.UV)
 
 	nm := sampler.Sample(m.normalMap, dg.UV).Vector3()

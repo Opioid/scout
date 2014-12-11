@@ -49,7 +49,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 	v := ray.Direction.Scale(-1)
 
-	brdf := material.Evaluate(&intersection.Dg, v, w.linearSampler_repeat)
+	brdf := material.Sample(&intersection.Dg, v, w.linearSampler_repeat)
 
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
@@ -68,8 +68,6 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 			}
 		}
 	}
-
-
 
 	ambientColor := scene.Surrounding.SampleDiffuse(brdf.N)
 	result.AddAssign(ambientColor.Mul(brdf.DiffuseColor))

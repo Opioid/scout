@@ -23,7 +23,7 @@ func NewSubstitute_ColorConstant_NormalMap(color math.Vector3, roughness, metall
 	return m
 }
 
-func (m *Substitute_ColorConstant_NormalMap) Evaluate(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
+func (m *Substitute_ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) SubstituteBrdf {
 	nm := sampler.Sample(m.normalMap, dg.UV).Vector3()
 
 	tangentToWorldSpace := math.MakeMatrix3x3FromAxes(dg.T, dg.B, dg.N)
