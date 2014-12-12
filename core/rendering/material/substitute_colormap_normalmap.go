@@ -33,9 +33,6 @@ func (m *Substitute_ColorMap_NormalMap) Sample(dg *geometry.Differential, v math
 
 	return MakeSubstituteBrdf(math.MakeVector3(0.75, 0.75, 0.75), 1, m.roughness, m.metallic, n, v)
 //	return MakeSubstituteBrdf(cs.Vector3(), cs.W, m.roughness, m.metallic, n, v)
-	
-
-//	return MakeSubstituteBrdf(math.MakeVector3(0.75, 0.75, 0.75), 1, m.roughness, m.metallic, dg.N, v)	
 }
 
 func (m *Substitute_ColorMap_NormalMap) IsMirror() bool {
