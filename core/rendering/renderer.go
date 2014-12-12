@@ -31,34 +31,42 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	wg := sync.WaitGroup{}
 
 	for {
-		sampler := r.newSubSampler(context.Sampler, dimensions)
+		/*
+		sampler := r.newSubSampler(, dimensions)
 
 		if sampler == nil {
 			break
 		}
+		*/
+
+		rng := random.Generator{}
+		rng.Seed(uint32(r.currentPixel.X) + 0, uint32(r.currentPixel.Y) + 1, uint32(r.currentPixel.X) + 2, uint32(r.currentPixel.Y) + 3)	
+
+		end := r.currentPixel.Add(r.samplerDimensions).Min(dimensions)
+		sampler := context.Sampler.SubSampler(r.currentPixel, end, &rng)
 
 		wg.Add(1)
 
 		go func () {
-			r.render(scene, context.Camera, sampler)
+			r.render(scene, context.Camera, sampler, &rng)
 			progressor.Tick()
 			wg.Done()
 		}()
+
+		if !r.advanceCurrentPixel(dimensions) {
+			break
+		}
 	}
 
 	wg.Wait()
 	progressor.End()
 }
 
-func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler) {
+func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler, rng *random.Generator) {
 	task := RenderTask{}
 	task.renderer = r
 
-	start := sampler.Start()
-	rng := random.Generator{}
-	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
-
-	task.integrator = r.IntegratorFactory.New(&rng)
+	task.integrator = r.IntegratorFactory.New(rng)
 
 	film := camera.Film()
 
@@ -80,26 +88,9 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 	}
 }
 
-func (r *Renderer) newSubSampler(s pkgsampler.Sampler, dimensions math.Vector2i) pkgsampler.Sampler {
-	if r.currentPixel.X >= dimensions.X {
-		r.currentPixel.X = 0
-		r.currentPixel.Y += r.samplerDimensions.Y
-	}
-
-	if r.currentPixel.Y >= dimensions.Y {
-		return nil
-	}
-
-	end := r.currentPixel.Add(r.samplerDimensions).Min(dimensions)
-
-	sampler := s.SubSampler(r.currentPixel, end)
-
+func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
 	r.currentPixel.X += r.samplerDimensions.X
 
-	return sampler
-}
-
-func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
 	if r.currentPixel.X >= dimensions.X {
 		r.currentPixel.X = 0
 		r.currentPixel.Y += r.samplerDimensions.Y
@@ -108,8 +99,6 @@ func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
 	if r.currentPixel.Y >= dimensions.Y {
 		return false
 	}
-
-	r.currentPixel.X += r.samplerDimensions.X
 
 	return true
 }

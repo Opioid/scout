@@ -2,6 +2,7 @@ package sampler
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/random"
 	_ "fmt"
 )
 
@@ -22,6 +23,11 @@ func NewUniform(start, end, samplesPerPixel math.Vector2i) *Uniform {
 	return u
 }
 
+func (u *Uniform) SubSampler(start, end math.Vector2i, rng *random.Generator) Sampler {
+	return NewUniform(start, end, u.samplesPerPixel)
+}
+
+
 func (u *Uniform) Resize(start, end math.Vector2i) {
 	u.start = start
 	u.end = end
@@ -40,10 +46,6 @@ func (u *Uniform) Resize(start, end math.Vector2i) {
 func (u *Uniform) Restart() {
 	u.currentPixel = u.start
 	u.currentSample = 0
-}
-
-func (u *Uniform) SubSampler(start, end math.Vector2i) Sampler {
-	return NewUniform(start, end, u.samplesPerPixel)
 }
 
 func (u *Uniform) GenerateNewSample(s *Sample) bool {

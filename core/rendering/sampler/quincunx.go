@@ -2,6 +2,7 @@ package sampler
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/random"
 	_ "fmt"
 )
 
@@ -26,6 +27,10 @@ func NewQuincunx(start, end math.Vector2i) *Quincunx {
 	return q
 }
 
+func (q *Quincunx) SubSampler(start, end math.Vector2i, rng *random.Generator) Sampler {
+	return NewQuincunx(start, end)
+}
+
 func (q *Quincunx) Resize(start, end math.Vector2i) {
 	q.start = start
 	q.end = end
@@ -34,10 +39,6 @@ func (q *Quincunx) Resize(start, end math.Vector2i) {
 func (q *Quincunx) Restart() {
 	q.currentPixel = q.start
 	q.currentSample = 0
-}
-
-func (q *Quincunx) SubSampler(start, end math.Vector2i) Sampler {
-	return NewQuincunx(start, end)
 }
 
 func (q *Quincunx) GenerateNewSample(s *Sample) bool {

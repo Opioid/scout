@@ -2,15 +2,18 @@ package sampler
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/random"
 )
 
 type Sampler interface {
+	SubSampler(start, end math.Vector2i, rng *random.Generator) Sampler 
+	NumSamplesPerPixel() uint32
+
+	Start() math.Vector2i
+
 	Restart()
 	Resize(start, end math.Vector2i)
-	SubSampler(start, end math.Vector2i) Sampler 
 	GenerateNewSample(sample *Sample) bool
-	Start() math.Vector2i
-	NumSamplesPerPixel() uint32
 }
 
 type sampler struct {
