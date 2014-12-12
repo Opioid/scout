@@ -58,17 +58,17 @@ type aoFactory struct {
 }
 
 func NewAoFactory(numSamples uint32, radius float32) *aoFactory {
-	f := aoFactory{}
+	f := new(aoFactory)
 
 	f.numSamples = numSamples
 	f.numSamplesReciprocal = 1.0 / float32(numSamples)
 	f.radius = radius
 
-	return &f
+	return f
 }
 
 func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
-	a := ao{}
+	a := new(ao)
 
 	a.rng = rng
 	a.sampler = pkgsampler.MakeScrambledHammersley(rng)
@@ -77,5 +77,5 @@ func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
 	a.radius = f.radius
 
-	return &a
+	return a
 }

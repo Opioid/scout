@@ -37,30 +37,22 @@ func (s *ScrambledHammersley) Resize(numSamples uint32) {
 
 	s.samples = make([]math.Vector2, numSamples)
 }
-
+/*
 func (s *ScrambledHammersley) GenerateNewSample(subsample uint32, sample *Sample) bool {
 	if s.currentSample >= s.numSamples {
 		return false
 	}
 
 	sample.Coordinates = math.ScrambledHammersley(uint32(s.currentSample) + subsample * s.numSamples, s.numTotalSamples, s.randomBits)
-/*
-	sample.Coordinates = math.MakeVector2(
-		math.ScrambledRadicalInverse_vdC(s.currentSample, s.randomBits), 
-		math.RadicalInverse_S(s.currentSample, s.randomBits))
-*/
+
 	s.currentSample++
 
 	return true
 }
-
+*/
 func (s *ScrambledHammersley) GenerateSamples(subsample uint32) []math.Vector2 {
 	for i := uint32(0); i < s.numSamples; i++ {
 		s.samples[i] = math.ScrambledHammersley(i + subsample * s.numSamples, s.numTotalSamples, s.randomBits)
-
-		// Random Digit Scramble attempt
-	//	s.samples[i].X = math.ScrambledRadicalInverse_vdC(i + subsample * s.numSamples, s.randomBits)
-	//	s.samples[i].Y = math.RadicalInverse_S(i + subsample * s.numSamples, s.randomBits)
 	}
 
 	return s.samples

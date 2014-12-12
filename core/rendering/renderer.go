@@ -31,11 +31,14 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	wg := sync.WaitGroup{}
 
 	for {
-		sampler := r.newSubSampler(context.Sampler, dimensions)
 
-		if sampler == nil {
+		if !r.advanceCurrentPixel(dimensions) {
 			break
 		}
+
+		end := r.currentPixel.Add(r.samplerDimensions).Min(dimensions)
+
+		sampler := context.Sampler.SubSampler(r.currentPixel, end)
 
 		wg.Add(1)
 
@@ -97,4 +100,19 @@ func (r *Renderer) newSubSampler(s pkgsampler.Sampler, dimensions math.Vector2i)
 	r.currentPixel.X += r.samplerDimensions.X
 
 	return sampler
+}
+
+func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
+	if r.currentPixel.X >= dimensions.X {
+		r.currentPixel.X = 0
+		r.currentPixel.Y += r.samplerDimensions.Y
+	}
+
+	if r.currentPixel.Y >= dimensions.Y {
+		return false
+	}
+
+	r.currentPixel.X += r.samplerDimensions.X
+
+	return true
 }

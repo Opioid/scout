@@ -38,16 +38,16 @@ func (w *whitted) FirstSample(numSamples uint32) {
 }
 
 func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
-	result := math.MakeVector3(0, 0, 0)
+	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material
 
 	shadowRay := math.OptimizedRay{}
 	shadowRay.Origin = intersection.Dg.P
 	shadowRay.MinT = intersection.Epsilon
-	shadowRay.MaxT = 1000
+	shadowRay.MaxT = 1000.0
 
-	v := ray.Direction.Scale(-1)
+	v := ray.Direction.Scale(-1.0)
 
 	brdf := material.Sample(&intersection.Dg, v, w.linearSampler_repeat)
 
@@ -56,7 +56,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 
 		l.Samples(intersection.Dg.P, subsample, &w.sampler, &w.lightSamples)
 
-		numSamplesReciprocal := 1 / float32(len(w.lightSamples))
+		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
 		for _, s := range w.lightSamples {
 			shadowRay.SetDirection(s.L)
@@ -77,7 +77,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsampl
 	var environment math.Vector3
 
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
-		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000, ray.Depth + 1)
+		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
 
 		environment = task.Li(scene, subsample, &secondaryRay)
 	} else {
@@ -96,7 +96,7 @@ type whittedFactory struct {
 }
 
 func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
-	f := whittedFactory{}
+	f := new(whittedFactory)
 
 	f.bounceDepth = bounceDepth
 	f.maxLightSamples = maxLightSamples
@@ -107,11 +107,11 @@ func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
 	f.brdf = texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
 	ibl.IntegrateGgxBrdf(1024, &f.brdf.Image.Buffers[0])
 
-	return &f
+	return f
 }
 
 func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
-	w := whitted{}
+	w := new(whitted)
 
 	w.rng = rng
 	w.bounceDepth = f.bounceDepth
@@ -126,5 +126,5 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w.linearSampler_clamp  = f.linearSampler_clamp
 	w.brdf = f.brdf
 
-	return &w
+	return w
 }
