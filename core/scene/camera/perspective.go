@@ -3,7 +3,6 @@ package camera
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/rendering/film"
-	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	gomath "math"
 	_ "fmt"
@@ -58,9 +57,9 @@ func (p *Perspective) Film() film.Film {
 	return p.film
 }
 
-func (p *Perspective) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay) {
-	x := sample.Coordinates.X / float32(p.film.Dimensions().X)
-	y := sample.Coordinates.Y / float32(p.film.Dimensions().Y)
+func (p *Perspective) GenerateRay(coordinates math.Vector2, ray *math.OptimizedRay) {
+	x := coordinates.X / float32(p.film.Dimensions().X)
+	y := coordinates.Y / float32(p.film.Dimensions().Y)
 
 	ray.Origin = p.Position()
 

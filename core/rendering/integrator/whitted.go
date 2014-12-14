@@ -37,7 +37,7 @@ func (w *whitted) FirstSample(numSamples uint32) {
 	w.sampler.Restart(numSamples)
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.RenderTask, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.Task, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Prop.Material

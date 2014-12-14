@@ -3,7 +3,6 @@ package camera
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/rendering/film"
-	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -33,9 +32,9 @@ func (o *Orthographic) Film() film.Film {
 	return o.film
 }
 
-func (o *Orthographic) GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay) {
-	x := sample.Coordinates.X / float32(o.film.Dimensions().X)
-	y := sample.Coordinates.Y / float32(o.film.Dimensions().Y)
+func (o *Orthographic) GenerateRay(coordinates math.Vector2, ray *math.OptimizedRay) {
+	x := coordinates.X / float32(o.film.Dimensions().X)
+	y := coordinates.Y / float32(o.film.Dimensions().Y)
 
 	offset := math.MakeVector3(x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0)
 	offset = o.Entity.Transformation.Rotation.TransformVector3(offset)

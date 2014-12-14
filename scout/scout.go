@@ -2,79 +2,19 @@
 package main
 
 import (
-	_ "github.com/Opioid/math32"
-	 "github.com/Opioid/scout/base/math"
+	 "github.com/Opioid/math32"
+	_ "github.com/Opioid/scout/base/math"
 	_ "math"
-	"time"
+	_ "time"
 	"fmt"
 )
 
 func main() {
 	fmt.Println("It runs...")
 	
-	r := float32(3.0)
-	a := float32(0.0000005)
+	x := float32(2.0)
 
-	{
-		t := float32(0.0)
-
-		start := time.Now()
-
-		for x := -r; x < r; x += a {
-			t += math.Exp(x)
-		}
-
-		for x := -r; x < r; x += a {
-			t -= math.Exp(x)
-		}
-
-		for x := -r; x < r; x += a {
-			t += math.Exp(x)
-		}
-
-		for x := -r; x < r; x += a {
-			t -= math.Exp(x)
-		}
-
-		duration := time.Since(start)
-		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("(%fs)\n", seconds)
-
-		fmt.Printf("%v\n", t)
-	}
-
-	{
-		t := float32(0.0)
-
-		start := time.Now()
-
-		for x := -r; x < r; x += a {
-			t += math.Exp(x)
-		}
-
-		for x := -r; x < r; x += a {
-			t -= math.Exp(x)
-		}
-
-		for x := -r; x < r; x += a {
-			t += math.Exp(x)
-		}
-
-		for x := -r; x < r; x += a {
-			t -= math.Exp(x)
-		}
-
-		duration := time.Since(start)
-		seconds := float64(duration.Nanoseconds()) / 1000000000.0
-		fmt.Printf("(%fs)\n", seconds)
-
-		fmt.Printf("%v\n", t)
-	}
-
-
-//	fmt.Println(math32.Floor2(-5.3, 3.4))
-//	fmt.Println(math.Floor(-5.3))
-
+	fmt.Println(math32.Rsqrt(x))
 }
 */
 

@@ -3,7 +3,6 @@ package camera
 import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/rendering/film"
-	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -12,7 +11,7 @@ type Camera interface {
 	Transformation() *entity.ComposedTransformation
 	Position() math.Vector3
 	Film() film.Film
-	GenerateRay(sample *sampler.Sample, ray *math.OptimizedRay)
+	GenerateRay(coordinates math.Vector2, ray *math.OptimizedRay)
 }
 
 type genericCamera struct {

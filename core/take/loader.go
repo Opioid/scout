@@ -50,8 +50,6 @@ func (take *Take) Load(filename string) bool {
 		return false
 	}
 
-	take.Context.Sampler.Resize(math.MakeVector2i(0, 0), take.Context.Camera.Film().Dimensions())
-
 	return true
 }
 
@@ -149,11 +147,11 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 		}
 	}
 
-	return sampler.NewUniform(math.Vector2i{}, math.Vector2i{}, samplesPerPixel)
+	return sampler.NewUniform(samplesPerPixel)
 }
 
 func loadQuincunxSampler(s interface{}) sampler.Sampler {
-	return sampler.NewQuincunx(math.Vector2i{}, math.Vector2i{})
+	return sampler.NewQuincunx()
 }
 
 func loadFilm(f interface{}) pkgfilm.Film {

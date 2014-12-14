@@ -31,27 +31,19 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	wg := sync.WaitGroup{}
 
 	for {
-		/*
-		sampler := r.newSubSampler(, dimensions)
-
-		if sampler == nil {
-			break
-		}
-		*/
-
 		rng := random.Generator{}
 		rng.Seed(uint32(r.currentPixel.X) + 0, uint32(r.currentPixel.Y) + 1, uint32(r.currentPixel.X) + 2, uint32(r.currentPixel.Y) + 3)	
 
 		end := r.currentPixel.Add(r.samplerDimensions).Min(dimensions)
-		sampler := context.Sampler.SubSampler(r.currentPixel, end, &rng)
+		sampler := context.Sampler.Clone(&rng)
 
 		wg.Add(1)
 
-		go func () {
-			r.render(scene, context.Camera, sampler, &rng)
+		go func (tileStart, tileEnd math.Vector2i) {
+			r.render(scene, context.Camera, tileStart, tileEnd, sampler, &rng)
 			progressor.Tick()
 			wg.Done()
-		}()
+		}(r.currentPixel, end)
 
 		if !r.advanceCurrentPixel(dimensions) {
 			break
@@ -62,16 +54,16 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	progressor.End()
 }
 
-func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler pkgsampler.Sampler, rng *random.Generator) {
-	task := RenderTask{}
-	task.renderer = r
+func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, start, end math.Vector2i,
+						  sampler pkgsampler.Sampler, rng *random.Generator) {
+	task := makeTask(r, r.IntegratorFactory.New(rng))
 
-	task.integrator = r.IntegratorFactory.New(rng)
-
+	task.render(scene, camera, start, end, sampler)
+/*
 	film := camera.Film()
 
-	var ray math.OptimizedRay
 	var sample pkgsampler.Sample
+	var ray math.OptimizedRay
 
 	numSamples := sampler.NumSamplesPerPixel()
 
@@ -85,7 +77,7 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, sampler p
 		color := task.Li(scene, sample.Id, &ray) 
 
 		film.AddSample(&sample, color)
-	}
+	}*/
 }
 
 func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
