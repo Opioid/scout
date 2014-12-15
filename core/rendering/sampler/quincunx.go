@@ -7,16 +7,15 @@ import (
 )
 
 type Quincunx struct {
-	currentPixel math.Vector2i
 	currentSample uint32
 }
 
-var quincunxOffsets = []math.Vector2{
-	math.MakeVector2(-0.5, -0.5),
-	math.MakeVector2( 0.5, -0.5),
-	math.MakeVector2( 0.0,  0.0),
-	math.MakeVector2(-0.5,  0.5),
-	math.MakeVector2( 0.5,  0.5),
+var quincunxSamples = []math.Vector2{
+	math.MakeVector2(0.25, 0.25),
+	math.MakeVector2(0.75, 0.25),
+	math.MakeVector2(0.5,  0.5),
+	math.MakeVector2(0.25, 0.75),
+	math.MakeVector2(0.75, 0.75),
 }
 
 func NewQuincunx() *Quincunx {
@@ -28,7 +27,11 @@ func (q *Quincunx) Clone(rng *random.Generator) Sampler {
 	return NewQuincunx()
 }
 
-func (q *Quincunx) Restart() {
+func (q *Quincunx) NumSamplesPerIteration() uint32 {
+	return 5
+}
+
+func (q *Quincunx) Restart(numIterations uint32) {
 	q.currentSample = 0
 }
 
@@ -37,13 +40,13 @@ func (q *Quincunx) GenerateNewSample(sample *math.Vector2) bool {
 		return false
 	}
 
-	*sample = quincunxOffsets[q.currentSample]
+	*sample = quincunxSamples[q.currentSample]
 
 	q.currentSample++
 
 	return true
 }
 
-func (q *Quincunx) NumSamplesPerPixel() uint32 {
-	return 5
+func (q *Quincunx) GenerateSamples(iteration uint32) []math.Vector2 {
+	return quincunxSamples
 }

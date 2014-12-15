@@ -24,7 +24,7 @@ func makeTask(renderer *Renderer, integrator Integrator) Task {
 func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end math.Vector2i, sampler pkgsampler.Sampler) {
 	film := camera.Film()
 
-	numSamples := sampler.NumSamplesPerPixel()
+	numSamples := sampler.NumSamplesPerIteration()
 
 	var offset math.Vector2
 	var sample pkgsampler.Sample
@@ -32,15 +32,14 @@ func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end ma
 
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
-			sampler.Restart()
-			t.integrator.FirstSample(numSamples)
+			sampler.Restart(1)
+			t.integrator.StartNewPixel(numSamples)
 			sampleId := uint32(0)
 
 			for sampler.GenerateNewSample(&offset) {
-				sample.RelativeOffset = offset.Scale(0.5)
-				sample.Coordinates = math.MakeVector2(float32(x) + 0.5 + sample.RelativeOffset.X, 
-													  float32(y) + 0.5 + sample.RelativeOffset.Y)
-				
+				sample.Coordinates = math.MakeVector2(float32(x) + offset.X, float32(y) + offset.Y)
+				sample.RelativeOffset = offset.SubS(0.5)
+
 				camera.GenerateRay(sample.Coordinates, &ray)
 
 				color := t.Li(scene, sampleId, &ray) 

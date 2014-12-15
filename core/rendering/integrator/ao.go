@@ -18,11 +18,11 @@ type aoSettings struct {
 
 type ao struct {
 	integrator
-	sampler pkgsampler.ScrambledHammersley
+	sampler *pkgsampler.ScrambledHammersley
 	aoSettings
 }
 
-func (a *ao) FirstSample(numSamples uint32) {
+func (a *ao) StartNewPixel(numSamples uint32) {
 	a.sampler.Restart(numSamples)
 }
 
@@ -71,8 +71,7 @@ func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 	a := new(ao)
 
 	a.rng = rng
-	a.sampler = pkgsampler.MakeScrambledHammersley(rng)
-	a.sampler.Resize(f.numSamples)
+	a.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
 	a.numSamples = f.numSamples	
 	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
 	a.radius = f.radius

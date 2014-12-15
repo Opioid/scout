@@ -125,6 +125,10 @@ func loadSampler(s interface{}) sampler.Sampler {
 			return loadUniformSampler(value)
 		case "Quincunx":
 			return loadQuincunxSampler(value)
+		case "Stratified":
+			return loadStratifiedSampler(value)
+		case "Scrambled_hammersley":
+			return loadScrambledHammersleySampler(value)					
 		}
 	}
 
@@ -152,6 +156,44 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 
 func loadQuincunxSampler(s interface{}) sampler.Sampler {
 	return sampler.NewQuincunx()
+}
+
+func loadStratifiedSampler(s interface{}) sampler.Sampler {
+	samplerNode, ok := s.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	samplesPerPixel := math.MakeVector2i(1, 1)
+
+	for key, value := range samplerNode {
+		switch key {
+		case "samples_per_pixel":
+			samplesPerPixel = pkgjson.ParseVector2i(value)
+		}
+	}
+
+	return sampler.NewStratified(samplesPerPixel, nil)
+}
+
+func loadScrambledHammersleySampler(s interface{}) sampler.Sampler {
+	samplerNode, ok := s.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	samplesPerPixel := uint32(1)
+
+	for key, value := range samplerNode {
+		switch key {
+		case "samples_per_pixel":
+			samplesPerPixel = uint32(value.(float64))
+		}
+	}
+
+	return sampler.NewScrambledHammersley(samplesPerPixel, nil)
 }
 
 func loadFilm(f interface{}) pkgfilm.Film {

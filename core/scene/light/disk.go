@@ -12,9 +12,7 @@ type Disk struct {
 
 func NewDisk(radius float32) *Disk {
 	d := Disk{}
-
 	d.radius = radius
-
 	return &d
 }
 

@@ -28,12 +28,12 @@ type whitted struct {
 	integrator
 	whittedSettings
 
-	sampler pkgsampler.ScrambledHammersley
+	sampler *pkgsampler.ScrambledHammersley
 
 	lightSamples []light.Sample
 }
 
-func (w *whitted) FirstSample(numSamples uint32) {
+func (w *whitted) StartNewPixel(numSamples uint32) {
 	w.sampler.Restart(numSamples)
 }
 
@@ -54,7 +54,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.Task, subsample uint
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
 
-		l.Samples(intersection.Dg.P, subsample, &w.sampler, &w.lightSamples)
+		l.Samples(intersection.Dg.P, subsample, w.sampler, &w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
@@ -118,8 +118,7 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w.maxLightSamples = f.maxLightSamples
 //	w.sampler = pkgsampler.MakeStratified(rng)
 //	w.sampler.Resize(math.MakeVector2i(4, 4))
-	w.sampler = pkgsampler.MakeScrambledHammersley(rng)
-	w.sampler.Resize(w.maxLightSamples)
+	w.sampler = pkgsampler.NewScrambledHammersley(w.maxLightSamples, rng)
 	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
 
 	w.linearSampler_repeat = f.linearSampler_repeat

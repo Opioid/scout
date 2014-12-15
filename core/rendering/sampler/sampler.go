@@ -6,10 +6,12 @@ import (
 )
 
 type Sampler interface {
-	Clone(rng *random.Generator) Sampler 
-	NumSamplesPerPixel() uint32
+	Clone(rng *random.Generator) Sampler
 
-	Restart()
+	NumSamplesPerIteration() uint32
+
+	Restart(numIterations uint32)
 
 	GenerateNewSample(sample *math.Vector2) bool
+	GenerateSamples(iteration uint32) []math.Vector2
 }

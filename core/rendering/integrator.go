@@ -8,7 +8,7 @@ import (
 )
 
 type Integrator interface {
-	FirstSample(numSamples uint32)
+	StartNewPixel(numSamples uint32)
 
 	Li(scene *scene.Scene, task *Task, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3
 }

@@ -12,6 +12,10 @@ func (a Vector2) Add(b Vector2) Vector2 {
 	return Vector2{a.X + b.X, a.Y + b.Y}
 }
 
+func (a Vector2) SubS(s float32) Vector2 {
+	return Vector2{a.X - s, a.Y - s}
+}
+
 func (a Vector2) Scale(s float32) Vector2 {
 	return Vector2{a.X * s, a.Y * s}
 }

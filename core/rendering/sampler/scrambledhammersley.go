@@ -6,9 +6,7 @@ import (
 )
 
 type ScrambledHammersley struct {
-	rng *random.Generator
-
-	numSamples uint32
+	numSamplesPerIteration uint32
 	numTotalSamples uint32
 
 	currentSample uint32
@@ -16,43 +14,55 @@ type ScrambledHammersley struct {
 	randomBits uint32
 
 	samples []math.Vector2
+
+	rng *random.Generator
 }
 
-func MakeScrambledHammersley(rng *random.Generator) ScrambledHammersley {
-	s := ScrambledHammersley{}
+func NewScrambledHammersley(numSamplesPerIteration uint32, rng *random.Generator) *ScrambledHammersley {
+	s := new(ScrambledHammersley)
+	s.allocateSamples(numSamplesPerIteration)
 	s.rng = rng
 	return s
 }
 
-func (s *ScrambledHammersley) Restart(numSamplesPerPixel uint32) {
+func (s *ScrambledHammersley) allocateSamples(numSamplesPerIteration uint32) {
+	s.numSamplesPerIteration = numSamplesPerIteration
+	s.samples = make([]math.Vector2, numSamplesPerIteration)
+}
+
+func (s *ScrambledHammersley) Clone(rng *random.Generator) Sampler {
+	ns := new(ScrambledHammersley)
+	ns.allocateSamples(s.numSamplesPerIteration)
+	ns.rng = rng
+	return ns
+}
+
+func (s *ScrambledHammersley) NumSamplesPerIteration() uint32 {
+	return s.numSamplesPerIteration
+}
+
+func (s *ScrambledHammersley) Restart(numIterations uint32) {
 	s.currentSample = 0
-
-	s.numTotalSamples = s.numSamples * numSamplesPerPixel
-
+	s.numTotalSamples = s.numSamplesPerIteration * numIterations
 	s.randomBits = s.rng.RandomUint32()
 }
 
-func (s *ScrambledHammersley) Resize(numSamples uint32) {
-	s.numSamples = numSamples
-
-	s.samples = make([]math.Vector2, numSamples)
-}
-/*
-func (s *ScrambledHammersley) GenerateNewSample(subsample uint32, sample *Sample) bool {
-	if s.currentSample >= s.numSamples {
+func (s *ScrambledHammersley) GenerateNewSample(sample *math.Vector2) bool {
+	if s.currentSample >= s.numSamplesPerIteration {
 		return false
 	}
 
-	sample.Coordinates = math.ScrambledHammersley(uint32(s.currentSample) + subsample * s.numSamples, s.numTotalSamples, s.randomBits)
+//	*sample = math.ScrambledHammersley(s.currentSample + iteration * s.numSamplesPerIteration, s.numTotalSamples, s.randomBits)
+	*sample = math.ScrambledHammersley(s.currentSample, s.numSamplesPerIteration, s.randomBits)
 
 	s.currentSample++
 
 	return true
 }
-*/
-func (s *ScrambledHammersley) GenerateSamples(subsample uint32) []math.Vector2 {
-	for i := uint32(0); i < s.numSamples; i++ {
-		s.samples[i] = math.ScrambledHammersley(i + subsample * s.numSamples, s.numTotalSamples, s.randomBits)
+
+func (s *ScrambledHammersley) GenerateSamples(iteration uint32) []math.Vector2 {
+	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
+		s.samples[i] = math.ScrambledHammersley(i + iteration * s.numSamplesPerIteration, s.numTotalSamples, s.randomBits)
 	}
 
 	return s.samples
