@@ -1,8 +1,8 @@
-/*
+
 package main
 
 import (
-	 "github.com/Opioid/math32"
+	 "github.com/Opioid/scout/base/atomic"
 	_ "github.com/Opioid/scout/base/math"
 	_ "math"
 	_ "time"
@@ -13,11 +13,14 @@ func main() {
 	fmt.Println("It runs...")
 	
 	x := float32(2.0)
+	y := float32(5.0)
 
-	fmt.Println(math32.Rsqrt(x))
+	atomic.AddFloat32(&x, y)
+
+	fmt.Println(x)
 }
-*/
 
+/*
 package main
 
 import (
@@ -131,4 +134,4 @@ func main() {
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
-}
+}*/
