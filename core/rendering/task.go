@@ -44,7 +44,7 @@ func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end ma
 
 				color := t.Li(scene, sampleId, &ray) 
 
-				film.AddSample(&sample, color)
+				film.AddSample(&sample, color, start, end)
 
 				sampleId++
 			}

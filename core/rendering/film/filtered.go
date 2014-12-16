@@ -28,55 +28,117 @@ func NewFiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapp
 	return f
 }
 
-func (f *Filtered) AddSample(sample *sampler.Sample, color math.Vector3) {
+func (f *Filtered) AddSample(sample *sampler.Sample, color math.Vector3, start, end math.Vector2i) {
 	x, y := int32(sample.Coordinates.X), int32(sample.Coordinates.Y)
 
+	leftEdge, rightEdge, topEdge, bottomEdge := false, false, false, false
+	if x == start.X && x != 0 {
+		leftEdge = true
+	}
+
+	if x == end.X - 1 && x < f.dimensions.X - 1 {
+		rightEdge = true
+	}
+
+	if y == start.Y && y != 0 {
+		topEdge = true
+	}
+
+	if y == end.Y - 1  && y < f.dimensions.Y - 1 {
+		bottomEdge = true
+	}
+
 	o := sample.RelativeOffset
-	o.X -= 1.0
-	o.Y -= 1.0
+	o.X += 1.0
+	o.Y += 1.0
 	w := f.filter.Evaluate(o)
-	f.addPixel(x + 1, y + 1, color, w)
+
+	if leftEdge || topEdge {
+		f.atomicAddPixel(x - 1, y - 1, color, w)
+	} else {
+		f.addPixel(x - 1, y - 1, color, w)
+	}
 
 	o = sample.RelativeOffset
-	o.Y -= 1.0
+	o.Y += 1.0
 	w = f.filter.Evaluate(o)
-	f.addPixel(x, y + 1, color, w)
+
+	if topEdge {
+		f.atomicAddPixel(x, y - 1, color, w)
+	} else {
+		f.addPixel(x, y - 1, color, w)
+	}
+
+	o = sample.RelativeOffset
+	o.X -= 1.0
+	o.Y += 1.0
+	w = f.filter.Evaluate(o)
+
+	if rightEdge || topEdge {
+		f.atomicAddPixel(x + 1, y - 1, color, w)
+	} else { 
+		f.addPixel(x + 1, y - 1, color, w)
+	}	
 
 	o = sample.RelativeOffset
 	o.X += 1.0
-	o.Y -= 1.0
 	w = f.filter.Evaluate(o)
-	f.addPixel(x - 1, y + 1, color, w)
 
-	o = sample.RelativeOffset
-	o.X -= 1.0
-	w = f.filter.Evaluate(o)
-	f.addPixel(x + 1, y, color, w)
-
+	if leftEdge {
+		f.atomicAddPixel(x - 1, y, color, w)
+	} else {
+		f.addPixel(x - 1, y, color, w)
+	}
+	
 	// center
 	w = f.filter.Evaluate(sample.RelativeOffset)
-	f.addPixel(x, y, color, w)
+
+	if leftEdge || rightEdge || topEdge || bottomEdge {
+		f.atomicAddPixel(x, y, color, w)
+	} else {
+		f.addPixel(x, y, color, w)
+	}
+	
+	o = sample.RelativeOffset
+	o.X -= 1.0
+	w = f.filter.Evaluate(o)
+
+	if rightEdge {
+		f.atomicAddPixel(x + 1, y, color, w)
+	} else {
+		f.addPixel(x + 1, y, color, w)
+	}
 
 	o = sample.RelativeOffset
 	o.X += 1.0
+	o.Y -= 1.0
 	w = f.filter.Evaluate(o)
-	f.addPixel(x - 1, y, color, w)
+
+	if leftEdge || bottomEdge {
+		f.atomicAddPixel(x - 1, y + 1, color, w)
+	} else {
+		f.addPixel(x - 1, y + 1, color, w)
+	}
+	
+	o = sample.RelativeOffset
+	o.Y -= 1.0
+	w = f.filter.Evaluate(o)
+
+	if bottomEdge {
+		f.atomicAddPixel(x, y + 1, color, w)
+	} else {
+		f.addPixel(x, y + 1, color, w)
+	}
 
 	o = sample.RelativeOffset
 	o.X -= 1.0
-	o.Y += 1.0
+	o.Y -= 1.0
 	w = f.filter.Evaluate(o)
-	f.addPixel(x + 1, y - 1, color, w)
 
-	o = sample.RelativeOffset
-	o.Y += 1.0
-	w = f.filter.Evaluate(o)
-	f.addPixel(x, y - 1, color, w)
-
-	o = sample.RelativeOffset
-	o.X += 1.0
-	o.Y += 1.0
-	w = f.filter.Evaluate(o)
-	f.addPixel(x - 1, y - 1, color, w)
+	if rightEdge || bottomEdge {
+		f.atomicAddPixel(x + 1, y + 1, color, w)
+	} else {
+		f.addPixel(x + 1, y + 1, color, w)
+	}
 }
 

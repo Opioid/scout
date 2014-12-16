@@ -15,7 +15,7 @@ import (
 type Film interface {
 	Dimensions() math.Vector2i 
 
-	AddSample(sample *sampler.Sample, color math.Vector3)
+	AddSample(sample *sampler.Sample, color math.Vector3, start, end math.Vector2i)
 
 	RGBA() *image.RGBA
 
