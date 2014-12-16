@@ -14,7 +14,7 @@ import (
 type Renderer struct {
 	IntegratorFactory IntegratorFactory
 
-	samplerDimensions math.Vector2i
+	tileSize math.Vector2i
 	currentPixel math.Vector2i
 }
 
@@ -22,10 +22,9 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	dimensions := context.Camera.Film().Dimensions()
 
 	r.currentPixel = math.MakeVector2i(0, 0)
+	r.tileSize     = math.MakeVector2i(32, 32)
 
-	r.samplerDimensions = math.MakeVector2i(32, 32)
-
-	numSamplers := int(float32(dimensions.X) / float32(r.samplerDimensions.X) + 0.5) * int(float32(dimensions.Y) / float32(r.samplerDimensions.Y) + 0.5)
+	numSamplers := int(float32(dimensions.X) / float32(r.tileSize.X) + 0.5) * int(float32(dimensions.Y) / float32(r.tileSize.Y) + 0.5)
 	progressor.Start(numSamplers)
 
 	wg := sync.WaitGroup{}
@@ -34,7 +33,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 		rng := random.Generator{}
 		rng.Seed(uint32(r.currentPixel.X) + 0, uint32(r.currentPixel.Y) + 1, uint32(r.currentPixel.X) + 2, uint32(r.currentPixel.Y) + 3)	
 
-		end := r.currentPixel.Add(r.samplerDimensions).Min(dimensions)
+		end := r.currentPixel.Add(r.tileSize).Min(dimensions)
 		sampler := context.Sampler.Clone(&rng)
 
 		wg.Add(1)
@@ -59,33 +58,14 @@ func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, start, en
 	task := makeTask(r, r.IntegratorFactory.New(rng))
 
 	task.render(scene, camera, start, end, sampler)
-/*
-	film := camera.Film()
-
-	var sample pkgsampler.Sample
-	var ray math.OptimizedRay
-
-	numSamples := sampler.NumSamplesPerPixel()
-
-	for sampler.GenerateNewSample(&sample) {
-		camera.GenerateRay(&sample, &ray)
-
-		if 0 == sample.Id {
-			task.FirstSample(numSamples)
-		}
-
-		color := task.Li(scene, sample.Id, &ray) 
-
-		film.AddSample(&sample, color)
-	}*/
 }
 
 func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
-	r.currentPixel.X += r.samplerDimensions.X
+	r.currentPixel.X += r.tileSize.X
 
 	if r.currentPixel.X >= dimensions.X {
 		r.currentPixel.X = 0
-		r.currentPixel.Y += r.samplerDimensions.Y
+		r.currentPixel.Y += r.tileSize.Y
 	}
 
 	if r.currentPixel.Y >= dimensions.Y {

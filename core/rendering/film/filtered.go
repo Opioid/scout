@@ -35,15 +35,12 @@ func (f *Filtered) AddSample(sample *sampler.Sample, color math.Vector3, start, 
 	if x == start.X && x != 0 {
 		leftEdge = true
 	}
-
 	if x == end.X - 1 && x < f.dimensions.X - 1 {
 		rightEdge = true
 	}
-
 	if y == start.Y && y != 0 {
 		topEdge = true
 	}
-
 	if y == end.Y - 1  && y < f.dimensions.Y - 1 {
 		bottomEdge = true
 	}
