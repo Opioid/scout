@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/rendering/color"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32/atomic"
 	"image"
 	gocolor "image/color"
 	"runtime"
@@ -128,6 +129,18 @@ func (f *film) addPixel(x, y int32, color math.Vector3, weight float32) {
 	p := &f.pixels[f.dimensions.X * y + x]
 	p.color.AddAssign(color.Scale(weight))
 	p.weightSum += weight
+}
+
+func (f *film) atomicAddPixel(x, y int32, color math.Vector3, weight float32) {
+	if x < 0 || x >= f.dimensions.X || y < 0 || y >= f.dimensions.Y {
+		return
+	}
+
+	p := &f.pixels[f.dimensions.X * y + x]
+	atomic.AddFloat32(&p.color.X, color.X * weight)
+	atomic.AddFloat32(&p.color.Y, color.Y * weight)
+	atomic.AddFloat32(&p.color.Z, color.Z * weight)
+	atomic.AddFloat32(&p.weightSum, weight)
 }
 
 func expose(color math.Vector3, exposure float32) math.Vector3 {

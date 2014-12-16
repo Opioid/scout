@@ -1,4 +1,4 @@
-
+/*
 package main
 
 import (
@@ -19,8 +19,8 @@ func main() {
 
 	fmt.Println(x)
 }
+*/
 
-/*
 package main
 
 import (
@@ -134,4 +134,4 @@ func main() {
 	saveDuration := time.Since(saveStart)
 	seconds = float64(saveDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
-}*/
+}
