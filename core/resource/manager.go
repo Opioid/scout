@@ -15,8 +15,8 @@ type Manager struct {
 func NewManager() *Manager {
 	manager := new(Manager)
 
-	manager.shapeProvider = &shape.Provider{}
-	manager.materialProvider = &material.Provider{}
+	manager.shapeProvider = shape.NewProvider()
+	manager.materialProvider = material.NewProvider()
 
 	return manager
 }

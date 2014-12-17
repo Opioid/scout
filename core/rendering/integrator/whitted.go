@@ -4,6 +4,7 @@ import (
 	"github.com/Opioid/scout/core/rendering"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/ibl"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
@@ -104,8 +105,8 @@ func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
 	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat)) 
 	f.linearSampler_clamp = texture.NewSampler2D_linear(new(texture.AddressMode_clamp)) 
 
-	f.brdf = texture.NewTexture2D(math.MakeVector2i(32, 32), 1)
-	ibl.IntegrateGgxBrdf(1024, &f.brdf.Image.Buffers[0])
+	f.brdf = texture.NewTexture2D(buffer.Float4, math.MakeVector2i(32, 32), 1)
+	ibl.IntegrateGgxBrdf(1024, f.brdf.Image.Buffers[0])
 
 	return f
 }

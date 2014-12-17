@@ -18,7 +18,7 @@ func NewSamplerSpherical_nearest() *SamplerSpherical_nearest {
 func (sampler *SamplerSpherical_nearest) Sample(texture *Texture2D, xyz math.Vector3) math.Vector4 {
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
-	d := texture.Image.Buffers[0].dimensions
+	d := texture.Image.Buffers[0].Dimensions()
 
 	x := math.Mini(int32(uv.X * float32(d.X)), d.X - 1)
 	y := math.Mini(int32(uv.Y * float32(d.Y)), d.Y - 1)
@@ -29,10 +29,11 @@ func (sampler *SamplerSpherical_nearest) Sample(texture *Texture2D, xyz math.Vec
 func (sampler *SamplerSpherical_nearest) SampleLod(texture *Texture2D, xyz math.Vector3, mipLevel float32) math.Vector4 {
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
 
-	b := &texture.Image.Buffers[int(mipLevel)]
+	b := texture.Image.Buffers[int(mipLevel)]
+	dimensions := b.Dimensions()
 
-	x := int32(uv.X * float32(b.dimensions.X - 1) + 0.5)
-	y := int32(uv.Y * float32(b.dimensions.Y - 1) + 0.5)
+	x := int32(uv.X * float32(dimensions.X - 1) + 0.5)
+	y := int32(uv.Y * float32(dimensions.Y - 1) + 0.5)
 
 	return b.At(x, y)
 }

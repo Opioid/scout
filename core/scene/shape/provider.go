@@ -10,10 +10,20 @@ import (
 )
 
 type Provider struct {
+	meshes map[string]Shape
+}
 
+func NewProvider() *Provider {
+	p := Provider{}
+	p.meshes = make(map[string]Shape)
+	return &p
 }
 
 func (p *Provider) Load(filename string) Shape {
+	if mesh, ok := p.meshes[filename]; ok {
+		return mesh
+	}
+
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -27,11 +37,17 @@ func (p *Provider) Load(filename string) Shape {
 
 	root := document.(map[string]interface{})
 
+	var mesh Shape
+
 	if g, ok := root["geometry"]; ok {
-		return loadGeometry(g)
+		mesh = loadGeometry(g)
 	}
 
-	return nil
+	if mesh != nil {
+		p.meshes[filename] = mesh
+	}
+
+	return mesh
 }
 
 func loadGeometry(i interface{}) Shape {

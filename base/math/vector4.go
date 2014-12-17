@@ -12,6 +12,10 @@ func MakeVector4(x, y, z, w float32) Vector4 {
 	return Vector4{x, y, z, w}
 }
 
+func MakeVector4FromVector3(v Vector3, w float32) Vector4 {
+	return Vector4{v.X, v.Y, v.Z, w}
+}
+
 func (v Vector4) Vector3() Vector3 {
 	return Vector3{v.X, v.Y, v.Z}
 }

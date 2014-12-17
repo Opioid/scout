@@ -1,6 +1,7 @@
 package texture
 
 import (
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/rendering/color"
 	"github.com/Opioid/scout/base/file"
@@ -46,7 +47,7 @@ func textureFromRgbe(fi *os.File) *Texture2D {
 
 	dimensions := math.MakeVector2i(int32(width), int32(height))
 
-	texture := NewTexture2D(dimensions, 1)
+	texture := NewTexture2D(buffer.Float4, dimensions, 1)
 
 	for y := int32(0); y < dimensions.Y; y++ {
 		for x := int32(0); x < dimensions.X; x++ {
@@ -73,7 +74,12 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 
 	dimensions := math.MakeVector2i(int32(sourceImage.Bounds().Max.X), int32(sourceImage.Bounds().Max.Y))
 
-	texture := NewTexture2D(dimensions, 1)
+	t := uint32(buffer.Float4)
+	if config.Usage == Normals {
+		t = buffer.Float3
+	}
+
+	texture := NewTexture2D(t, dimensions, 1)
 
 	numTaks := int32(runtime.GOMAXPROCS(0))
 
@@ -89,9 +95,9 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 
 		go func (start, end math.Vector2i) {
 			if config.Usage == Normals {
-				processNormals(start, end, sourceImage, &texture.Image.Buffers[0])
+				processNormals(start, end, sourceImage, texture.Image.Buffers[0])
 			} else {
-				processSrgbToLinear(start, end, sourceImage, &texture.Image.Buffers[0])
+				processSrgbToLinear(start, end, sourceImage, texture.Image.Buffers[0])
 			}
 
 			wg.Done()
@@ -111,7 +117,7 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 	return texture
 }
 
-func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target buffer.Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
@@ -128,7 +134,7 @@ func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target 
 	}
 }
 
-func processLinear(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processLinear(start, end math.Vector2i, source goimage.Image, target buffer.Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
@@ -145,18 +151,18 @@ func processLinear(start, end math.Vector2i, source goimage.Image, target *Buffe
 	}
 }
 
-func processNormals(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processNormals(start, end math.Vector2i, source goimage.Image, target buffer.Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
-			r, g, b, a := source.At(int(x), int(y)).RGBA()
+			r, g, b, _ := source.At(int(x), int(y)).RGBA()
 
 			target.Set(x, y, math.MakeVector4(
 				2 * (float32(r) / max - 0.5), 
 				2 * (float32(g) / max - 0.5), 
 				2 * (float32(b) / max - 0.5), 
-				float32(a) / max,
+				1.0,
 			))
 		}
 	}

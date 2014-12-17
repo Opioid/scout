@@ -1,7 +1,7 @@
 package material
 
 import (
-	"github.com/Opioid/scout/core/rendering/material"
+	pkgmaterial "github.com/Opioid/scout/core/rendering/material"
 	"github.com/Opioid/scout/core/rendering/texture"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"github.com/Opioid/scout/base/math"
@@ -12,10 +12,20 @@ import (
 
 
 type Provider struct {
+	materials map[string]Material
+}
 
+func NewProvider() *Provider {
+	p := Provider{}
+	p.materials = make(map[string]Material)
+	return &p
 }
 
 func (p *Provider) Load(filename string, tp *texture.Provider) Material {
+	if material, ok := p.materials[filename]; ok {
+		return material
+	}
+
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -76,19 +86,25 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 		}
 	}
 
+	var material Material
+
 	if colorMap != nil {
 		if normalMap != nil {
-			return material.NewSubstitute_ColorMap_NormalMap(roughness, metallic, colorMap, normalMap)
+			material = pkgmaterial.NewSubstitute_ColorMap_NormalMap(roughness, metallic, colorMap, normalMap)
 		} else {
-			return material.NewSubstitute_ColorMap(roughness, metallic, colorMap)
+			material = pkgmaterial.NewSubstitute_ColorMap(roughness, metallic, colorMap)
 		}
 	} else {
 		if normalMap != nil {
-			return material.NewSubstitute_ColorConstant_NormalMap(color, roughness, metallic, normalMap)
+			material = pkgmaterial.NewSubstitute_ColorConstant_NormalMap(color, roughness, metallic, normalMap)
 		} else {		
-			return material.NewSubstitute_ColorConstant(color, roughness, metallic)
+			material = pkgmaterial.NewSubstitute_ColorConstant(color, roughness, metallic)
 		}
 	}
+
+	p.materials[filename] = material
+
+	return material
 }
 
 func readFilename(i interface{}) (string, string) {

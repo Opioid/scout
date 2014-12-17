@@ -31,6 +31,17 @@ func (a Vector3) At(i int32) float32 {
 	}
 }
 
+func (a *Vector3) Set(i int32, value float32) {
+	switch i {
+	case 0:
+		a.X = value
+	case 1:
+		a.Y = value
+	default:
+		a.Z = value
+	}
+}
+
 func (a Vector3) Add(b Vector3) Vector3 {
 	return Vector3{a.X + b.X, a.Y + b.Y, a.Z + b.Z}
 }
