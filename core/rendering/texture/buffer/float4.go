@@ -9,31 +9,35 @@ import (
 	"sync"
 )
 
-type Float4 struct {
+type float4 struct {
 	buffer
 	data []math.Vector4
 }
 
-func NewFloat4(dimensions math.Vector2i) *Float4 {
-	b := Float4{}
+func newFloat4(dimensions math.Vector2i) *float4 {
+	b := float4{}
 	b.Resize(dimensions)
 	return &b
 }
 
-func (b *Float4) Resize(dimensions math.Vector2i) {
+func (b *float4) Type() uint32 {
+	return Float4
+}
+
+func (b *float4) Resize(dimensions math.Vector2i) {
 	b.dimensions = dimensions
 	b.data = make([]math.Vector4, dimensions.X * dimensions.Y)
 }
 
-func (b *Float4) At(x, y int32) math.Vector4 {
+func (b *float4) At(x, y int32) math.Vector4 {
 	return b.data[b.dimensions.X * y + x]
 }
 
-func (b *Float4) Set(x, y int32, color math.Vector4) {
+func (b *float4) Set(x, y int32, color math.Vector4) {
 	b.data[b.dimensions.X * y + x] = color
 }
 
-func (b *Float4) SetRgb(x, y int32, color math.Vector3) {
+func (b *float4) SetRgb(x, y int32, color math.Vector3) {
 	v := &b.data[b.dimensions.X * y + x]
 
 	v.X = color.X
@@ -41,11 +45,11 @@ func (b *Float4) SetRgb(x, y int32, color math.Vector3) {
 	v.Z = color.Z
 }
 
-func (b *Float4) SetChannel(x, y, c int32, value float32) {
+func (b *float4) SetChannel(x, y, c int32, value float32) {
 	b.data[b.dimensions.X * y + x].Set(c, value)
 }
 
-func (b *Float4) RGBA() *image.RGBA {
+func (b *float4) RGBA() *image.RGBA {
 	target := image.NewRGBA(image.Rect(0, 0, int(b.dimensions.X), int(b.dimensions.Y)))
 
 	numTaks := int32(runtime.GOMAXPROCS(0))
@@ -79,7 +83,7 @@ func (b *Float4) RGBA() *image.RGBA {
 	return target
 }
 
-func (buf *Float4) process(start, end math.Vector2i, target *image.RGBA) {
+func (buf *float4) process(start, end math.Vector2i, target *image.RGBA) {
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			c := buf.At(x, y)

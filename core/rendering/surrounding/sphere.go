@@ -2,6 +2,7 @@ package surrounding
 
 import (
 	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/base/math"
 )
@@ -28,7 +29,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	s.specularMap = sphericalTexture
 
-	s.diffuseMap = texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
+	s.diffuseMap = texture.NewTexture2D(buffer.Float4, math.MakeVector2i(32, 16), 1)
 
 	ibl.CalculateSphereMapSolidAngleWeights(sphericalTexture.Image.Buffers[0])
 

@@ -1,6 +1,7 @@
 package texture
 
 import (
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -10,14 +11,14 @@ type Texture2D struct {
 	MaxMipLevel uint32
 }
 
-func NewTexture2D(dimensions math.Vector2i, numMipLevels uint32) *Texture2D {
-	t := Texture2D{}
-	t.Image.resize(dimensions, numMipLevels)
-	return &t
+func NewTexture2D(t uint32, dimensions math.Vector2i, numMipLevels uint32) *Texture2D {
+	tex := Texture2D{}
+	tex.Image = MakeImage(t, dimensions, numMipLevels)
+	return &tex
 }
 
 func NewTexture2DFromDescription(description *description) *Texture2D {
-	return NewTexture2D(description.Dimensions.Vector2i(), description.NumMipLevels)
+	return NewTexture2D(buffer.Float4, description.Dimensions.Vector2i(), description.NumMipLevels)
 }
 
 func (t *Texture2D) AllocateMipLevels(numMipLevels uint32) {
