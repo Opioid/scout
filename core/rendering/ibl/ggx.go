@@ -1,7 +1,7 @@
 package ibl
 
 import (
-	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/material/ggx"
 	_ "github.com/Opioid/scout/core/scene/surrounding"
 	"github.com/Opioid/scout/base/math"
@@ -16,7 +16,7 @@ import (
 	_ "fmt"
 )
 
-func IntegrateGgxBrdf(numSamples uint32, buffer *texture.Buffer) {
+func IntegrateGgxBrdf(numSamples uint32, buffer buffer.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	dx := float32(dimensions.X - 1)

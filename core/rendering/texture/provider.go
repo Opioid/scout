@@ -1,6 +1,7 @@
 package texture
 
 import (
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/rendering/color"
 	"github.com/Opioid/scout/base/file"
@@ -89,9 +90,9 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 
 		go func (start, end math.Vector2i) {
 			if config.Usage == Normals {
-				processNormals(start, end, sourceImage, &texture.Image.Buffers[0])
+				processNormals(start, end, sourceImage, texture.Image.Buffers[0])
 			} else {
-				processSrgbToLinear(start, end, sourceImage, &texture.Image.Buffers[0])
+				processSrgbToLinear(start, end, sourceImage, texture.Image.Buffers[0])
 			}
 
 			wg.Done()
@@ -111,7 +112,7 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 	return texture
 }
 
-func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target buffer.Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
@@ -128,7 +129,7 @@ func processSrgbToLinear(start, end math.Vector2i, source goimage.Image, target 
 	}
 }
 
-func processLinear(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processLinear(start, end math.Vector2i, source goimage.Image, target buffer.Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {
@@ -145,7 +146,7 @@ func processLinear(start, end math.Vector2i, source goimage.Image, target *Buffe
 	}
 }
 
-func processNormals(start, end math.Vector2i, source goimage.Image, target *Buffer) {
+func processNormals(start, end math.Vector2i, source goimage.Image, target buffer.Buffer) {
 	max := float32(0xFFFF)
 
 	for y := start.Y; y < end.Y; y++ {

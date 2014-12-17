@@ -18,7 +18,7 @@ func NewSampler2D_linear(address addressMode) *Sampler2D_linear {
 func (sampler *Sampler2D_linear) Sample(texture *Texture2D, uv math.Vector2) math.Vector4 {
 	auv := sampler.address.address2D(uv)
 
-	d := texture.Image.Buffers[0].dimensions
+	d := texture.Image.Buffers[0].Dimensions()
 
 	u := auv.X * float32(d.X) - 0.5
 	v := auv.Y * float32(d.Y) - 0.5
@@ -49,10 +49,11 @@ func (sampler *Sampler2D_linear) Sample(texture *Texture2D, uv math.Vector2) mat
 func (s *Sampler2D_linear) SampleLod(texture *Texture2D, uv math.Vector2, mipLevel float32) math.Vector4 {
 	auv := s.address.address2D(uv)
 
-	b := &texture.Image.Buffers[int(mipLevel)]
+	b := texture.Image.Buffers[int(mipLevel)]
+	dimensions := b.Dimensions()
 
-	x := int32(auv.X * float32(b.dimensions.X - 1) + 0.5)
-	y := int32(auv.Y * float32(b.dimensions.Y - 1) + 0.5)
+	x := int32(auv.X * float32(dimensions.X - 1) + 0.5)
+	y := int32(auv.Y * float32(dimensions.Y - 1) + 0.5)
 	
 	return b.At(x, y)
 }

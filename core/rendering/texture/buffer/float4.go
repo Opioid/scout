@@ -1,41 +1,39 @@
-package texture
+package buffer
 
 import (
 	"github.com/Opioid/scout/base/rendering/color"
 	"github.com/Opioid/scout/base/math"
-	goimage "image"
+	"image"
 	gocolor "image/color"
 	"runtime"
 	"sync"
 )
 
-type Buffer struct {
-	dimensions math.Vector2i
+type Float4 struct {
+	buffer
 	data []math.Vector4
 }
 
-func (b *Buffer) Dimensions() math.Vector2i {
-	return b.dimensions
+func NewFloat4(dimensions math.Vector2i) *Float4 {
+	b := Float4{}
+	b.Resize(dimensions)
+	return &b
 }
 
-func (b *Buffer) Data() []math.Vector4 {
-	return b.data
-}
-
-func (b *Buffer) Resize(dimensions math.Vector2i) {
+func (b *Float4) Resize(dimensions math.Vector2i) {
 	b.dimensions = dimensions
 	b.data = make([]math.Vector4, dimensions.X * dimensions.Y)
 }
 
-func (b *Buffer) At(x, y int32) math.Vector4 {
+func (b *Float4) At(x, y int32) math.Vector4 {
 	return b.data[b.dimensions.X * y + x]
 }
 
-func (b *Buffer) Set(x, y int32, color math.Vector4) {
+func (b *Float4) Set(x, y int32, color math.Vector4) {
 	b.data[b.dimensions.X * y + x] = color
 }
 
-func (b *Buffer) SetRgb(x, y int32, color math.Vector3) {
+func (b *Float4) SetRgb(x, y int32, color math.Vector3) {
 	v := &b.data[b.dimensions.X * y + x]
 
 	v.X = color.X
@@ -43,12 +41,12 @@ func (b *Buffer) SetRgb(x, y int32, color math.Vector3) {
 	v.Z = color.Z
 }
 
-func (b *Buffer) SetChannel(x, y, c int32, value float32) {
+func (b *Float4) SetChannel(x, y, c int32, value float32) {
 	b.data[b.dimensions.X * y + x].Set(c, value)
 }
 
-func (b *Buffer) RGBA() *goimage.RGBA {
-	target := goimage.NewRGBA(goimage.Rect(0, 0, int(b.dimensions.X), int(b.dimensions.Y)))
+func (b *Float4) RGBA() *image.RGBA {
+	target := image.NewRGBA(image.Rect(0, 0, int(b.dimensions.X), int(b.dimensions.Y)))
 
 	numTaks := int32(runtime.GOMAXPROCS(0))
 
@@ -81,7 +79,7 @@ func (b *Buffer) RGBA() *goimage.RGBA {
 	return target
 }
 
-func (buf *Buffer) process(start, end math.Vector2i, target *goimage.RGBA) {
+func (buf *Float4) process(start, end math.Vector2i, target *image.RGBA) {
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			c := buf.At(x, y)

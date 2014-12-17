@@ -2,11 +2,12 @@ package texture
 
 import (
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	gomath "math"
 )
 
 type Image struct {
-	Buffers []Buffer
+	Buffers []buffer.Buffer
 }
 
 func (i *Image) resize(dimensions math.Vector2i, numMipLevels uint32) {
@@ -16,10 +17,10 @@ func (i *Image) resize(dimensions math.Vector2i, numMipLevels uint32) {
 		numMipLevels = math.Minui(countMipLevels(dimensions), numMipLevels)
 	}
 
-	i.Buffers = make([]Buffer, numMipLevels)
+	i.Buffers = make([]buffer.Buffer, numMipLevels)
 
 	for l := uint32(0); l < numMipLevels; l++ {
-		i.Buffers[l].Resize(dimensions)
+		i.Buffers[l] = buffer.NewFloat4(dimensions)
 
 		dimensions.X = math.Maxi(dimensions.X / 2, 1)
 		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
@@ -31,19 +32,19 @@ func (i *Image) NumMipLevels() uint32 {
 }
 
 func (i *Image) allocateMipLevels(numMipLevels uint32) {
-	buffers := make([]Buffer, numMipLevels)
+	buffers := make([]buffer.Buffer, numMipLevels)
 
 	copy(buffers, i.Buffers)
 
 	previousMipLevels := i.NumMipLevels()
 
-	dimensions := i.Buffers[previousMipLevels - 1].dimensions
+	dimensions := i.Buffers[previousMipLevels - 1].Dimensions()
 
 	for l := previousMipLevels; l < numMipLevels; l++ {
 		dimensions.X = math.Maxi(dimensions.X / 2, 1)
 		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
 
-		buffers[l].Resize(dimensions)
+		i.Buffers[l] = buffer.NewFloat4(dimensions)
 	}
 
 	i.Buffers = buffers

@@ -37,10 +37,11 @@ func (sampler *SamplerSpherical_linear) SampleLod(texture *Texture2D, xyz math.V
 }
 
 func (sampler *SamplerSpherical_linear) sampleLevel(texture *Texture2D, uv math.Vector2, mipLevel uint32) math.Vector4 {
-	b := &texture.Image.Buffers[mipLevel]
+	b := texture.Image.Buffers[mipLevel]
+	dimensions := b.Dimensions()
 
-	u := uv.X * float32(b.dimensions.X) - 0.5
-	v := uv.Y * float32(b.dimensions.Y) - 0.5
+	u := uv.X * float32(dimensions.X) - 0.5
+	v := uv.Y * float32(dimensions.Y) - 0.5
 
 	fu := math32.Floor(u)
 	fv := math32.Floor(v)
@@ -50,14 +51,14 @@ func (sampler *SamplerSpherical_linear) sampleLevel(texture *Texture2D, uv math.
 
 	x1 := x + 1
 
-	if x1 >= b.dimensions.X {
+	if x1 >= dimensions.X {
 		x1 = 0
 	}
 
-	y1 := math.Mini(y + 1, b.dimensions.Y - 1)
+	y1 := math.Mini(y + 1, dimensions.Y - 1)
 
 	if x < 0 {
-		x = b.dimensions.X - 1
+		x = dimensions.X - 1
 	}
 
 	y = math.Maxi(y, 0)	

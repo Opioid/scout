@@ -1,7 +1,7 @@
 package ibl
 
 import (
-	"github.com/Opioid/scout/core/rendering/texture"
+	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/material/ggx"
 	"github.com/Opioid/scout/core/scene/surrounding"
 	"github.com/Opioid/scout/base/math"
@@ -15,7 +15,7 @@ import (
 	_ "fmt"
 )
 
-func CalculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
+func CalculateSphereMapSolidAngleWeights(buffer buffer.Buffer) {
 	dimensions := buffer.Dimensions()
 
 //	sx := 1.0 / float32(dimensions.X) * gomath.Pi * 2.0
@@ -65,7 +65,7 @@ func CalculateSphereMapSolidAngleWeights(buffer *texture.Buffer) {
 	*/
 }
 
-func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSamples uint32, buffer *texture.Buffer) {
+func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSamples uint32, buffer buffer.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	numTaks := int32(runtime.GOMAXPROCS(0))
@@ -110,7 +110,7 @@ func IntegrateHemisphereSphereMap(surrounding surrounding.Surrounding, numSample
 	*/
 }
 
-func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
+func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSamples uint32, start, end math.Vector2i, buffer buffer.Buffer) {
 	rng := random.Generator{}
 	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
 
@@ -177,7 +177,7 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 	}
 }
 
-func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, buffer *texture.Buffer) {
+func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, buffer buffer.Buffer) {
 	dimensions := buffer.Dimensions()
 
 	numTaks := int32(runtime.GOMAXPROCS(0))
@@ -222,7 +222,7 @@ func IntegrateConeSphereMap(surrounding surrounding.Surrounding, roughness float
 	*/
 }
 
-func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, start, end math.Vector2i, buffer *texture.Buffer) {
+func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness float32, numSamples uint32, start, end math.Vector2i, buffer buffer.Buffer) {
 	rng := random.Generator{}
 	rng.Seed(uint32(start.X) + 0, uint32(start.Y) + 1, uint32(start.X) + 2, uint32(start.Y) + 3)	
 

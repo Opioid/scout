@@ -30,9 +30,9 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	s.diffuseMap = texture.NewTexture2D(math.MakeVector2i(32, 16), 1)
 
-	ibl.CalculateSphereMapSolidAngleWeights(&sphericalTexture.Image.Buffers[0])
+	ibl.CalculateSphereMapSolidAngleWeights(sphericalTexture.Image.Buffers[0])
 
-	ibl.IntegrateHemisphereSphereMap(s, numSamples, &s.diffuseMap.Image.Buffers[0])
+	ibl.IntegrateHemisphereSphereMap(s, numSamples, s.diffuseMap.Image.Buffers[0])
 
 	sphericalTexture.AllocateMipLevelsDownTo(math.MakeVector2i(20, 10))
 
@@ -43,7 +43,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 	roughnessIncrement := 1 / s.maxRoughnessMip
 
 	for i := uint32(1); i < numMipLevels; i++ {
-		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, numSamples, &sphericalTexture.Image.Buffers[i])
+		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, numSamples, sphericalTexture.Image.Buffers[i])
 	}
 
 	return s
