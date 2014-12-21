@@ -19,7 +19,7 @@ func NewUnfiltered(dimensions math.Vector2i, exposure float32, tonemapper tonema
 	return f
 }
 
-func (f *Unfiltered) AddSample(sample *sampler.Sample, color math.Vector3, start, end math.Vector2i) {
+func (f *Unfiltered) AddSample(sample *sampler.CameraSample, color math.Vector3, start, end math.Vector2i) {
 	x, y := int32(sample.Coordinates.X), int32(sample.Coordinates.Y)
 
 	f.addPixel(x, y, color, 1)

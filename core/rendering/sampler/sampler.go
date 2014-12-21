@@ -12,6 +12,7 @@ type Sampler interface {
 
 	Restart(numIterations uint32)
 
-	GenerateNewSample(sample *math.Vector2) bool
+	GenerateNewSample(offset math.Vector2, sample *CameraSample) bool
+
 	GenerateSamples(iteration uint32) []math.Vector2
 }

@@ -28,7 +28,7 @@ func NewFiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapp
 	return f
 }
 
-func (f *Filtered) AddSample(sample *sampler.Sample, color math.Vector3, start, end math.Vector2i) {
+func (f *Filtered) AddSample(sample *sampler.CameraSample, color math.Vector3, start, end math.Vector2i) {
 	x, y := int32(sample.Coordinates.X), int32(sample.Coordinates.Y)
 
 	leftEdge, rightEdge, topEdge, bottomEdge := false, false, false, false

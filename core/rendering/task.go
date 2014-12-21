@@ -1,6 +1,7 @@
 package rendering
 
 import (
+	_ "github.com/Opioid/scout/core/rendering/film"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/camera"
@@ -22,12 +23,12 @@ func makeTask(renderer *Renderer, integrator Integrator) Task {
 }
 
 func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end math.Vector2i, sampler pkgsampler.Sampler) {
-	film := camera.Film()
+	f := camera.Film()
 
 	numSamples := sampler.NumSamplesPerIteration()
 
-	var offset math.Vector2
-	var sample pkgsampler.Sample
+//	var offset math.Vector2
+	var sample pkgsampler.CameraSample
 	var ray math.OptimizedRay
 
 	for y := start.Y; y < end.Y; y++ {
@@ -36,15 +37,16 @@ func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end ma
 			t.integrator.StartNewPixel(numSamples)
 			sampleId := uint32(0)
 
-			for sampler.GenerateNewSample(&offset) {
-				sample.Coordinates = math.MakeVector2(float32(x) + offset.X, float32(y) + offset.Y)
-				sample.RelativeOffset = offset.SubS(0.5)
+			for sampler.GenerateNewSample(math.MakeVector2(float32(x), float32(y)), &sample) {
+			//	sample.Coordinates = math.MakeVector2(float32(x) + offset.X, float32(y) + offset.Y)
+			//	sample.LensUv = math.MakeVector2(sample.Coordinates.X / dx, sample.Coordinates.Y / dy)
+			//	sample.RelativeOffset = offset.SubS(0.5)
 
-				camera.GenerateRay(sample.Coordinates, &ray)
+				camera.GenerateRay(&sample, &ray)
 
 				color := t.Li(scene, sampleId, &ray) 
 
-				film.AddSample(&sample, color, start, end)
+				f.AddSample(&sample, color, start, end)
 
 				sampleId++
 			}

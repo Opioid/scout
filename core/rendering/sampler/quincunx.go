@@ -35,12 +35,12 @@ func (q *Quincunx) Restart(numIterations uint32) {
 	q.currentSample = 0
 }
 
-func (q *Quincunx) GenerateNewSample(sample *math.Vector2) bool {
+func (q *Quincunx) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
 	if q.currentSample >= 5 {
 		return false
 	}
 
-	*sample = quincunxSamples[q.currentSample]
+	sample.Coordinates = quincunxSamples[q.currentSample]
 
 	q.currentSample++
 

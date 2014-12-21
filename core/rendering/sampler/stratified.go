@@ -64,12 +64,17 @@ func (s *Stratified) Restart(numIterations uint32) {
 	s.currentSample = 0
 }
 
-func (s *Stratified) GenerateNewSample(sample *math.Vector2) bool {
+func (s *Stratified) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
 	if s.currentSample >= s.numSamples {
 		return false
 	}
 
-	*sample = s.sample(s.currentSample)
+	s2d := s.sample(s.currentSample)
+
+	sample.Coordinates = offset.Add(s2d)
+	sample.RelativeOffset = s2d.SubS(0.5)
+	sample.LensUv = s2d//math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
+
 	s.currentSample++
 	
 	return true
@@ -80,12 +85,12 @@ func (s *Stratified) GenerateSamples(iteration uint32) []math.Vector2 {
 		s.samples[i] = s.sample(i)
 	}
 
-	return  s.samples
+	return s.samples
 }
 
 func (s *Stratified) sample(id uint32) math.Vector2 {
 	sample := s.offsets[id]
 	sample.X += s.area.X * (s.rng.RandomFloat32() - 0.5)
-	sample.Y += s.area.X * (s.rng.RandomFloat32() - 0.5)
+	sample.Y += s.area.Y * (s.rng.RandomFloat32() - 0.5)
 	return sample
 }

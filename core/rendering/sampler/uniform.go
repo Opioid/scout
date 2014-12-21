@@ -44,12 +44,15 @@ func (u *Uniform) Restart(numIterations uint32) {
 	u.currentSample = 0
 }
 
-func (u *Uniform) GenerateNewSample(sample *math.Vector2) bool {
+func (u *Uniform) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
 	if u.currentSample >= u.numSamples {
 		return false
 	}
 
-	*sample = u.samples[u.currentSample]
+	s2d := u.samples[u.currentSample]
+
+	sample.Coordinates = offset.Add(s2d)
+	sample.RelativeOffset = s2d.SubS(0.5)
 
 	u.currentSample++
 

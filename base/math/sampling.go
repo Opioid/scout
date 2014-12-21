@@ -5,26 +5,25 @@ import (
 	"math"
 )
 
-func HemisphereSample_uniform(r, s float32)Vector3 {
-	r1 := s * 2 * math.Pi
-	r2 := 1 - r
-	sp := math32.Sqrt(1 - r2 * r2)
+func HemisphereSample_uniform(u, v float32)Vector3 {
+	z := 1.0 - u
+	r := math32.Sqrt(1.0 - z * z)
+	phi := v * 2.0 * math.Pi
 
-	return MakeVector3(Cos(r1) * sp, Sin(r1) * sp, r2)
+	return MakeVector3(Cos(phi) * r, Sin(phi) * r, z)
 }
 
-func HemisphereSample_cos(r, s float32) Vector3 {
-	r1 := s * 2 * math.Pi
-	r2 := math32.Sqrt(1 - r)
-	sp := math32.Sqrt(1 - r2 * r2)
+func HemisphereSample_cos(u, v float32) Vector3 {
+	z := math32.Sqrt(1.0 - u)
+	r := math32.Sqrt(1.0 - z * z)
+	phi := v * 2.0 * math.Pi
 
-	return MakeVector3(Cos(r1) * sp, Sin(r1) * sp, r2)
+	return MakeVector3(Cos(phi) * r, Sin(phi) * r, z)
 }
 
-func DiskSample_uniform(r, s float32)Vector3 {
-	r1 := s * 2 * math.Pi
-	r2 := 1 - r
-	sp := math32.Sqrt(1 - r2 * r2)
-
-	return MakeVector3(Cos(r1) * sp, Sin(r1) * sp, 0.0)
+func DiskSample_uniform(u, v float32) Vector3 {
+	r := math32.Sqrt(u)
+	theta := v * 2.0 * math.Pi
+	
+	return MakeVector3(Cos(theta) * r, Sin(theta) * r, 0.0)
 }

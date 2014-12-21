@@ -50,6 +50,10 @@ func (take *Take) Load(filename string) bool {
 		return false
 	}
 
+	if take.Context.Sampler == nil {
+		take.Context.Sampler = sampler.NewUniform(math.MakeVector2i(1, 1))
+	}
+
 	return true
 }
 
@@ -77,6 +81,8 @@ func (take *Take) loadCamera(c interface{}) {
 
 	var position math.Vector3
 	var rotation math.Quaternion
+	lensRadius := float32(0.0)
+	focalDistance := float32(0.0)
 	var fov float32
 	var dimensions math.Vector2
 	var film pkgfilm.Film
@@ -87,6 +93,10 @@ func (take *Take) loadCamera(c interface{}) {
 			position = pkgjson.ParseVector3(value)
 		case "rotation":
 			rotation = pkgjson.ParseRotationQuaternion(value)
+		case "lens_radius":
+			lensRadius = float32(value.(float64))
+		case "focal_distance":
+			focalDistance = float32(value.(float64))
 		case "fov":
 			fov = math.DegreesToRadians(float32(value.(float64)))
 		case "dimensions":
@@ -104,7 +114,7 @@ func (take *Take) loadCamera(c interface{}) {
 	case "Orthographic":
 		camera = pkgcamera.NewOrthographic(dimensions, film)
 	case "Perspective":
-		camera = pkgcamera.NewPerspective(fov, dimensions, film)
+		camera = pkgcamera.NewPerspective(lensRadius, focalDistance, fov, dimensions, film)
 	}
 
 	camera.Transformation().Set(position, math.MakeVector3(1.0, 1.0, 1.0), rotation)

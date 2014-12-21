@@ -4,7 +4,8 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
-type Sample struct {
+type CameraSample struct {
 	Coordinates math.Vector2
+	LensUv math.Vector2
 	RelativeOffset math.Vector2
 }
