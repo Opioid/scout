@@ -4,6 +4,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	gomath "math"
+	_ "fmt"
 )
 
 type Image struct {
@@ -36,6 +37,9 @@ func (i *Image) NumMipLevels() uint32 {
 }
 
 func (i *Image) allocateMipLevels(numMipLevels uint32) {
+	// fmt.Println(numMipLevels)
+
+
 	buffers := make([]buffer.Buffer, numMipLevels)
 
 	copy(buffers, i.Buffers)
@@ -48,7 +52,7 @@ func (i *Image) allocateMipLevels(numMipLevels uint32) {
 		dimensions.X = math.Maxi(dimensions.X / 2, 1)
 		dimensions.Y = math.Maxi(dimensions.Y / 2, 1)
 
-		i.Buffers[l] = buffer.New(buffer.Float4, dimensions)
+		buffers[l] = buffer.New(buffer.Float4, dimensions)
 	}
 
 	i.Buffers = buffers

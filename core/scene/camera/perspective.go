@@ -68,11 +68,11 @@ func (p *Perspective) GenerateRay(sample *sampler.CameraSample, ray *math.Optimi
 		focus := r.Point(ft)
 
 		r.Origin = lensUv
-		r.Direction = focus.Sub(r.Origin).Normalized()
+		r.Direction = focus.Sub(r.Origin)
 	}
 
 	ray.Origin = p.Entity.Transformation.ObjectToWorld.TransformPoint(r.Origin)
-	ray.SetDirection(p.Entity.Transformation.ObjectToWorld.TransformVector3(r.Direction))
+	ray.SetDirection(p.Entity.Transformation.ObjectToWorld.TransformVector3(r.Direction.Normalized()))
 
 	ray.MaxT  = 1000.0
 	ray.Depth = 0
