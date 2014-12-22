@@ -133,8 +133,6 @@ func loadSampler(s interface{}) sampler.Sampler {
 		switch key {
 		case "Uniform":
 			return loadUniformSampler(value)
-		case "Quincunx":
-			return loadQuincunxSampler(value)
 		case "Stratified":
 			return loadStratifiedSampler(value)
 		case "Scrambled_hammersley":
@@ -162,10 +160,6 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 	}
 
 	return sampler.NewUniform(samplesPerPixel)
-}
-
-func loadQuincunxSampler(s interface{}) sampler.Sampler {
-	return sampler.NewQuincunx()
 }
 
 func loadStratifiedSampler(s interface{}) sampler.Sampler {
