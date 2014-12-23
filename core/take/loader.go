@@ -80,7 +80,7 @@ func (take *Take) loadCamera(c interface{}) {
 	}
 
 	var position math.Vector3
-	var rotation math.Quaternion
+	rotation := math.MakeIdentityQuaternion()
 	lensRadius := float32(0.0)
 	focalDistance := float32(0.0)
 	var fov float32
@@ -117,7 +117,7 @@ func (take *Take) loadCamera(c interface{}) {
 		camera = pkgcamera.NewPerspective(lensRadius, focalDistance, fov, dimensions, film)
 	}
 
-	camera.Transformation().Set(position, math.MakeVector3(1.0, 1.0, 1.0), rotation)
+	camera.Transformation().Set(position, math.MakeIdentityVector3(), rotation)
 	camera.UpdateView()
 	take.Context.Camera = camera
 }

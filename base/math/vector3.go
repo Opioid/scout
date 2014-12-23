@@ -13,7 +13,7 @@ func MakeVector3(x, y, z float32) Vector3 {
 }
 
 func MakeIdentityVector3() Vector3 {
-	return Vector3{1, 1, 1}
+	return Vector3{1.0, 1.0, 1.0}
 }
 
 func MakeVector3All(s float32) Vector3 {
