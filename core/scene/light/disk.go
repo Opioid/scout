@@ -16,16 +16,18 @@ func NewDisk(radius float32) *Disk {
 	return &d
 }
 
-func (l *Disk) Samples(p math.Vector3, subsample uint32, sampler *pkgsampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Disk) Samples(p math.Vector3, subsample uint32, time float32, sampler *pkgsampler.ScrambledHammersley, samples *[]Sample) {
+	transformation := l.entity.TransformationAt(time)
+
 	result := Sample{}
 
 	tsamples := sampler.GenerateSamples(subsample)
 
 	for _, sample := range tsamples {
 		ls := math.DiskSample_uniform(sample.X, sample.Y)
-		ws := l.entity.Transformation.Rotation.TransformVector3(ls).Scale(l.radius)
+		ws := transformation.Rotation.TransformVector3(ls).Scale(l.radius)
 
-		v := l.entity.Transformation.Rotation.Direction().Scale(-1.0).Add(ws)
+		v := transformation.Rotation.Direction().Scale(-1.0).Add(ws)
 
 		result.L = v.Normalized()
 		result.Energy = l.color

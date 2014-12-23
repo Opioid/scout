@@ -47,6 +47,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.Task, subsample uint
 	shadowRay.Origin = intersection.Dg.P
 	shadowRay.MinT = intersection.Epsilon
 	shadowRay.MaxT = 1000.0
+	shadowRay.Time = ray.Time
 
 	v := ray.Direction.Scale(-1.0)
 
@@ -55,7 +56,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.Task, subsample uint
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
 
-		l.Samples(intersection.Dg.P, subsample, w.sampler, &w.lightSamples)
+		l.Samples(intersection.Dg.P, subsample, 0.0, w.sampler, &w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
@@ -78,7 +79,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, task *rendering.Task, subsample uint
 	var environment math.Vector3
 
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
-		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Depth + 1)
+		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
 		environment = task.Li(scene, subsample, &secondaryRay)
 	} else {

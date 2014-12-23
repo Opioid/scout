@@ -51,7 +51,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/ibl_test.take"
+	takename := "../data/takes/imrod.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)
@@ -72,6 +72,7 @@ func main() {
 
 	if err := sceneLoader.Load(take.Scene); err != nil {
 		fmt.Printf("Scene could not be loaded: %s\n", err)
+		return
 	}
 
 	loadDuration := time.Since(loadStart)

@@ -2,17 +2,19 @@ package math
 
 type OptimizedRay struct {
 	Ray
+	Time float32	
+	Depth uint32	
 	ReciprocalDirection Vector3
 	DirIsNeg [3]int
-	Depth uint32
 }
 
-func MakeOptimizedRay(origin, direction Vector3, mint, maxt float32, depth uint32) OptimizedRay {
+func MakeOptimizedRay(origin, direction Vector3, mint, maxt float32, time float32, depth uint32) OptimizedRay {
 	r := OptimizedRay{}
 	r.Origin = origin
 	r.SetDirection(direction)
 	r.MinT = mint
 	r.MaxT = maxt
+	r.Time = time
 	r.Depth = depth
 	return r
 }

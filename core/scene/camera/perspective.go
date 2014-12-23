@@ -1,7 +1,6 @@
 package camera
 
 import (
-	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/rendering/film"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
@@ -25,7 +24,7 @@ func NewPerspective(lensRadius, focalDistance, fov float32, dimensions math.Vect
 	p.fov = fov
 	p.dimensions = calculateDimensions(dimensions, film)
 	p.film = film
-	p.Entity.Transformation.ObjectToWorld.SetIdentity()
+//	p.Entity.Transformation.ObjectToWorld.SetIdentity()
 	return p
 }
 
@@ -44,18 +43,6 @@ func (p *Perspective) UpdateView() {
 	p.dy = leftBottom.Sub(p.leftTop).Div(float32(p.film.Dimensions().Y))
 }
 
-func (p *Perspective) Transformation() *entity.ComposedTransformation {
-	return &p.Entity.Transformation
-}
-
-func (p *Perspective) Position() math.Vector3 {
-	return p.Entity.Transformation.Position
-}
-
-func (p *Perspective) Film() film.Film {
-	return p.film
-}
-
 func (p *Perspective) GenerateRay(sample *sampler.CameraSample, ray *math.OptimizedRay) {
 	direction := p.leftTop.Add(p.dx.Scale(sample.Coordinates.X)).Add(p.dy.Scale(sample.Coordinates.Y))
 
@@ -71,8 +58,10 @@ func (p *Perspective) GenerateRay(sample *sampler.CameraSample, ray *math.Optimi
 		r.Direction = focus.Sub(r.Origin)
 	}
 
-	ray.Origin = p.Entity.Transformation.ObjectToWorld.TransformPoint(r.Origin)
-	ray.SetDirection(p.Entity.Transformation.ObjectToWorld.TransformVector3(r.Direction.Normalized()))
+	transformation := p.TransformationAt(sample.Time)
+
+	ray.Origin = transformation.ObjectToWorld.TransformPoint(r.Origin)
+	ray.SetDirection(transformation.ObjectToWorld.TransformVector3(r.Direction.Normalized()))
 
 	ray.MaxT  = 1000.0
 	ray.Depth = 0

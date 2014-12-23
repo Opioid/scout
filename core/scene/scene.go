@@ -16,6 +16,8 @@ type Scene struct {
 	bvh bvh.Tree
 
 	StaticProps []*prop.StaticProp
+
+	Actors []*prop.Actor
 	
 	Lights []light.Light
 
@@ -43,7 +45,18 @@ func (scene *Scene) Compile() {
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
-	return scene.bvh.Intersect(ray, scene.StaticProps, intersection)
+	hit := scene.bvh.Intersect(ray, scene.StaticProps, intersection)
+
+	if !hit {
+		for _, a := range scene.Actors {
+			if a.Intersect(ray, intersection) {
+				intersection.Prop = &a.Prop
+				hit = true
+			}
+		}
+	}
+
+	return hit
 }
 
 func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
@@ -52,9 +65,7 @@ func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
 
 func (scene *Scene) CreateStaticProp() *prop.StaticProp {
 	p := prop.NewStaticProp()
-
 	scene.StaticProps = append(scene.StaticProps, p)
-
 	return p
 }
 
@@ -62,10 +73,14 @@ func (scene *Scene) AddLight(l light.Light) {
 	scene.Lights = append(scene.Lights, l)
 }
 
+func (scene *Scene) CreateActor() *prop.Actor {
+	a := prop.NewActor()
+	scene.Actors = append(scene.Actors, a)
+	return a
+}
+
 func (scene *Scene) CreateComplex(typename string) Complex {
 	c := scene.ComplexProvider.NewComplex(typename)
-
 	scene.Complexes = append(scene.Complexes, c)
-
 	return c
 }

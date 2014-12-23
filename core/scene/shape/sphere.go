@@ -26,7 +26,7 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 	radius := transformation.Scale.X
 	det := (b * b) - v.Dot(v) + (radius * radius)
 
-	if det > 0 {
+	if det > 0.0 {
 		*thit = b - math32.Sqrt(det)
 
 		if *thit > ray.MinT && *thit < ray.MaxT {
@@ -48,7 +48,7 @@ func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *
 	radius := transformation.Scale.X
 	det := (b * b) - v.Dot(v) + (radius * radius)
 
-	if det > 0 {
+	if det > 0.0 {
 		dist := math32.Sqrt(det)
 		t0 := b - dist
 		t1 := b + dist
@@ -60,7 +60,6 @@ func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *
 		if t0 > ray.MinT && t1 < ray.MaxT {
 			return true
 		}
-
 	}
 
 	return false	

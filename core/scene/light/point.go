@@ -14,10 +14,12 @@ func NewPoint() *Point {
 	return &Point{}
 }
 
-func (l *Point) Samples(p math.Vector3, subsample uint32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Point) Samples(p math.Vector3, subsample uint32, time float32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
 	result := Sample{}
 
-	v := l.entity.Transformation.Position.Sub(p)
+	transformation := l.entity.TransformationAt(time)
+
+	v := transformation.Position.Sub(p)
 
 	d := v.SquaredLength()
 	i := 1 / d

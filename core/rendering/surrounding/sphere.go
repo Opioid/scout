@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/base/math"
+	_ "github.com/Opioid/math32"
 )
 
 const (
@@ -77,6 +78,28 @@ func (s *sphere) SpecularTexture() *texture.Texture2D {
 func (s *sphere) Sample(ray *math.OptimizedRay) math.Vector3 {
 	sample := s.linearSampler.Sample(s.specularMap, ray.Direction)
 	return sample.Vector3()
+/*
+	v := ray.Origin
+	b := -v.Dot(ray.Direction)
+	radius := float32(1000.0)
+	det := (b * b) - v.Dot(v) + (radius * radius)
+
+	if det > 0.0 {
+		dist := math32.Sqrt(det)
+		t0 := b - dist
+		t1 := b + dist
+
+		if t1 > ray.MinT && t0 < ray.MaxT {
+			p := ray.Point(t1)
+			n := p.Div(radius)
+
+			sample := s.linearSampler.Sample(s.specularMap, n)
+			return sample.Vector3()
+		} 
+	}
+
+	return math.MakeVector3(0.0, 1.0, 0.0)
+*/
 }
 
 func (s *sphere) SampleSecondary(ray *math.OptimizedRay) (math.Vector3, float32) {

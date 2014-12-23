@@ -183,6 +183,8 @@ func (loader *Loader) loadEntities(i interface{}) {
 		switch className {
 		case "Light":
 			loader.loadLight(entityNode)
+		case "Actor":
+			loader.loadActor(entityNode)
 		case "Complex":
 			loader.loadComplex(entityNode)
 		}
@@ -201,7 +203,6 @@ func (loader *Loader) loadLight(i interface{}) {
 	if !ok {
 		return
 	}
-
 
 	color := math.MakeVector3(1.0, 1.0, 1.0)
 	lumen := float32(1.0)
@@ -253,6 +254,58 @@ func (loader *Loader) loadLight(i interface{}) {
 	l.Entity().Transformation.Set(position, scale, rotation)
 
 	loader.scene.AddLight(l)
+}
+
+func (loader *Loader) loadActor(i interface{}) {
+	actorNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return
+	}
+
+	s, ok := actorNode["shape"]
+
+	if !ok {
+		return
+	}
+
+	shape := loader.loadShape(s)
+
+	if shape == nil {
+		return
+	}
+
+	m, ok := actorNode["material"]
+
+	if !ok {
+		return
+	}
+
+	material := loader.resourceManager.LoadMaterial(m.(string))
+
+	if material == nil {
+		return
+	}
+
+	var position math.Vector3
+	scale := math.MakeIdentityVector3()
+	rotation := math.MakeIdentityQuaternion()
+
+	for key, value := range actorNode {
+		switch key {
+		case "position":
+			position = pkgjson.ParseVector3(value)
+		case "scale":
+			scale = pkgjson.ParseVector3(value)
+		case "rotation":
+			rotation = pkgjson.ParseRotationQuaternion(value)
+		}
+	}
+
+	a := loader.scene.CreateActor()
+	a.Shape = shape
+	a.Material = material
+	a.Transformation.Set(position, scale, rotation)
 }
 
 func (loader *Loader) loadComplex(i interface{}) {

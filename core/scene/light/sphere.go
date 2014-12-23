@@ -17,16 +17,18 @@ func NewSphere(radius float32) *Sphere {
 	return &l
 }
 
-func (l *Sphere) Samples(p math.Vector3, subsample uint32, sampler *pkgsampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Sphere) Samples(p math.Vector3, subsample uint32, time float32, sampler *pkgsampler.ScrambledHammersley, samples *[]Sample) {
+	transformation := l.entity.TransformationAt(time)
+
 	result := Sample{}
 
 	tsamples := sampler.GenerateSamples(subsample)
 
 	for _, sample := range tsamples {
 		ls := math.HemisphereSample_uniform(sample.X, sample.Y)
-		ws := l.entity.Transformation.Rotation.TransformVector3(ls).Scale(l.radius)
+		ws := transformation.Rotation.TransformVector3(ls).Scale(l.radius)
 
-		v := l.entity.Transformation.Position.Add(ws).Sub(p)
+		v := transformation.Position.Add(ws).Sub(p)
 
 		d := v.SquaredLength()
 		i := 1.0 / d
