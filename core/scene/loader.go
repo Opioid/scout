@@ -251,7 +251,7 @@ func (loader *Loader) loadLight(i interface{}) {
 
 	l.SetColor(color)
 	l.SetLumen(lumen)
-	l.Entity().Transformation.Set(position, scale, rotation)
+	l.Entity().SetTransformation(position, scale, rotation)
 
 	loader.scene.AddLight(l)
 }
@@ -305,7 +305,7 @@ func (loader *Loader) loadActor(i interface{}) {
 	a := loader.scene.CreateActor()
 	a.Shape = shape
 	a.Material = material
-	a.Transformation.Set(position, scale, rotation)
+	a.SetTransformation(position, scale, rotation)
 }
 
 func (loader *Loader) loadComplex(i interface{}) {

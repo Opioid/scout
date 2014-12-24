@@ -8,4 +8,5 @@ import (
 type Context struct {
 	Camera camera.Camera
 	Sampler sampler.Sampler
+	ShutterOpen, ShutterClose float32
 }

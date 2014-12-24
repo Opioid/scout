@@ -8,21 +8,20 @@ import (
 )
 
 type Camera interface {
+	Entity() *entity.Entity
 	UpdateView()
-	Transformation() *entity.ComposedTransformation
-//	TransformationAt(time float32) *entity.ComposedTransformation
 	Film() film.Film
-	GenerateRay(sample *sampler.CameraSample, ray *math.OptimizedRay)
+	GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, ray *math.OptimizedRay)
 }
 
 type projectiveCamera struct {
-	entity.Entity
+	entity entity.Entity
 	dimensions math.Vector2
 	film film.Film
 }
 
-func (p *projectiveCamera) Transformation() *entity.ComposedTransformation {
-	return &p.Entity.Transformation
+func (p *projectiveCamera) Entity() *entity.Entity {
+	return &p.entity
 }
 
 func (p *projectiveCamera) Film() film.Film {

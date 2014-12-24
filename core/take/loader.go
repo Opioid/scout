@@ -6,6 +6,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering"
+	"github.com/Opioid/scout/core/scene/entity"
 	pkgcamera "github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
@@ -54,6 +55,9 @@ func (take *Take) Load(filename string) bool {
 		take.Context.Sampler = sampler.NewUniform(math.MakeVector2i(1, 1))
 	}
 
+	take.Context.ShutterOpen = 0.0
+	take.Context.ShutterClose = 1.0 / 60.0
+
 	return true
 }
 
@@ -86,6 +90,7 @@ func (take *Take) loadCamera(c interface{}) {
 	var fov float32
 	var dimensions math.Vector2
 	var film pkgfilm.Film
+	var animation entity.Animation
 
 	for key, value := range settingsNode {
 		switch key {
@@ -102,9 +107,9 @@ func (take *Take) loadCamera(c interface{}) {
 		case "dimensions":
 			dimensions = pkgjson.ParseVector2(value)
 		case "film":
-				//w := pkgjson.ReadVector3(filmNode, "linear_white", math.Vector3{1.0, 1.0, 1.0})
-				film = loadFilm(value)
-		//	}
+			film = loadFilm(value)
+		case "keyframes":
+			animation = entity.MakeAnimationFromJson(value)
 		}
 	}
 
@@ -117,7 +122,8 @@ func (take *Take) loadCamera(c interface{}) {
 		camera = pkgcamera.NewPerspective(lensRadius, focalDistance, fov, dimensions, film)
 	}
 
-	camera.Transformation().Set(position, math.MakeIdentityVector3(), rotation)
+	camera.Entity().Animation = animation
+	camera.Entity().SetTransformation(position, math.MakeIdentityVector3(), rotation)
 	camera.UpdateView()
 	take.Context.Camera = camera
 }

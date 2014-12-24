@@ -57,6 +57,7 @@ func (s *ScrambledHammersley) GenerateNewSample(offset math.Vector2, sample *Cam
 	sample.Coordinates = offset.Add(s2d)
 	sample.RelativeOffset = s2d.SubS(0.5)
 	sample.LensUv = s2d//math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
+	sample.Time = s2d.Y
 
 	s.currentSample++
 

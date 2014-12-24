@@ -51,7 +51,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/imrod.take"
+	takename := "../data/takes/motion_test.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)

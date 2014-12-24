@@ -5,7 +5,7 @@ import (
 )
 
 type Take struct {
-	Scene  string
+	Scene string
 	Context rendering.Context
 	IntegratorFactory rendering.IntegratorFactory
 }

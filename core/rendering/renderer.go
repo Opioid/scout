@@ -39,7 +39,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 		wg.Add(1)
 
 		go func (tileStart, tileEnd math.Vector2i) {
-			r.render(scene, context.Camera, tileStart, tileEnd, sampler, &rng)
+			r.render(scene, context.Camera, context.ShutterOpen, context.ShutterClose, tileStart, tileEnd, sampler, &rng)
 			progressor.Tick()
 			wg.Done()
 		}(r.currentPixel, end)
@@ -53,11 +53,11 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	progressor.End()
 }
 
-func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, start, end math.Vector2i,
-						  sampler pkgsampler.Sampler, rng *random.Generator) {
+func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen, shutterClose float32,
+						  start, end math.Vector2i, sampler pkgsampler.Sampler, rng *random.Generator) {
 	task := makeTask(r, r.IntegratorFactory.New(rng))
 
-	task.render(scene, camera, start, end, sampler)
+	task.render(scene, camera, shutterOpen, shutterClose, start, end, sampler)
 }
 
 func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {

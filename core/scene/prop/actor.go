@@ -27,7 +27,7 @@ func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bo
 
 	var thit, epsilon float32
 	
-	if !a.Shape.Intersect(transformation, ray, boundingMinT, boundingMaxT, &thit, &epsilon, &intersection.Dg) {
+	if !a.Shape.Intersect(&transformation, ray, boundingMinT, boundingMaxT, &thit, &epsilon, &intersection.Dg) {
 		return false
 	}
 

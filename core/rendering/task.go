@@ -22,7 +22,7 @@ func makeTask(renderer *Renderer, integrator Integrator) Task {
 	return t
 }
 
-func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end math.Vector2i, sampler pkgsampler.Sampler) {
+func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen, shutterClose float32, start, end math.Vector2i, sampler pkgsampler.Sampler) {
 	f := camera.Film()
 
 	numSamples := sampler.NumSamplesPerIteration()
@@ -42,7 +42,7 @@ func (t *Task) render(scene *pkgscene.Scene, camera camera.Camera, start, end ma
 			//	sample.LensUv = math.MakeVector2(sample.Coordinates.X / dx, sample.Coordinates.Y / dy)
 			//	sample.RelativeOffset = offset.SubS(0.5)
 
-				camera.GenerateRay(&sample, &ray)
+				camera.GenerateRay(&sample, shutterOpen, shutterClose, &ray)
 
 				color := t.Li(scene, sampleId, &ray) 
 

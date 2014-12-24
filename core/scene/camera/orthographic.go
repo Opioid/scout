@@ -20,13 +20,13 @@ func NewOrthographic(dimensions math.Vector2, film film.Film) *Orthographic {
 
 func (o *Orthographic) UpdateView() {}
 
-func (o *Orthographic) GenerateRay(sample *sampler.CameraSample, ray *math.OptimizedRay) {
+func (o *Orthographic) GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, ray *math.OptimizedRay) {
 	x := sample.Coordinates.X / float32(o.film.Dimensions().X)
 	y := sample.Coordinates.Y / float32(o.film.Dimensions().Y)
 
 	offset := math.MakeVector3(x * o.dimensions.X - 0.5 * o.dimensions.X, 0.5 * o.dimensions.Y - y * o.dimensions.Y, 0.0)
 
-	transformation := o.TransformationAt(sample.Time)
+	transformation := o.entity.TransformationAt(sample.Time)
 
 	offset = transformation.Rotation.TransformVector3(offset)
 	ray.Origin = transformation.Position.Add(offset)
