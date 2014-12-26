@@ -56,7 +56,7 @@ func (take *Take) Load(filename string) bool {
 	}
 
 	take.Context.ShutterOpen = 0.0
-	take.Context.ShutterClose = 1.0 / 60.0
+	take.Context.ShutterClose = 1.0 / 24.0
 
 	return true
 }
@@ -87,7 +87,8 @@ func (take *Take) loadCamera(c interface{}) {
 	rotation := math.MakeIdentityQuaternion()
 	lensRadius := float32(0.0)
 	focalDistance := float32(0.0)
-	var fov float32
+	shutterSpeed := float32(1.0 / 60.0)	
+	fov := float32(60.0)
 	var dimensions math.Vector2
 	var film pkgfilm.Film
 	var animation entity.Animation
@@ -102,6 +103,8 @@ func (take *Take) loadCamera(c interface{}) {
 			lensRadius = float32(value.(float64))
 		case "focal_distance":
 			focalDistance = float32(value.(float64))
+		case "shutter_speed":
+			shutterSpeed = float32(value.(float64))			
 		case "fov":
 			fov = math.DegreesToRadians(float32(value.(float64)))
 		case "dimensions":
@@ -117,13 +120,13 @@ func (take *Take) loadCamera(c interface{}) {
 
 	switch typestring {
 	case "Orthographic":
-		camera = pkgcamera.NewOrthographic(dimensions, film)
+		camera = pkgcamera.NewOrthographic(dimensions, film, shutterSpeed)
 	case "Perspective":
-		camera = pkgcamera.NewPerspective(lensRadius, focalDistance, fov, dimensions, film)
+		camera = pkgcamera.NewPerspective(lensRadius, focalDistance, fov, dimensions, film, shutterSpeed)
 	}
 
-	camera.Entity().Animation = animation
 	camera.Entity().SetTransformation(position, math.MakeIdentityVector3(), rotation)
+	camera.Entity().Animation = animation	
 	camera.UpdateView()
 	take.Context.Camera = camera
 }

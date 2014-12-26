@@ -10,11 +10,12 @@ type Orthographic struct {
 	projectiveCamera
 }
 
-func NewOrthographic(dimensions math.Vector2, film film.Film) *Orthographic {
+func NewOrthographic(dimensions math.Vector2, film film.Film, shutterSpeed float32) *Orthographic {
 	o := new(Orthographic)
 	o.dimensions = calculateDimensions(dimensions, film)
 	o.film = film
 //	o.Entity.Transformation.ObjectToWorld.SetIdentity()
+	o.shutterSpeed = shutterSpeed
 	return o
 }
 

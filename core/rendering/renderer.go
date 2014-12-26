@@ -21,6 +21,8 @@ type Renderer struct {
 func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor progress.Sink) {
 	dimensions := context.Camera.Film().Dimensions()
 
+	shutterClose := context.ShutterOpen + context.Camera.ShutterSpeed()
+
 	r.currentPixel = math.MakeVector2i(0, 0)
 	r.tileSize     = math.MakeVector2i(32, 32)
 
@@ -39,7 +41,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 		wg.Add(1)
 
 		go func (tileStart, tileEnd math.Vector2i) {
-			r.render(scene, context.Camera, context.ShutterOpen, context.ShutterClose, tileStart, tileEnd, sampler, &rng)
+			r.render(scene, context.Camera, context.ShutterOpen, shutterClose, tileStart, tileEnd, sampler, &rng)
 			progressor.Tick()
 			wg.Done()
 		}(r.currentPixel, end)

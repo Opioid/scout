@@ -4,6 +4,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/surrounding"
 	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/core/scene/light"
+	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/base/math"
@@ -204,25 +205,29 @@ func (loader *Loader) loadLight(i interface{}) {
 		return
 	}
 
-	color := math.MakeVector3(1.0, 1.0, 1.0)
-	lumen := float32(1.0)
 	var position math.Vector3
 	scale := math.MakeIdentityVector3()
 	rotation := math.MakeIdentityQuaternion()
+	var animation entity.Animation
+
+	color := math.MakeVector3(1.0, 1.0, 1.0)
+	lumen := float32(1.0)	
 	radius := float32(1.0)
 
 	for key, value := range lightNode {
 		switch key {
-		case "color":
-			color = pkgjson.ParseVector3(value)
-		case "lumen":
-			lumen = pkgjson.ParseFloat32(value)
 		case "position":
 			position = pkgjson.ParseVector3(value)
 		case "scale":
 			scale = pkgjson.ParseVector3(value)
 		case "rotation":
 			rotation = pkgjson.ParseRotationQuaternion(value)
+		case "keyframes":
+			animation = entity.MakeAnimationFromJson(value)						
+		case "color":
+			color = pkgjson.ParseVector3(value)
+		case "lumen":
+			lumen = pkgjson.ParseFloat32(value)
 		case "radius":
 			radius = pkgjson.ParseFloat32(value)
 		}
@@ -252,6 +257,7 @@ func (loader *Loader) loadLight(i interface{}) {
 	l.SetColor(color)
 	l.SetLumen(lumen)
 	l.Entity().SetTransformation(position, scale, rotation)
+	l.Entity().Animation = animation
 
 	loader.scene.AddLight(l)
 }
@@ -290,6 +296,7 @@ func (loader *Loader) loadActor(i interface{}) {
 	var position math.Vector3
 	scale := math.MakeIdentityVector3()
 	rotation := math.MakeIdentityQuaternion()
+	var animation entity.Animation	
 
 	for key, value := range actorNode {
 		switch key {
@@ -299,6 +306,8 @@ func (loader *Loader) loadActor(i interface{}) {
 			scale = pkgjson.ParseVector3(value)
 		case "rotation":
 			rotation = pkgjson.ParseRotationQuaternion(value)
+		case "keyframes":
+			animation = entity.MakeAnimationFromJson(value)					
 		}
 	}
 
@@ -306,6 +315,7 @@ func (loader *Loader) loadActor(i interface{}) {
 	a.Shape = shape
 	a.Material = material
 	a.SetTransformation(position, scale, rotation)
+	a.Animation = animation	
 }
 
 func (loader *Loader) loadComplex(i interface{}) {

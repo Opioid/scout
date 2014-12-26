@@ -18,13 +18,14 @@ type Perspective struct {
 	dx, dy math.Vector3
 }
 
-func NewPerspective(lensRadius, focalDistance, fov float32, dimensions math.Vector2, film film.Film) *Perspective {
+func NewPerspective(lensRadius, focalDistance, fov float32, dimensions math.Vector2, film film.Film, shutterSpeed float32) *Perspective {
 	p := new(Perspective)
 	p.lensRadius = lensRadius
 	p.focalDistance = focalDistance
 	p.fov = fov
 	p.dimensions = calculateDimensions(dimensions, film)
 	p.film = film
+	p.shutterSpeed = shutterSpeed
 //	p.Entity.Transformation.ObjectToWorld.SetIdentity()
 	return p
 }

@@ -11,6 +11,8 @@ type Camera interface {
 	Entity() *entity.Entity
 	UpdateView()
 	Film() film.Film
+	ShutterSpeed() float32
+
 	GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, ray *math.OptimizedRay)
 }
 
@@ -18,6 +20,7 @@ type projectiveCamera struct {
 	entity entity.Entity
 	dimensions math.Vector2
 	film film.Film
+	shutterSpeed float32
 }
 
 func (p *projectiveCamera) Entity() *entity.Entity {
@@ -26,6 +29,10 @@ func (p *projectiveCamera) Entity() *entity.Entity {
 
 func (p *projectiveCamera) Film() film.Film {
 	return p.film
+}
+
+func (p *projectiveCamera) ShutterSpeed() float32 {
+	return p.shutterSpeed
 }
 
 func calculateDimensions(dimensions math.Vector2, film film.Film) math.Vector2 {
