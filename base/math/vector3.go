@@ -119,11 +119,11 @@ func (a Vector3) Normalized() Vector3 {
 }
 
 func (a Vector3) Saturated() Vector3 {
-	return Vector3{math32.Clamp(a.X, 0, 1), math32.Clamp(a.Y, 0, 1), math32.Clamp(a.Z, 0, 1)}
+	return Vector3{math32.Clamp(a.X, 0.0, 1.0), math32.Clamp(a.Y, 0.0, 1.0), math32.Clamp(a.Z, 0.0, 1.0)}
 }
 
 func (a Vector3) Reflect(b Vector3) Vector3 {
-	return b.Sub(a.Scale(2 * b.Dot(a)))
+	return b.Sub(a.Scale(2.0 * b.Dot(a)))
 }
 
 func (a Vector3) Min(b Vector3) Vector3 {
@@ -135,8 +135,17 @@ func (a Vector3) Max(b Vector3) Vector3 {
 }
 
 func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
-	_t := 1 - t
+	_t := 1.0 - t
 	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
+}
+
+func Vector3Lerp(a, b Vector3, t float32) Vector3
+
+func vector3Lerp(a, b Vector3, t float32) Vector3 {
+//	_t := 1.0 - t
+//	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
+
+	return MakeVector3(t, t, t)
 }
 
 func (a Vector3) ContainsNaN() bool {

@@ -2,8 +2,8 @@
 package main
 
 import (
-	 "github.com/Opioid/math32"
-	_ "github.com/Opioid/scout/base/math"
+	_ "github.com/Opioid/math32"
+	"github.com/Opioid/scout/base/math"
 	_ "math"
 	_ "time"
 	"fmt"
@@ -12,9 +12,22 @@ import (
 func main() {
 	fmt.Println("It runs...")
 	
-	x := float32(2.0)
+	a := math.MakeVector3(0.0, 1.0, 2.0)
+	b := math.MakeVector3(3.0, 4.0, 5.0)
 
-	fmt.Println(math32.Rsqrt(x))
+	t := float32(0.25)
+
+	{
+		r := math.Vector3Lerp(&a, &b, t)
+
+		fmt.Println(r)
+	}
+
+	{
+		r := a.Lerp(b, t)
+
+		fmt.Println(r)
+	}
 }
 */
 

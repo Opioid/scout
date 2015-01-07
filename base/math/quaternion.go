@@ -90,3 +90,37 @@ func MakeQuaternionFromMatrix3x3(m *Matrix3x3) Quaternion {
 func (a Quaternion) Dot(b Quaternion) float32 {
 	return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W
 }
+
+func (a Quaternion) Slerp(b Quaternion, t float32) Quaternion {
+	cosom := a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W
+
+	end := b
+
+	if cosom < 0.0 {
+		cosom = -cosom
+		end.X = -end.X
+		end.Y = -end.Y
+		end.Z = -end.Z
+		end.W = -end.W
+	}
+
+	var sclp, sclq float32
+
+	if 1.0 - cosom > 0.0001 {
+		// Standard case (slerp)
+		omega := math32.Acos(cosom) // extract theta from dot product's cos theta
+		sinom := math32.Sin(omega)
+		sclp = math32.Sin(1.0 - t * omega) / sinom
+		sclq = math32.Sin(t * omega) / sinom
+	} else {
+		// Very close, do linear interpolation (because it's faster)
+		sclp = 1.0 - t
+		sclq = t
+	}
+
+	return Quaternion{
+		sclp * a.X + sclq * end.X,
+		sclp * a.Y + sclq * end.Y,
+		sclp * a.Z + sclq * end.Z,
+		sclp * a.W + sclq * end.W}
+}
