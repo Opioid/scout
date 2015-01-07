@@ -14,7 +14,7 @@ type MitchellNetravali struct {
 func NewMitchellNetravali(width math.Vector2, b, c float32) *MitchellNetravali {
 	m := new(MitchellNetravali)
 	m.width = width
-	m.invWidth = math.MakeVector2(1 / width.X, 1 / width.Y)
+	m.invWidth = math.MakeVector2(1.0 / width.X, 1.0 / width.Y)
 	m.b = b
 	m.c = c
 	return m
