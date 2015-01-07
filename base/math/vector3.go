@@ -139,6 +139,15 @@ func (a Vector3) Lerp(b Vector3, t float32) Vector3 {
 	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
 }
 
+func Vector3Lerp(a, b Vector3, t float32) Vector3
+
+func vector3Lerp(a, b Vector3, t float32) Vector3 {
+//	_t := 1.0 - t
+//	return Vector3{_t * a.X + t * b.X, _t * a.Y + t * b.Y, _t * a.Z + t * b.Z}
+
+	return MakeVector3(t, t, t)
+}
+
 func (a Vector3) ContainsNaN() bool {
 	return math32.IsNaN(a.X) || math32.IsNaN(a.Y) || math32.IsNaN(a.Z)
 }

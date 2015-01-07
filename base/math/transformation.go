@@ -10,6 +10,10 @@ func (this *Transformation) Lerp(other *Transformation, t float32) Transformatio
 	r := Transformation{}
 	r.Position = this.Position.Lerp(other.Position, t)
 	r.Scale = this.Scale.Lerp(other.Scale, t)
+
+//	r.Position = Vector3Lerp(this.Position, other.Position, t)
+//	r.Scale = Vector3Lerp(this.Scale, other.Scale, t)
+
 	r.Rotation = this.Rotation.Slerp(other.Rotation, t)
 	return r
 }
