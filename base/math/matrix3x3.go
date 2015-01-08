@@ -28,6 +28,23 @@ func MakeMatrix3x3FromAxes(x, y, z Vector3) Matrix3x3 {
 	}
 }
 
+func MakeMatrix3x3FromQuaternion(q Quaternion) Matrix3x3 {
+	d := q.Dot(q)
+
+	s := 2.0 / d
+
+	xs, ys, zs := q.X * s,  q.Y * s,  q.Z * s
+	wx, wy, wz := q.W * xs, q.W * ys, q.W * zs
+	xx, xy, xz := q.X * xs, q.X * ys, q.X * zs
+	yy, yz, zz := q.Y * ys, q.Y * zs, q.Z * zs
+
+	return Matrix3x3{
+		1.0 - (yy + zz), xy - wz,         xz + wy,
+		xy + wz,         1.0 - (xx + zz), yz - wx,
+		xz - wy,         yz + wx,         1.0 - (xx + yy),
+	}
+}
+
 func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 	d := q.Dot(q)
 
@@ -43,20 +60,6 @@ func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 		xy + wz,         1.0 - (xx + zz), yz - wx,
 		xz - wy,         yz + wx,         1.0 - (xx + yy),
 	}
-
-/*	T d = dot(q, q);
-
-	T s = T(2) / d;
-
-	T xs = q.x * s,  ys = q.y * s,  zs = q.z * s;
-	T wx = q.w * xs, wy = q.w * ys, wz = q.w * zs;
-	T xx = q.x * xs, xy = q.x * ys, xz = q.x * zs;
-	T yy = q.y * ys, yz = q.y * zs, zz = q.z * zs;
-
-	m00 = T(1) - (yy + zz); m01 = xy - wz;          m02 = xz + wy;
-	m10 = xy + wz;          m11 = T(1) - (xx + zz); m12 = yz - wx;
-	m20 = xz - wy;          m21 = yz + wx,          m22 = T(1) - (xx + yy);
-	*/
 }
 
 func (m *Matrix3x3) Row(i int32) Vector3 {

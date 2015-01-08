@@ -12,7 +12,7 @@ type Actor struct {
 
 func NewActor() *Actor {
 	a := new(Actor)
-//	p.transformation.ObjectToWorld.SetIdentity()
+//	a.transformation.ObjectToWorld.SetIdentity()
 	return a
 }
 

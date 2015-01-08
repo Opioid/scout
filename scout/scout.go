@@ -46,18 +46,18 @@ import (
 	"time"
 	"fmt"
 	"image/png"
-//	 "github.com/davecheney/profile"
+	 "github.com/davecheney/profile"
 )
 
 func main() {
-//	cfg := profile.Config {
-//		CPUProfile:     true,
-//		ProfilePath:    ".",  // store profiles in current directory
-//		NoShutdownHook: true, // do not hook SIGINT
-//	}
+	cfg := profile.Config {
+		CPUProfile:     true,
+		ProfilePath:    ".",  // store profiles in current directory
+		NoShutdownHook: true, // do not hook SIGINT
+	}
 
 	// p.Stop() must be called before the program exits to
-//	defer profile.Start(&cfg).Stop()
+	defer profile.Start(&cfg).Stop()
 
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())

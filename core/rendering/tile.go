@@ -37,7 +37,7 @@ func (t *Tile) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen, 
 			sampleId := uint32(0)
 
 			for sampler.GenerateNewSample(math.MakeVector2(float32(x), float32(y)), &sample) {
-					camera.GenerateRay(&sample, shutterOpen, shutterClose, &ray)
+				camera.GenerateRay(&sample, shutterOpen, shutterClose, &ray)
 
 				color := t.Li(scene, sampleId, &ray) 
 
