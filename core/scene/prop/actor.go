@@ -36,3 +36,15 @@ func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bo
 
 	return true
 }
+
+func (a *Actor) IntersectP(ray *math.OptimizedRay) bool {
+	var boundingMinT, boundingMaxT float32
+
+	if a.Shape.IsComplex() && !a.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
+		return false
+	}
+
+	transformation := a.TransformationAt(ray.Time)
+
+	return a.Shape.IntersectP(&transformation, ray, boundingMinT, boundingMaxT) 
+}

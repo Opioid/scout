@@ -47,12 +47,10 @@ func (scene *Scene) Compile() {
 func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
 	hit := scene.bvh.Intersect(ray, scene.StaticProps, intersection)
 
-	if !hit {
-		for _, a := range scene.Actors {
-			if a.Intersect(ray, intersection) {
-				intersection.Prop = &a.Prop
-				hit = true
-			}
+	for _, a := range scene.Actors {
+		if a.Intersect(ray, intersection) {
+			intersection.Prop = &a.Prop
+			hit = true
 		}
 	}
 
@@ -60,7 +58,17 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Interse
 }
 
 func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
-	return scene.bvh.IntersectP(ray, scene.StaticProps)
+	if scene.bvh.IntersectP(ray, scene.StaticProps) {
+		return true
+	}
+
+	for _, a := range scene.Actors {
+		if a.IntersectP(ray) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (scene *Scene) CreateStaticProp() *prop.StaticProp {
