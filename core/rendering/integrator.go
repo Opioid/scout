@@ -10,7 +10,7 @@ import (
 type Integrator interface {
 	StartNewPixel(numSamples uint32)
 
-	Li(scene *scene.Scene, task *Task, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3
+	Li(scene *scene.Scene, tile *Tile, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3
 }
 
 type IntegratorFactory interface {

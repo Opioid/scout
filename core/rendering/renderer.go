@@ -57,9 +57,9 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 
 func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen, shutterClose float32,
 						  start, end math.Vector2i, sampler pkgsampler.Sampler, rng *random.Generator) {
-	task := makeTask(r, r.IntegratorFactory.New(rng))
+	tile := makeTile(r, r.IntegratorFactory.New(rng))
 
-	task.render(scene, camera, shutterOpen, shutterClose, start, end, sampler)
+	tile.render(scene, camera, shutterOpen, shutterClose, start, end, sampler)
 }
 
 func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {

@@ -26,7 +26,7 @@ func (a *ao) StartNewPixel(numSamples uint32) {
 	a.sampler.Restart(numSamples)
 }
 
-func (a *ao) Li(scene *pkgscene.Scene, task *rendering.Task, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (a *ao) Li(scene *pkgscene.Scene, tile *rendering.Tile, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
 	occlusionRay.Origin = intersection.Dg.P
 	occlusionRay.MinT = intersection.Epsilon
