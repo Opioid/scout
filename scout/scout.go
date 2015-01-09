@@ -2,32 +2,16 @@
 package main
 
 import (
-	_ "github.com/Opioid/math32"
-	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
+	_ "github.com/Opioid/scout/base/math"
 	_ "math"
-	_ "time"
+	"time"
 	"fmt"
 )
 
 func main() {
 	fmt.Println("It runs...")
-	
-	a := math.MakeVector3(0.0, 1.0, 2.0)
-	b := math.MakeVector3(3.0, 4.0, 5.0)
 
-	t := float32(0.25)
-
-	{
-		r := math.Vector3Lerp(&a, &b, t)
-
-		fmt.Println(r)
-	}
-
-	{
-		r := a.Lerp(b, t)
-
-		fmt.Println(r)
-	}
 }
 */
 
@@ -64,7 +48,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/motion_test.take"
+	takename := "../data/takes/bvh_test.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)
