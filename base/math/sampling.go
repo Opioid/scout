@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-func HemisphereSample_uniform(u, v float32)Vector3 {
+func HemisphereSample_uniform(u, v float32) Vector3 {
 	z := 1.0 - u
 	r := math32.Sqrt(1.0 - z * z)
 	phi := v * 2.0 * math.Pi
