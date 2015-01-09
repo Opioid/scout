@@ -107,11 +107,11 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.In
 		var ti primitive.Intersection
 		var index int
 
-		for i, t := range n.triangles {
-			if t.Intersect(ray, &ti.T, &ti.U, &ti.V) {
+		for t := range n.triangles {
+			if n.triangles[t].Intersect(ray, &ti.T, &ti.U, &ti.V) {
 				if ti.T <= intersection.T {
 					*intersection = ti
-					index = i
+					index = t
 					hit = true
 				}
 			}
@@ -141,8 +141,8 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
 		return n.children[1 - c].intersectP(ray)
 	}
 
-	for _, t := range n.triangles {
-		if t.IntersectP(ray) {
+	for t := range n.triangles {
+		if n.triangles[t].IntersectP(ray) {
 			return true
 		}
 	}
