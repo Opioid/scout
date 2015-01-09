@@ -10,7 +10,9 @@ func HemisphereSample_uniform(u, v float32)Vector3 {
 	r := math32.Sqrt(1.0 - z * z)
 	phi := v * 2.0 * math.Pi
 
-	return MakeVector3(Cos(phi) * r, Sin(phi) * r, z)
+	sinphi, cosphi := Sincos(phi)
+
+	return MakeVector3(cosphi * r, sinphi * r, z)
 }
 
 func HemisphereSample_cos(u, v float32) Vector3 {
@@ -18,12 +20,16 @@ func HemisphereSample_cos(u, v float32) Vector3 {
 	r := math32.Sqrt(1.0 - z * z)
 	phi := v * 2.0 * math.Pi
 
-	return MakeVector3(Cos(phi) * r, Sin(phi) * r, z)
+	sinphi, cosphi := Sincos(phi)
+
+	return MakeVector3(cosphi * r, sinphi * r, z)
 }
 
 func DiskSample_uniform(u, v float32) Vector3 {
 	r := math32.Sqrt(u)
 	theta := v * 2.0 * math.Pi
 	
-	return MakeVector3(Cos(theta) * r, Sin(theta) * r, 0.0)
+	sintheta, costheta := Sincos(theta)
+
+	return MakeVector3(costheta * r, sintheta * r, 0.0)
 }

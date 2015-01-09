@@ -13,6 +13,13 @@ func Sin(x float32) float32 {
 	return float32(math.Sin(float64(x)))
 }
 
+func Sincos(x float32) (sin, cos float32) {
+	sin64, cos64 := math.Sincos(float64(x))
+	sin = float32(sin64)
+	cos = float32(cos64)
+	return
+}
+
 func Pow(x, y float32) float32 {
 	return float32(math.Pow(float64(x), float64(y)))
 }
