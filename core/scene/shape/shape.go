@@ -9,7 +9,7 @@ import (
 
 type Shape interface {
 	Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-			  thit *float32, epsilon *float32, dg *geometry.Differential) bool
+			  dg *geometry.Differential) (bool, float32, float32)
 
 	IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool
 

@@ -20,26 +20,26 @@ func NewSphere() *Sphere {
 
 // Won't work from the inside!
 func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32,
-						   thit *float32, epsilon *float32, dg *geometry.Differential) bool {
+						   dg *geometry.Differential) (bool, float32, float32) {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
 	radius := transformation.Scale.X
 	det := (b * b) - v.Dot(v) + (radius * radius)
 
 	if det > 0.0 {
-		*thit = b - math32.Sqrt(det)
+		thit := b - math32.Sqrt(det)
 
-		if *thit > ray.MinT && *thit < ray.MaxT {
-			*epsilon = 5e-4 * *thit
+		if thit > ray.MinT && thit < ray.MaxT {
+			epsilon := 5e-4 * thit
 
-			dg.P = ray.Point(*thit)
+			dg.P = ray.Point(thit)
 			dg.N = dg.P.Sub(transformation.Position).Div(radius)
 
-			return true
+			return true, thit, epsilon
 		} 
 	}
 
-	return false
+	return false, 0.0, 0.0
 }
 
 func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {

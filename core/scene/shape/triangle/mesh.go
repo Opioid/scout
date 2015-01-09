@@ -30,7 +30,7 @@ func NewMesh(numIndices, numVertices uint32) *Mesh {
 }
 
 func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-						 thit *float32, epsilon *float32, dg *geometry.Differential) bool {
+						 dg *geometry.Differential) (bool, float32, float32) {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
@@ -40,10 +40,10 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
 
 	if hit {
-		*thit = intersection.T
-		*epsilon = 5e-4 * *thit
+		thit := intersection.T
+		epsilon := 5e-4 * thit
 
-		dg.P = ray.Point(*thit)
+		dg.P = ray.Point(thit)
 
 		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
 
@@ -51,9 +51,11 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
 
 		dg.B = dg.N.Cross(dg.T)
+
+		return hit, thit, epsilon
 	}
 
-	return hit
+	return false, 0.0, 0.0
 }
 
 func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {

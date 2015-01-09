@@ -25,16 +25,14 @@ func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersectio
 		return false
 	}
 
-	var thit, epsilon float32
-	
-	if !p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &thit, &epsilon, &intersection.Dg) {
-		return false
+	if hit, thit, epsilon := p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &intersection.Dg); hit {
+		intersection.Epsilon = epsilon
+		ray.MaxT = thit
+
+		return true
 	}
-
-	intersection.Epsilon = epsilon
-	ray.MaxT = thit
-
-	return true
+	
+	return false
 }
 
 func (p *StaticProp) IntersectP(ray *math.OptimizedRay) bool {
