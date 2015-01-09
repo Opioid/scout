@@ -13,9 +13,9 @@ type ComposedTransformation struct {
 	WorldToObject math.Matrix4x4
 }
 
-func MakeComposedTransformation(transformation math.Transformation) ComposedTransformation {
+func MakeComposedTransformation(transformation *math.Transformation) ComposedTransformation {
 	rotation := math.MakeMatrix3x3FromQuaternion(transformation.Rotation)
-	objectToWorld := math.MakeMatrix4x4FromBasisScaleOrigin(rotation, transformation.Scale, transformation.Position)
+	objectToWorld := math.MakeMatrix4x4FromBasisScaleOrigin(&rotation, transformation.Scale, transformation.Position)
 
 	return ComposedTransformation{
 		transformation.Position,
@@ -30,15 +30,10 @@ func (t *ComposedTransformation) Set(position, scale math.Vector3, rotation math
 	t.Position = position
 	t.Scale = scale
 	t.Rotation.SetFromQuaternion(rotation)
-
-	t.ObjectToWorld.SetIdentity()
-	t.ObjectToWorld.SetBasis(&t.Rotation)
-	t.ObjectToWorld.Scale(scale)
-	t.ObjectToWorld.SetOrigin(position)
-
+	t.ObjectToWorld.SetFromBasisScaleOrigin(&t.Rotation, scale, position)
 	t.WorldToObject = t.ObjectToWorld.Inverted()
 }
 
-func (t *ComposedTransformation) SetFromTransformation(transformation math.Transformation) {
+func (t *ComposedTransformation) SetFromTransformation(transformation *math.Transformation) {
 	t.Set(transformation.Position, transformation.Scale, transformation.Rotation)
 }

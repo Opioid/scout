@@ -20,14 +20,14 @@ func (a *Animation) at(time float32) ComposedTransformation {
 
 //	d := f1.time - f0.time
 
-	fi := f0.transformation.Lerp(f1.transformation, time)
+	fi := f0.transformation.Lerp(&f1.transformation, time)
 
 	t := ComposedTransformation{}
-	t.SetFromTransformation(fi)
+	t.SetFromTransformation(&fi)
 	return t
 	
 
-//	return MakeComposedTransformation(fi)
+//	return MakeComposedTransformation(&fi)
 } 
 
 type keyframe struct {

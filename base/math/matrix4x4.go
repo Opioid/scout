@@ -18,7 +18,7 @@ type Matrix4x4 struct {
 	m30, m31, m32, m33 float32
 }
 
-func MakeMatrix4x4FromBasisScaleOrigin(b Matrix3x3, s, o Vector3) Matrix4x4 {
+func MakeMatrix4x4FromBasisScaleOrigin(b *Matrix3x3, s, o Vector3) Matrix4x4 {
 	return Matrix4x4{
 		b.m00 * s.X, b.m01 * s.X, b.m02 * s.X, 0.0,
 		b.m10 * s.Y, b.m11 * s.Y, b.m12 * s.Y, 0.0,
@@ -72,6 +72,13 @@ func (m *Matrix4x4) SetIdentity() {
 	m.m10 = 0.0; m.m11 = 1.0; m.m12 = 0.0; m.m13 = 0.0
 	m.m20 = 0.0; m.m21 = 0.0; m.m22 = 1.0; m.m23 = 0.0
 	m.m30 = 0.0; m.m31 = 0.0; m.m32 = 0.0; m.m33 = 1.0
+}
+
+func (m *Matrix4x4) SetFromBasisScaleOrigin(b *Matrix3x3, s, o Vector3) {
+	m.m00 = b.m00 * s.X; m.m01 = b.m01 * s.X; m.m02 = b.m02 * s.X; m.m03 = 0.0;
+	m.m10 = b.m10 * s.Y; m.m11 = b.m11 * s.Y; m.m12 = b.m12 * s.Y; m.m13 = 0.0;
+	m.m20 = b.m20 * s.Z; m.m21 = b.m21 * s.Z; m.m22 = b.m22 * s.Z; m.m23 = 0.0;
+	m.m30 = o.X;         m.m31 = o.Y;         m.m32 = o.Z;         m.m33 = 1.0;
 }
 
 func (m *Matrix4x4) SetBasis(b *Matrix3x3) {
