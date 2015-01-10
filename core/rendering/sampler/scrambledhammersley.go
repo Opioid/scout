@@ -3,25 +3,24 @@ package sampler
 import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
+	_ "fmt"
 )
 
 type ScrambledHammersley struct {
-	numSamplesPerIteration uint32
-	numTotalSamples uint32
-
-	currentSample uint32
-
+	rng *random.Generator
 	randomBits uint32
 
-	samples []math.Vector2
+	currentSample uint32
+	numSamplesPerIteration uint32
+	numTotalSamples uint32	
 
-	rng *random.Generator
+	samples []math.Vector2
 }
 
 func NewScrambledHammersley(numSamplesPerIteration uint32, rng *random.Generator) *ScrambledHammersley {
 	s := new(ScrambledHammersley)
-	s.allocateSamples(numSamplesPerIteration)
 	s.rng = rng
+	s.allocateSamples(numSamplesPerIteration)
 	return s
 }
 
@@ -31,10 +30,7 @@ func (s *ScrambledHammersley) allocateSamples(numSamplesPerIteration uint32) {
 }
 
 func (s *ScrambledHammersley) Clone(rng *random.Generator) Sampler {
-	ns := new(ScrambledHammersley)
-	ns.allocateSamples(s.numSamplesPerIteration)
-	ns.rng = rng
-	return ns
+	return NewScrambledHammersley(s.numSamplesPerIteration, rng)
 }
 
 func (s *ScrambledHammersley) NumSamplesPerIteration() uint32 {
@@ -52,11 +48,11 @@ func (s *ScrambledHammersley) GenerateNewSample(offset math.Vector2, sample *Cam
 		return false
 	}
 
-	s2d :=math.ScrambledHammersley(s.currentSample, s.numSamplesPerIteration, s.randomBits)
-	
+	s2d := math.ScrambledHammersley(s.currentSample, s.numSamplesPerIteration, s.randomBits)
+
 	sample.Coordinates = offset.Add(s2d)
 	sample.RelativeOffset = s2d.SubS(0.5)
-	sample.LensUv = s2d//math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
+	sample.LensUv = s2d
 	sample.Time = s2d.Y
 
 	s.currentSample++
@@ -65,8 +61,10 @@ func (s *ScrambledHammersley) GenerateNewSample(offset math.Vector2, sample *Cam
 }
 
 func (s *ScrambledHammersley) GenerateSamples(iteration uint32) []math.Vector2 {
+	offset := iteration * s.numSamplesPerIteration
+
 	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
-		s.samples[i] = math.ScrambledHammersley(i + iteration * s.numSamplesPerIteration, s.numTotalSamples, s.randomBits)
+		s.samples[i] = math.ScrambledHammersley(i + offset, s.numTotalSamples, s.randomBits)
 	}
 
 	return s.samples

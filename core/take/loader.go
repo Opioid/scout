@@ -144,6 +144,8 @@ func loadSampler(s interface{}) sampler.Sampler {
 			return loadUniformSampler(value)
 		case "Stratified":
 			return loadStratifiedSampler(value)
+		case "Hammersley":
+			return loadHammersleySampler(value)				
 		case "Scrambled_hammersley":
 			return loadScrambledHammersleySampler(value)					
 		}
@@ -188,6 +190,25 @@ func loadStratifiedSampler(s interface{}) sampler.Sampler {
 	}
 
 	return sampler.NewStratified(samplesPerPixel, nil)
+}
+
+func loadHammersleySampler(s interface{}) sampler.Sampler {
+	samplerNode, ok := s.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	samplesPerPixel := uint32(1)
+
+	for key, value := range samplerNode {
+		switch key {
+		case "samples_per_pixel":
+			samplesPerPixel = uint32(value.(float64))
+		}
+	}
+
+	return sampler.NewHammersley(samplesPerPixel)
 }
 
 func loadScrambledHammersleySampler(s interface{}) sampler.Sampler {

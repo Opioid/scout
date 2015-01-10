@@ -40,7 +40,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 
 		wg.Add(1)
 
-		go func (tileStart, tileEnd math.Vector2i) {
+		go func (tileStart, tileEnd math.Vector2i) {			
 			r.render(scene, context.Camera, context.ShutterOpen, shutterClose, tileStart, tileEnd, sampler, &rng)
 			progressor.Tick()
 			wg.Done()
