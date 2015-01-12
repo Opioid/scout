@@ -178,9 +178,10 @@ func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 	return false
 }
 
-func interpolateVertices(a, b, c *geometry.Vertex, u, v float32, n *math.Vector3, uv *math.Vector2) {
+func interpolateVertices(a, b, c *geometry.Vertex, u, v float32, n, t *math.Vector3, uv *math.Vector2) {
 	w := 1.0 - u - v
 	
-	*n  = a.N.Scale(w).Add(b.N.Scale(u)).Add(c.N.Scale(v))
+	*n  = a.N.Scale(w).Add(b.N.Scale(u)).Add(c.N.Scale(v)).Normalized()
+	*t  = a.T.Scale(w).Add(b.T.Scale(u)).Add(c.T.Scale(v)).Normalized()
 	*uv = a.UV.Scale(w).Add(b.UV.Scale(u)).Add(c.UV.Scale(v))
 }

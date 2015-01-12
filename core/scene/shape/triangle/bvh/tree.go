@@ -14,7 +14,7 @@ type Tree struct {
 
 
 func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
-	return t.root.intersect(ray, intersection)
+	return t.root.intersect(ray, vertices, intersection)
 }
 
 func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {

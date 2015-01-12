@@ -33,6 +33,7 @@ type buildNode struct {
 
 //	indices []uint32
 	triangles []primitive.Triangle
+	indexTriangles []primitive.IndexTriangle
 
 	children [2]*buildNode
 }
@@ -77,6 +78,12 @@ func (n *buildNode) assign(primitiveIndices []uint32, indices []uint32, vertices
 	for i, pi := range primitiveIndices {
 		n.triangles[i] = primitive.MakeTriangle(&vertices[indices[pi + 0]], &vertices[indices[pi + 1]], &vertices[indices[pi + 2]])
 	}
+
+	n.indexTriangles = make([]primitive.IndexTriangle, len(primitiveIndices))
+
+	for i, pi := range primitiveIndices {
+		n.indexTriangles[i] = primitive.MakeIndexTriangle(indices[pi + 0], indices[pi + 1], indices[pi + 2])
+	}	
 }
 
 
@@ -86,7 +93,7 @@ var axis = [...]math.Vector3{
 	math.MakeVector3(0.0, 0.0, 1.0), 
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -96,11 +103,11 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.In
 	if n.children[0] != nil {
 		c := ray.DirIsNeg[n.axis]
 
-		if n.children[c].intersect(ray, intersection) {
+		if n.children[c].intersect(ray, vertices, intersection) {
 			hit = true
 		} 
 
-		if n.children[1 - c].intersect(ray, intersection) {
+		if n.children[1 - c].intersect(ray, vertices, intersection) {
 			hit = true
 		}
 	} else {
@@ -108,7 +115,19 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.In
 		var index int
 
 		for t := range n.triangles {
+			/*
 			if n.triangles[t].Intersect(ray, &ti.T, &ti.U, &ti.V) {
+				if ti.T <= intersection.T {
+					*intersection = ti
+					index = t
+					hit = true
+				}
+			}
+			*/
+			if intersectTriangle(vertices[n.indexTriangles[t].A].P, 
+								 vertices[n.indexTriangles[t].B].P, 
+								 vertices[n.indexTriangles[t].C].P, 
+								   ray, &ti.T, &ti.U, &ti.V) {
 				if ti.T <= intersection.T {
 					*intersection = ti
 					index = t
@@ -119,6 +138,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.In
 
 		if hit {
 			intersection.Triangle = &n.triangles[index]
+			intersection.IndexTriangle = &n.indexTriangles[index]
 			ray.MaxT = intersection.T
 		}
 	}

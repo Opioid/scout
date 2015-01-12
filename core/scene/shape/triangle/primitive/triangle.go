@@ -5,13 +5,20 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
+type IndexTriangle struct {
+	A, B, C uint32
+}
+
+func MakeIndexTriangle(a, b, c uint32) IndexTriangle {
+	return IndexTriangle{a, b, c}
+}
+
 type Triangle struct {
 	A, B, C geometry.Vertex
 }
 
 func MakeTriangle(a, b, c *geometry.Vertex) Triangle {
 	return Triangle{*a, *b, *c}
-
 }
 
 func (t *Triangle) Intersect(ray *math.OptimizedRay, thit, u, v *float32) bool {
