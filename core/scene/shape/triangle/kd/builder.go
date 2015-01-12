@@ -141,7 +141,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 			}
 		}
 */
-
+/*
 		var ti primitive.Intersection
 		var index int
 
@@ -156,7 +156,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 		}
 
 		intersection.Triangle = &n.triangles[index]
-		
+		*/
 	}
 
 	return hit

@@ -4,9 +4,12 @@ import (
 	
 )
 
-type Intersection struct {
+type Coordinates struct {
 	T, U, V float32
-	Index uint32
+}
+
+type Intersection struct {
+	Coordinates
 	Triangle *Triangle
-	IndexTriangle *IndexTriangle
+//	IndexTriangle IndexTriangle
 }

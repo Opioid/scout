@@ -35,7 +35,8 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 
-	intersection := primitive.Intersection{ T: ray.MaxT }
+	intersection := primitive.Intersection{}
+	intersection.T = ray.MaxT
 
 	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
 
@@ -45,9 +46,9 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 		dg.P = ray.Point(thit)
 
-		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
+		dg.N, dg.T, dg.UV = intersection.Triangle.Interpolate(intersection.U, intersection.V)
 
-	//	interpolateVertices(intersection.IndexTriangle, m.vertices, intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
+	//	dg.N, dg.T, dg.UV = interpolateVertices(intersection.IndexTriangle, m.vertices, intersection.U, intersection.V)
 
 		dg.N = transformation.WorldToObject.TransposedTransformVector3(dg.N)
 		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
@@ -105,9 +106,9 @@ func (m *Mesh) Compile() {
 	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
 	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
 	
-	for _, v := range m.vertices {
-		min = v.P.Min(min)
-		max = v.P.Max(max)
+	for v := range m.vertices {
+		min = m.vertices[v].P.Min(min)
+		max = m.vertices[v].P.Max(max)
 	}
 
 	m.aabb = bounding.MakeAABB(min, max)
@@ -116,38 +117,6 @@ func (m *Mesh) Compile() {
 	builder.Build(m.indices, m.vertices, 8, &m.tree)
 
 	m.indices = nil
-}
-
-func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {
-	e1 := v1.Sub(v0)
-	e2 := v2.Sub(v0)
-
-	pvec := ray.Direction.Cross(e2)
-
-	det := e1.Dot(pvec)
-	invDet := 1.0 / det
-
-	tvec := ray.Origin.Sub(v0)
-	*u = tvec.Dot(pvec) * invDet
-
-	if *u < 0.0 || *u > 1.0 {
-		return false
-	}
-
-	qvec := tvec.Cross(e1)
-	*v = ray.Direction.Dot(qvec) * invDet
-
-	if *v < 0.0 || *u + *v > 1.0 {
-		return false
-	}
-
-	*thit = e2.Dot(qvec) * invDet
-
-	if *thit > ray.MinT && *thit < ray.MaxT {
-		return true
-	} 
-
-	return false
 }
 
 func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
@@ -182,10 +151,10 @@ func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 	return false
 }
 
-func interpolateVertices(tri *primitive.IndexTriangle, vertices []geometry.Vertex, u, v float32, n, t *math.Vector3, uv *math.Vector2) {
+func interpolateVertices(tri primitive.IndexTriangle, vertices []geometry.Vertex, u, v float32) (math.Vector3, math.Vector3, math.Vector2) {
 	w := 1.0 - u - v
 	
-	*n  = vertices[tri.A].N. Scale(w).Add(vertices[tri.B].N. Scale(u)).Add(vertices[tri.C].N. Scale(v)).Normalized()
-	*t  = vertices[tri.A].T. Scale(w).Add(vertices[tri.B].T. Scale(u)).Add(vertices[tri.C].T. Scale(v)).Normalized()
-	*uv = vertices[tri.A].UV.Scale(w).Add(vertices[tri.B].UV.Scale(u)).Add(vertices[tri.C].UV.Scale(v))
+	return vertices[tri.A].N. Scale(w).Add(vertices[tri.B].N. Scale(u)).Add(vertices[tri.C].N. Scale(v)).Normalized(),
+		   vertices[tri.A].T. Scale(w).Add(vertices[tri.B].T. Scale(u)).Add(vertices[tri.C].T. Scale(v)).Normalized(),
+	       vertices[tri.A].UV.Scale(w).Add(vertices[tri.B].UV.Scale(u)).Add(vertices[tri.C].UV.Scale(v))
 }
