@@ -18,7 +18,7 @@ func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT floa
 }
 
 func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
-	return t.root.intersectP(ray)
+	return t.root.intersectP(ray, vertices)
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

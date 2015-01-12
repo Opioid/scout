@@ -47,6 +47,8 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 		intersection.Triangle.Interpolate(intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
 
+	//	interpolateVertices(intersection.IndexTriangle, m.vertices, intersection.U, intersection.V, &dg.N, &dg.T, &dg.UV)
+
 		dg.N = transformation.WorldToObject.TransposedTransformVector3(dg.N)
 		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
 
@@ -111,7 +113,9 @@ func (m *Mesh) Compile() {
 	m.aabb = bounding.MakeAABB(min, max)
 
 	builder := bvh.Builder{}
-	builder.Build(m.indices, m.vertices, 8, &m.tree)	
+	builder.Build(m.indices, m.vertices, 8, &m.tree)
+
+	m.indices = nil
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {
@@ -178,10 +182,10 @@ func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 	return false
 }
 
-func interpolateVertices(a, b, c *geometry.Vertex, u, v float32, n, t *math.Vector3, uv *math.Vector2) {
+func interpolateVertices(tri *primitive.IndexTriangle, vertices []geometry.Vertex, u, v float32, n, t *math.Vector3, uv *math.Vector2) {
 	w := 1.0 - u - v
 	
-	*n  = a.N.Scale(w).Add(b.N.Scale(u)).Add(c.N.Scale(v)).Normalized()
-	*t  = a.T.Scale(w).Add(b.T.Scale(u)).Add(c.T.Scale(v)).Normalized()
-	*uv = a.UV.Scale(w).Add(b.UV.Scale(u)).Add(c.UV.Scale(v))
+	*n  = vertices[tri.A].N. Scale(w).Add(vertices[tri.B].N. Scale(u)).Add(vertices[tri.C].N. Scale(v)).Normalized()
+	*t  = vertices[tri.A].T. Scale(w).Add(vertices[tri.B].T. Scale(u)).Add(vertices[tri.C].T. Scale(v)).Normalized()
+	*uv = vertices[tri.A].UV.Scale(w).Add(vertices[tri.B].UV.Scale(u)).Add(vertices[tri.C].UV.Scale(v))
 }

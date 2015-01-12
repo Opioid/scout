@@ -33,7 +33,7 @@ type buildNode struct {
 
 //	indices []uint32
 	triangles []primitive.Triangle
-	indexTriangles []primitive.IndexTriangle
+//	indexTriangles []primitive.IndexTriangle
 
 	children [2]*buildNode
 }
@@ -79,11 +79,11 @@ func (n *buildNode) assign(primitiveIndices []uint32, indices []uint32, vertices
 		n.triangles[i] = primitive.MakeTriangle(&vertices[indices[pi + 0]], &vertices[indices[pi + 1]], &vertices[indices[pi + 2]])
 	}
 
-	n.indexTriangles = make([]primitive.IndexTriangle, len(primitiveIndices))
+/*	n.indexTriangles = make([]primitive.IndexTriangle, len(primitiveIndices))
 
 	for i, pi := range primitiveIndices {
 		n.indexTriangles[i] = primitive.MakeIndexTriangle(indices[pi + 0], indices[pi + 1], indices[pi + 2])
-	}	
+	}	*/
 }
 
 
@@ -114,8 +114,8 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex
 		var ti primitive.Intersection
 		var index int
 
+		
 		for t := range n.triangles {
-			/*
 			if n.triangles[t].Intersect(ray, &ti.T, &ti.U, &ti.V) {
 				if ti.T <= intersection.T {
 					*intersection = ti
@@ -123,22 +123,26 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex
 					hit = true
 				}
 			}
-			*/
-			if intersectTriangle(vertices[n.indexTriangles[t].A].P, 
-								 vertices[n.indexTriangles[t].B].P, 
-								 vertices[n.indexTriangles[t].C].P, 
+		}
+		
+		/*
+		for i, t := range n.indexTriangles {
+			if intersectTriangle(vertices[t.A].P, 
+								 vertices[t.B].P, 
+								 vertices[t.C].P, 
 								   ray, &ti.T, &ti.U, &ti.V) {
 				if ti.T <= intersection.T {
 					*intersection = ti
-					index = t
+					index = i
 					hit = true
 				}
 			}
 		}
+		*/		
 
 		if hit {
 			intersection.Triangle = &n.triangles[index]
-			intersection.IndexTriangle = &n.indexTriangles[index]
+		//	intersection.IndexTriangle = &n.indexTriangles[index]
 			ray.MaxT = intersection.T
 		}
 	}
@@ -146,7 +150,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay, vertices []geometry.Vertex) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -154,19 +158,30 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
 	if n.children[0] != nil {
 		c := ray.DirIsNeg[n.axis]
 
-		if n.children[c].intersectP(ray) {
+		if n.children[c].intersectP(ray, vertices) {
 			return true
 		} 
 
-		return n.children[1 - c].intersectP(ray)
+		return n.children[1 - c].intersectP(ray, vertices)
 	}
 
+	
 	for t := range n.triangles {
 		if n.triangles[t].IntersectP(ray) {
 			return true
 		}
 	}
-
+	
+	/*
+	for _, t := range n.indexTriangles {
+		if intersectTriangleP(vertices[t.A].P, 
+							  vertices[t.B].P, 
+							  vertices[t.C].P, 
+							  ray) {
+			return true
+		}		
+	}
+	*/
 	return false
 }
 
