@@ -4,6 +4,16 @@ import (
 	"github.com/Opioid/scout/base/math"
 )
 
+func ReadUint32(value map[string]interface{}, name string, defaultValue uint32) uint32 {
+	if t, ok := value[name]; ok {
+		if f, isFloat := t.(float64); isFloat {
+			return uint32(f)
+		}
+	}
+
+	return defaultValue
+}
+
 func ParseFloat32(value interface{}) float32 {
 	return float32(value.(float64))
 }

@@ -13,11 +13,11 @@ type Tree struct {
 }
 
 
-func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
+func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
 	return t.root.intersect(ray, vertices, intersection)
 }
 
-func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, indices []uint32, vertices []geometry.Vertex) bool {
+func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) bool {
 	return t.root.intersectP(ray, vertices)
 }
 

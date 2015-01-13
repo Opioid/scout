@@ -13,15 +13,15 @@ type Builder struct {
 
 }
 
-func (b *Builder) Build(indices []uint32, vertices []geometry.Vertex, maxPrimitives int, tree *Tree) {
-	primitiveIndices := make([]uint32, len(indices) / 3)
+func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives int, tree *Tree) {
+	primitiveIndices := make([]uint32, len(triangles))
 
 	for i := range primitiveIndices {
-		primitiveIndices[i] = uint32(i) * 3
+		primitiveIndices[i] = uint32(i)
 	}
 
 	root := buildNode{}
-	root.split(primitiveIndices, indices, vertices, maxPrimitives, 0)
+	root.split(primitiveIndices, triangles, vertices, maxPrimitives, 0)
 
 	tree.root = root
 }
@@ -37,11 +37,11 @@ type buildNode struct {
 	children [2]*buildNode
 }
 
-func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometry.Vertex, maxPrimitives, depth int) {
-	n.aabb = subMeshAabb(primitiveIndices, indices, vertices)
+func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives, depth int) {
+	n.aabb = subMeshAabb(primitiveIndices, triangles, vertices)
 
 	if len(primitiveIndices) < maxPrimitives || depth > 18 {
-		n.assign(primitiveIndices, indices, vertices)
+		n.assign(primitiveIndices, triangles, vertices)
 	} else {
 		sp, axis := chooseSplittingPlane(&n.aabb)
 
@@ -52,7 +52,7 @@ func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometr
 		pids1 := make([]uint32, 0, numPids)
 
 		for _, pi := range primitiveIndices {
-			s := triangleSide(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, sp)
+			s := triangleSide(vertices[triangles[pi].A].P, vertices[triangles[pi].B].P, vertices[triangles[pi].C].P, sp)
 			
 			if s == 0 {
 				pids0 = append(pids0, pi)
@@ -64,18 +64,21 @@ func (n *buildNode) split(primitiveIndices, indices []uint32, vertices []geometr
 		n.children[0] = new(buildNode)
 		n.children[1] = new(buildNode)
 
-		n.children[0].split(pids0, indices, vertices, maxPrimitives, depth + 1)
-	//	pids0 = nil
-
-		n.children[1].split(pids1, indices, vertices, maxPrimitives, depth + 1)
+		n.children[0].split(pids0, triangles, vertices, maxPrimitives, depth + 1)
+		n.children[1].split(pids1, triangles, vertices, maxPrimitives, depth + 1)
 	}
 }
 
-func (n *buildNode) assign(primitiveIndices []uint32, indices []uint32, vertices []geometry.Vertex) {
+func (n *buildNode) assign(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) {
+//	n.indices = primitiveIndices
+
 	n.triangles = make([]primitive.Triangle, len(primitiveIndices))
 
 	for i, pi := range primitiveIndices {
-		n.triangles[i] = primitive.MakeTriangle(&vertices[indices[pi + 0]], &vertices[indices[pi + 1]], &vertices[indices[pi + 2]])
+		n.triangles[i] = primitive.MakeTriangle(&vertices[triangles[pi].A], 
+												&vertices[triangles[pi].B], 
+												&vertices[triangles[pi].C], 
+												triangles[pi].MaterialId)
 	}
 	
 /*	n.indexTriangles = make([]primitive.IndexTriangle, len(primitiveIndices))
@@ -172,13 +175,13 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, vertices []geometry.Verte
 	return false
 }
 
-func subMeshAabb(primitiveIndices, indices []uint32, vertices []geometry.Vertex) bounding.AABB {
+func subMeshAabb(primitiveIndices[]uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) bounding.AABB {
 	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
 	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
 	
 	for _, pi := range primitiveIndices {
-		min = triangleMin(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, min)
-		max = triangleMax(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, max)
+		min = triangleMin(vertices[triangles[pi].A].P, vertices[triangles[pi].B].P, vertices[triangles[pi].C].P, min)
+		max = triangleMax(vertices[triangles[pi].A].P, vertices[triangles[pi].B].P, vertices[triangles[pi].C].P, max)
 	}
 
 	return bounding.MakeAABB(min, max)
