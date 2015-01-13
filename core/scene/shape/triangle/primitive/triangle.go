@@ -7,18 +7,20 @@ import (
 
 type IndexTriangle struct {
 	A, B, C uint32
+	MaterialId uint32
 }
 
 func MakeIndexTriangle(a, b, c uint32) IndexTriangle {
-	return IndexTriangle{a, b, c}
+	return IndexTriangle{a, b, c, 0}
 }
 
 type Triangle struct {
 	A, B, C geometry.Vertex
+	MaterialId uint32
 }
 
 func MakeTriangle(a, b, c *geometry.Vertex) Triangle {
-	return Triangle{*a, *b, *c}
+	return Triangle{*a, *b, *c, 0}
 }
 
 func (t *Triangle) Intersect(ray *math.OptimizedRay, thit, u, v *float32) bool {

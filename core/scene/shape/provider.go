@@ -2,6 +2,7 @@ package shape
 
 import (
 	"github.com/Opioid/scout/core/scene/shape/triangle"
+	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
 	_ "github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
@@ -24,8 +25,8 @@ func (p *Provider) Load(filename string) Shape {
 		return mesh
 	}
 
+	
 	data, err := ioutil.ReadFile(filename)
-
 	if err != nil {
 		return nil
 	}
@@ -34,7 +35,21 @@ func (p *Provider) Load(filename string) Shape {
 	if err = json.Unmarshal(data, &document); err != nil {
 		return nil
 	}
+	
+	/*
+	fi, err := os.Open(filename)
 
+	defer fi.Close()
+
+	if err != nil {
+		return nil
+	}	
+
+	var document interface{}
+	if err = json.NewDecoder(fi).Decode(&document); err != nil {
+		return nil
+	}
+	*/
 	root := document.(map[string]interface{})
 
 	var mesh Shape
@@ -86,10 +101,15 @@ func loadGeometry(i interface{}) Shape {
 		return nil
 	}
 
-	m := triangle.NewMesh(uint32(len(indices)), uint32(len(positions)))
+	numTriangles := uint32(len(indices)) / 3
 
-	for i, index := range indices {
-		m.SetIndex(uint32(i), uint32(index.(float64)))
+	m := triangle.NewMesh(numTriangles, uint32(len(positions)))
+
+	for i := uint32(0); i < numTriangles; i++ {
+		a := uint32(indices[i * 3 + 0].(float64))
+		b := uint32(indices[i * 3 + 1].(float64))
+		c := uint32(indices[i * 3 + 2].(float64))
+		m.SetTriangle(i, primitive.MakeIndexTriangle(a, b, c))
 	}
 
 	for i, position := range positions {

@@ -1,5 +1,5 @@
 package kd
-
+/*
 import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
@@ -82,4 +82,4 @@ func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 	} 
 
 	return false
-}
+}*/

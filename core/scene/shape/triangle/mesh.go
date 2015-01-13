@@ -13,8 +13,7 @@ import (
 )
 
 type Mesh struct {
-	indices []uint32
-
+	triangles []primitive.IndexTriangle
 	vertices []geometry.Vertex
 
 	aabb bounding.AABB
@@ -22,10 +21,10 @@ type Mesh struct {
 	tree bvh.Tree
 }
 
-func NewMesh(numIndices, numVertices uint32) *Mesh {
+func NewMesh(numTriangles, numVertices uint32) *Mesh {
 	m := new(Mesh)
-	m.indices = make([]uint32, numIndices)
-	m.vertices = make([]geometry.Vertex, numVertices)
+	m.triangles = make([]primitive.IndexTriangle, numTriangles)
+	m.vertices  = make([]geometry.Vertex, numVertices)
 	return m
 }
 
@@ -37,7 +36,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 	intersection := primitive.Intersection{ T: ray.MaxT }
 
-	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices, &intersection)
+	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.triangles, m.vertices, &intersection)
 
 	if hit {
 		thit := intersection.T
@@ -65,7 +64,7 @@ func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *ma
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 
-	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT, m.indices, m.vertices)
+	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT, m.triangles, m.vertices)
 }
 
 func (m *Mesh) AABB() *bounding.AABB {
@@ -80,8 +79,8 @@ func (m *Mesh) IsFinite() bool {
 	return true
 }
 
-func (m *Mesh) SetIndex(index, value uint32) {
-	m.indices[index] = value
+func (m *Mesh) SetTriangle(index uint32, tri primitive.IndexTriangle) {
+	m.triangles[index] = tri
 }
 
 func (m *Mesh) SetPosition(index uint32, p math.Vector3) {
@@ -113,9 +112,9 @@ func (m *Mesh) Compile() {
 	m.aabb = bounding.MakeAABB(min, max)
 
 	builder := bvh.Builder{}
-	builder.Build(m.indices, m.vertices, 8, &m.tree)
+	builder.Build(m.triangles, m.vertices, 8, &m.tree)
 
-	m.indices = nil
+	m.triangles = nil
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay, thit, u, v *float32) bool {

@@ -1,5 +1,5 @@
 package kd
-
+/*
 import (
 	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
@@ -130,7 +130,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 			}
 		}
 	} else {
-/*
+
 		for _, pi := range n.indices {
 			ti := Intersection{Index: pi}
 			if intersectTriangle(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, ray, &ti.T, &ti.U, &ti.V) {
@@ -140,7 +140,6 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT
 				}
 			}
 		}
-*/
 
 		var ti primitive.Intersection
 		var index int
@@ -192,13 +191,12 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMax
 			return n.children[1 - c].intersectP(ray, tplane, boundingMaxT, indices, vertices)
 		}
 	}
-/*
+
 	for _, pi := range n.indices {
 		if intersectTriangleP(vertices[indices[pi + 0]].P, vertices[indices[pi + 1]].P, vertices[indices[pi + 2]].P, ray) {
 			return true
 		}
 	}
-*/
 
 	for _, t := range n.triangles {
 		if t.IntersectP(ray) {
@@ -211,16 +209,6 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, boundingMinT, boundingMax
 }
 
 func subMeshAabb(primitiveIndices, indices []uint32, vertices []geometry.Vertex) bounding.AABB {
-/*	b := bounding.MakeEmptyAABB()
-
-	for _, p := range props {
-		b = b.Merge(&p.AABB)
-	}
-
-	return b
-	*/
-
-
 	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
 	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
 	
@@ -278,4 +266,4 @@ func splittingPlane(aabb *bounding.AABB) (int32, float32) {
 		p := math.MakePlane(axis[2], position)
 		return 2, p.D
 	}
-}
+}*/

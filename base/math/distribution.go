@@ -50,5 +50,6 @@ func Hammersley(i, numSamples uint32) Vector2 {
 }
 
 func ScrambledHammersley(i, numSamples, r uint32) Vector2 {
-	return MakeVector2(float32(i) / float32(numSamples), ScrambledRadicalInverse_vdC(i, r))
+//	return MakeVector2(float32(i) / float32(numSamples), ScrambledRadicalInverse_vdC(i, r))
+	return MakeVector2(ScrambledRadicalInverse_vdC(i, r), RadicalInverse_S(i, r))
 }
