@@ -76,18 +76,13 @@ func loadGeometry(i interface{}) Shape {
 		return nil
 	}
 
-	/*
-	if g, ok := geometryNode["groups"]; ok {
-		if groups, ok := g.([]interface{}); ok {
-
-		}
-	}
-
-	grou
-	*/
-
+	var groups []interface{}
 	var indices []interface{}
 	var positions []interface{}
+
+	if g, ok := geometryNode["groups"]; ok {
+		groups = g.([]interface{})
+	}
 
 	if i, ok := geometryNode["indices"]; ok {
 		indices = i.([]interface{})
@@ -97,7 +92,7 @@ func loadGeometry(i interface{}) Shape {
 		positions = p.([]interface{})
 	}
 
-	if indices == nil || positions == nil {
+	if groups == nil || indices == nil || positions == nil {
 		return nil
 	}
 
@@ -105,11 +100,22 @@ func loadGeometry(i interface{}) Shape {
 
 	m := triangle.NewMesh(numTriangles, uint32(len(positions)))
 
-	for i := uint32(0); i < numTriangles; i++ {
-		a := uint32(indices[i * 3 + 0].(float64))
-		b := uint32(indices[i * 3 + 1].(float64))
-		c := uint32(indices[i * 3 + 2].(float64))
-		m.SetTriangle(i, primitive.MakeIndexTriangle(a, b, c))
+	for _, g := range groups {
+		if groupNode, ok := g.(map[string]interface{}); ok {
+			start    := pkgjson.ReadUint32(groupNode, "start_index", 0)
+			count    := pkgjson.ReadUint32(groupNode, "num_indices", 0)
+			material := pkgjson.ReadUint32(groupNode, "material_index", 0)
+
+			trianglesStart := start / 3
+			trianglesEnd := (start + count) / 3
+
+			for i := trianglesStart; i < trianglesEnd; i++ {
+				a := uint32(indices[i * 3 + 0].(float64))
+				b := uint32(indices[i * 3 + 1].(float64))
+				c := uint32(indices[i * 3 + 2].(float64))
+				m.SetTriangle(i, primitive.MakeIndexTriangle(a, b, c, material))
+			}
+		}
 	}
 
 	for i, position := range positions {

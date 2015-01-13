@@ -10,8 +10,8 @@ type IndexTriangle struct {
 	MaterialId uint32
 }
 
-func MakeIndexTriangle(a, b, c uint32) IndexTriangle {
-	return IndexTriangle{a, b, c, 0}
+func MakeIndexTriangle(a, b, c, materialId uint32) IndexTriangle {
+	return IndexTriangle{a, b, c, materialId}
 }
 
 type Triangle struct {
@@ -19,8 +19,8 @@ type Triangle struct {
 	MaterialId uint32
 }
 
-func MakeTriangle(a, b, c *geometry.Vertex) Triangle {
-	return Triangle{*a, *b, *c, 0}
+func MakeTriangle(a, b, c *geometry.Vertex, materialId uint32) Triangle {
+	return Triangle{*a, *b, *c, materialId}
 }
 
 func (t *Triangle) Intersect(ray *math.OptimizedRay, thit, u, v *float32) bool {

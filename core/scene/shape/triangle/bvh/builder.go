@@ -76,7 +76,10 @@ func (n *buildNode) assign(primitiveIndices []uint32, triangles []primitive.Inde
 	n.triangles = make([]primitive.Triangle, len(primitiveIndices))
 
 	for i, pi := range primitiveIndices {
-		n.triangles[i] = primitive.MakeTriangle(&vertices[triangles[pi].A], &vertices[triangles[pi].B], &vertices[triangles[pi].C])
+		n.triangles[i] = primitive.MakeTriangle(&vertices[triangles[pi].A], 
+												&vertices[triangles[pi].B], 
+												&vertices[triangles[pi].C], 
+												triangles[pi].MaterialId)
 	}
 
 /*	n.indexTriangles = make([]primitive.IndexTriangle, len(primitiveIndices))
