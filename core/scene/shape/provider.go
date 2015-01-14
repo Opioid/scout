@@ -3,7 +3,7 @@ package shape
 import (
 	"github.com/Opioid/scout/core/scene/shape/triangle"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
-	_ "github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
 	"encoding/json"
@@ -100,6 +100,8 @@ func loadGeometry(i interface{}) Shape {
 
 	m := triangle.NewMesh(numTriangles, uint32(len(positions)))
 
+	maxMaterialId := uint32(len(groups) - 1)
+
 	for _, g := range groups {
 		if groupNode, ok := g.(map[string]interface{}); ok {
 			start    := pkgjson.ReadUint32(groupNode, "start_index", 0)
@@ -113,7 +115,7 @@ func loadGeometry(i interface{}) Shape {
 				a := uint32(indices[i * 3 + 0].(float64))
 				b := uint32(indices[i * 3 + 1].(float64))
 				c := uint32(indices[i * 3 + 2].(float64))
-				m.SetTriangle(i, primitive.MakeIndexTriangle(a, b, c, material))
+				m.SetTriangle(i, primitive.MakeIndexTriangle(a, b, c, math.Minui(material, maxMaterialId)))
 			}
 		}
 	}

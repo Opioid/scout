@@ -4,6 +4,7 @@ import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/core/scene/shape"
+	"github.com/Opioid/scout/core/scene/material"
 	"github.com/Opioid/scout/base/math"
 	gomath "math"
 )
@@ -14,7 +15,9 @@ type sphereBlock struct {
 
 func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Manager) {
 	shape := shape.NewSphere()
-	material := resourceManager.LoadMaterial("../data/materials/green.material")
+
+	materials := make([]material.Material, 1)
+	materials[0] = resourceManager.LoadMaterial("../data/materials/green.material")
 
 	scale := math.MakeVector3(0.5, 0.5, 0.5)
 	spacing := math.MakeVector3(1.2, 1.2, 1.2)
@@ -28,7 +31,7 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 			for x := 0; x < numX; x++ {
 				p := scene.CreateStaticProp()
 				p.Shape = shape
-				p.Material = material
+				p.Materials = materials
 
 				position := math.MakeVector3(float32(x), float32(y), float32(z)).Mul(spacing)
 

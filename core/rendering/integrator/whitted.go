@@ -41,7 +41,7 @@ func (w *whitted) StartNewPixel(numSamples uint32) {
 func (w *whitted) Li(scene *pkgscene.Scene, tile *rendering.Tile, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
-	material := intersection.Prop.Material
+	material := intersection.Material()
 
 	shadowRay := math.OptimizedRay{}
 	shadowRay.Origin = intersection.Dg.P

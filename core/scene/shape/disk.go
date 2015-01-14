@@ -52,6 +52,8 @@ func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *
 			v := transformation.Rotation.Row(1).Dot(sk)
 			dg.UV.Y = (v + 1.0) * 0.5
 
+			dg.MaterialId = 0
+
 			return true, thit, epsilon
 		}
 	} 

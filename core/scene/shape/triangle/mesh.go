@@ -54,6 +54,8 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 		dg.B = dg.N.Cross(dg.T)
 
+		dg.MaterialId = intersection.Triangle.MaterialId
+
 		return hit, thit, epsilon
 	}
 

@@ -45,6 +45,8 @@ func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 		v := transformation.ObjectToWorld.Row(1).Vector3().Dot(dg.P)
 		dg.UV.Y = v - math32.Floor(v)
 
+		dg.MaterialId = 0
+
 		return true, thit, epsilon
 	} 
 

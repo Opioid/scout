@@ -6,6 +6,7 @@ import (
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/scene/shape"
+	"github.com/Opioid/scout/core/scene/material"
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
@@ -287,9 +288,9 @@ func (loader *Loader) loadActor(i interface{}) {
 		return
 	}
 
-	material := loader.resourceManager.LoadMaterial(m.(string))
+	materials := loader.loadMaterials(m)
 
-	if material == nil {
+	if materials == nil {
 		return
 	}
 
@@ -313,7 +314,7 @@ func (loader *Loader) loadActor(i interface{}) {
 
 	a := loader.scene.CreateActor()
 	a.Shape = shape
-	a.Material = material
+	a.Materials = materials
 	a.SetTransformation(position, scale, rotation)
 	a.Animation = animation	
 }
@@ -369,15 +370,15 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 		return
 	}
 
-	m, ok := propNode["material"]
+	m, ok := propNode["materials"]
 
 	if !ok {
 		return
 	}
 
-	material := loader.resourceManager.LoadMaterial(m.(string))
+	materials := loader.loadMaterials(m)
 
-	if material == nil {
+	if materials == nil {
 		return
 	}
 
@@ -398,7 +399,7 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 
 	prop := loader.scene.CreateStaticProp()
 	prop.Shape = shape
-	prop.Material = material
+	prop.Materials = materials
 	prop.SetTransformation(position, scale, rotation)
 }
 
@@ -434,4 +435,20 @@ func (loader *Loader) loadShape(i interface{}) shape.Shape {
 	}
 
 	return nil
+}
+
+func (loader *Loader) loadMaterials(i interface{}) []material.Material {
+	materialsNode, ok := i.([]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	materials := make([]material.Material, len(materialsNode))
+
+	for c, m := range materialsNode {
+		materials[c] = loader.resourceManager.LoadMaterial(m.(string))
+	}
+
+	return materials
 }

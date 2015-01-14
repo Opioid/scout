@@ -8,6 +8,7 @@ import (
 
 type Prop struct {
 	Shape shape.Shape
-	Material material.Material
 	AABB bounding.AABB
+
+	Materials []material.Material
 }
