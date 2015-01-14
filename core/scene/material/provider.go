@@ -71,8 +71,8 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 
 				if usage == "Color" {
 					colorMap = tp.Load2D(texturename, texture.Config{Usage: texture.RGBA})
-				} else if usage == "Normals" {
-					normalMap = tp.Load2D(texturename, texture.Config{Usage: texture.Normals})
+				} else if usage == "Normal" {
+					normalMap = tp.Load2D(texturename, texture.Config{Usage: texture.Normal})
 				}
 
 			}

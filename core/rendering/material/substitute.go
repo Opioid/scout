@@ -4,7 +4,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
 	gomath "math"
-	"fmt"
+	_ "fmt"
 )
 
 const (
@@ -18,13 +18,13 @@ const (
 )
 
 func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
-	return f0.Add(math.MakeVector3(1 - f0.X, 1 - f0.Y, 1 - f0.Z).Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
+	return f0.Add(math.MakeVector3(1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z).Scale(math.Exp2((-5.55473 * v_dot_h - 6.98316) * v_dot_h)))
 }
 
 func specular_d(n_dot_h, a2 float32) float32 {
-	d := n_dot_h * n_dot_h * (a2 - 1) + 1
+	d := n_dot_h * n_dot_h * (a2 - 1.0) + 1.0
 //	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
-	return a2 / gomath.Pi * d * d
+	return a2 / (gomath.Pi * d * d)
 }
 
 func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
@@ -74,11 +74,6 @@ func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
 	v_dot_h := brdf.v.Dot(h)
 
 	specular := specular_f(v_dot_h, brdf.F0).Scale(specular_d(n_dot_h, brdf.a2)).Scale(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))
-
-	if gomath.IsNaN(float64(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))) {
-		fmt.Printf("%v %v %v \n", n_dot_l, brdf.N_dot_v, brdf.a2)
-		panic(brdf.a2)
-	}
 
 	r := brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
 

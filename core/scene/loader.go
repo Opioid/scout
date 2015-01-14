@@ -282,7 +282,7 @@ func (loader *Loader) loadActor(i interface{}) {
 		return
 	}
 
-	m, ok := actorNode["material"]
+	m, ok := actorNode["materials"]
 
 	if !ok {
 		return

@@ -126,8 +126,9 @@ func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
         tmax = tzmax
     }
 
-    return tmin < ray.MaxT && tmax > ray.MinT
+    return tmin < ray.MaxT && tmax > ray.MinT 
 }
+
 
 func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *float32) bool {
     tmin := (b.Bounds[    ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X

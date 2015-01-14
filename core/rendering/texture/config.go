@@ -2,7 +2,7 @@ package texture
 
 const (
 	RGBA	= iota
-	Normals	= iota
+	Normal	= iota
 )
 
 type Config struct {

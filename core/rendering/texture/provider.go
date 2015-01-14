@@ -75,7 +75,7 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 	dimensions := math.MakeVector2i(int32(sourceImage.Bounds().Max.X), int32(sourceImage.Bounds().Max.Y))
 
 	t := uint32(buffer.Float4)
-	if config.Usage == Normals {
+	if config.Usage == Normal {
 		t = buffer.Float3
 	}
 
@@ -94,7 +94,7 @@ func textureFromGoSupportedFile(fi *os.File, config Config) *Texture2D {
 		wg.Add(1)
 
 		go func (start, end math.Vector2i) {
-			if config.Usage == Normals {
+			if config.Usage == Normal {
 				processNormals(start, end, sourceImage, texture.Image.Buffers[0])
 			} else {
 				processSrgbToLinear(start, end, sourceImage, texture.Image.Buffers[0])
