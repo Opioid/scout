@@ -9,8 +9,13 @@ func MakePlane(normal, point Vector3) Plane {
 }
 
 func (p *Plane) Behind(v Vector3) bool {
-	d := p.A * v.X + p.B * v.Y + p.C * v.Z + p.D;
+	d := p.A * v.X + p.B * v.Y + p.C * v.Z + p.D
 	return d < 0.0
+}
+
+func (p *Plane) BehindEpsilon(v Vector3, epsilon float32) bool {
+	d := p.A * v.X + p.B * v.Y + p.C * v.Z + p.D
+	return d < epsilon
 }
 
 func (p *Plane) Intersect(r *Ray, thit *float32) bool {

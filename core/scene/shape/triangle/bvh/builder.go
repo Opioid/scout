@@ -175,6 +175,10 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, vertices []geometry.Verte
 	return false
 }
 
+const (
+	epsilon = 0.000000001
+)
+
 func subMeshAabb(primitiveIndices[]uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) bounding.AABB {
 	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
 	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
@@ -183,6 +187,10 @@ func subMeshAabb(primitiveIndices[]uint32, triangles []primitive.IndexTriangle, 
 		min = triangleMin(vertices[triangles[pi].A].P, vertices[triangles[pi].B].P, vertices[triangles[pi].C].P, min)
 		max = triangleMax(vertices[triangles[pi].A].P, vertices[triangles[pi].B].P, vertices[triangles[pi].C].P, max)
 	}
+
+	max.X += epsilon
+	max.Y += epsilon
+	max.Z += epsilon
 
 	return bounding.MakeAABB(min, max)
 }
