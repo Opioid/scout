@@ -93,11 +93,11 @@ func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
     return tmax >= tmin
     */
 
-    tmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
-    tmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tmin := (b.Bounds[    ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tmax := (b.Bounds[1 - ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
 
-    tymin := (b.Bounds[    ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
-    tymax := (b.Bounds[1 - ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymin := (b.Bounds[    ray.Sign[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymax := (b.Bounds[1 - ray.Sign[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
 
     if tmin > tymax || tymin > tmax {
         return false
@@ -111,8 +111,8 @@ func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
         tmax = tymax
     }
 
-    tzmin := (b.Bounds[    ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
-    tzmax := (b.Bounds[1 - ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmin := (b.Bounds[    ray.Sign[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmax := (b.Bounds[1 - ray.Sign[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
 
     if tmin > tzmax || tzmin > tmax {
         return false
@@ -130,11 +130,11 @@ func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
 }
 
 func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *float32) bool {
-    tmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
-    tmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tmin := (b.Bounds[    ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
+    tmax := (b.Bounds[1 - ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
 
-    tymin := (b.Bounds[    ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
-    tymax := (b.Bounds[1 - ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymin := (b.Bounds[    ray.Sign[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
+    tymax := (b.Bounds[1 - ray.Sign[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
 
     if tmin > tymax || tymin > tmax {
         return false
@@ -148,8 +148,8 @@ func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *flo
         tmax = tymax
     }
 
-    tzmin := (b.Bounds[    ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
-    tzmax := (b.Bounds[1 - ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmin := (b.Bounds[    ray.Sign[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
+    tzmax := (b.Bounds[1 - ray.Sign[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
 
     if tmin > tzmax || tzmin > tmax {
         return false

@@ -103,7 +103,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex
 	hit := false
 
 	if n.children[0] != nil {
-		c := ray.DirIsNeg[n.axis]
+		c := ray.Sign[n.axis]
 
 		if n.children[c].intersect(ray, vertices, intersection) {
 			hit = true
@@ -149,7 +149,7 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, vertices []geometry.Verte
 	}
 
 	if n.children[0] != nil {
-		c := ray.DirIsNeg[n.axis]
+		c := ray.Sign[n.axis]
 
 		if n.children[c].intersectP(ray, vertices) {
 			return true

@@ -4,14 +4,17 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
 	gomath "math"
-	_ "fmt"
+	"fmt"
 )
 
 const (
 	// magic roughness constant that doesn't cause INF in specular_d
 	// instead there is a max() now
 	// 0.01313900625 
-	minRoughness = 0// 0.01313900625
+//	minRoughness = 0.0// 0.01313900625
+	// Ran into another issue in specular_g, which doesn't (??) require such a high minRoughness. 
+	// Mabye keeping it above 0 makes sense anyway. Don't know about the specular_d issue now.
+	minRoughness = 1.0 / 255.0
 )
 
 func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
@@ -20,7 +23,8 @@ func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
 
 func specular_d(n_dot_h, a2 float32) float32 {
 	d := n_dot_h * n_dot_h * (a2 - 1) + 1
-	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
+//	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
+	return a2 / gomath.Pi * d * d
 }
 
 func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
@@ -70,6 +74,11 @@ func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
 	v_dot_h := brdf.v.Dot(h)
 
 	specular := specular_f(v_dot_h, brdf.F0).Scale(specular_d(n_dot_h, brdf.a2)).Scale(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))
+
+	if gomath.IsNaN(float64(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))) {
+		fmt.Printf("%v %v %v \n", n_dot_l, brdf.N_dot_v, brdf.a2)
+		panic(brdf.a2)
+	}
 
 	r := brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
 
