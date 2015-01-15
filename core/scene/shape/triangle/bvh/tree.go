@@ -11,19 +11,20 @@ import (
 
 type Tree struct {
 	root buildNode
+
+	Triangles []primitive.Triangle
 }
 
 func (t *Tree) AABB() bounding.AABB {
 	return t.root.aabb
 }
 
-
 func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, intersection *primitive.Intersection) bool {
-	return t.root.intersect(ray, intersection)
+	return t.root.intersect(ray, t.Triangles, intersection)
 }
 
 func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
-	return t.root.intersectP(ray)
+	return t.root.intersectP(ray, t.Triangles)
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) (bool, primitive.Coordinates) {

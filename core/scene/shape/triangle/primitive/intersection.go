@@ -10,6 +10,6 @@ type Coordinates struct {
 
 type Intersection struct {
 	Coordinates
-	Triangle *Triangle
-//	IndexTriangle IndexTriangle
+//	Triangle *Triangle
+	Index uint32
 }

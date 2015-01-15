@@ -40,16 +40,14 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 		dg.P = ray.Point(thit)
 
-		dg.N, dg.T, dg.UV = intersection.Triangle.Interpolate(intersection.U, intersection.V)
+		dg.MaterialId = m.tree.Triangles[intersection.Index].MaterialId
 
-	//	dg.N, dg.T, dg.UV = interpolateVertices(intersection.IndexTriangle, m.vertices, intersection.U, intersection.V)
+		dg.N, dg.T, dg.UV = m.tree.Triangles[intersection.Index].Interpolate(intersection.U, intersection.V)
 
 		dg.N = transformation.WorldToObject.TransposedTransformVector3(dg.N)
 		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
 
 		dg.B = dg.N.Cross(dg.T)
-
-		dg.MaterialId = intersection.Triangle.MaterialId
 
 		return hit, thit, epsilon
 	}

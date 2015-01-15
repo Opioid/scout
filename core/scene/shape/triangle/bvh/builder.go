@@ -20,10 +20,12 @@ func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry
 		primitiveIndices[i] = uint32(i)
 	}
 
-	root := buildNode{}
-	root.split(primitiveIndices, triangles, vertices, maxPrimitives, 0)
+	outTriangles := make([]primitive.Triangle, 0, len(triangles))
 
-	return Tree{root}
+	root := buildNode{}
+	root.split(primitiveIndices, triangles, vertices, maxPrimitives, 0, &outTriangles)
+
+	return Tree{root, outTriangles}
 }
 
 type buildNode struct {
@@ -31,17 +33,17 @@ type buildNode struct {
 
 	axis int
 
-	triangles []primitive.Triangle
-//	indexTriangles []primitive.IndexTriangle
+	startIndex, endIndex uint32
 
 	children [2]*buildNode
 }
 
-func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives, depth int) {
+func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives, depth int, 
+						   outTriangles *[]primitive.Triangle) {
 	n.aabb = subMeshAabb(primitiveIndices, triangles, vertices)
 
 	if len(primitiveIndices) < maxPrimitives || depth > 18 {
-		n.assign(primitiveIndices, triangles, vertices)
+		n.assign(primitiveIndices, triangles, vertices, outTriangles)
 	} else {
 		sp, axis := chooseSplittingPlane(&n.aabb)
 
@@ -64,38 +66,29 @@ func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.Index
 		n.children[0] = new(buildNode)
 		n.children[1] = new(buildNode)
 
-		n.children[0].split(pids0, triangles, vertices, maxPrimitives, depth + 1)
-		n.children[1].split(pids1, triangles, vertices, maxPrimitives, depth + 1)
+		n.children[0].split(pids0, triangles, vertices, maxPrimitives, depth + 1, outTriangles)
+
+		pids0 = nil
+
+		n.children[1].split(pids1, triangles, vertices, maxPrimitives, depth + 1, outTriangles)
 	}
 }
 
-func (n *buildNode) assign(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) {
-//	n.indices = primitiveIndices
+func (n *buildNode) assign(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, 
+							outTriangles *[]primitive.Triangle) {
+	n.startIndex = uint32(len(*outTriangles))
 
-	n.triangles = make([]primitive.Triangle, len(primitiveIndices))
-
-	for i, pi := range primitiveIndices {
-		n.triangles[i] = primitive.MakeTriangle(&vertices[triangles[pi].A], 
-												&vertices[triangles[pi].B], 
-												&vertices[triangles[pi].C], 
-												triangles[pi].MaterialId)
+	for _, pi := range primitiveIndices {
+		*outTriangles = append(*outTriangles, primitive.MakeTriangle(&vertices[triangles[pi].A], 
+											   						 &vertices[triangles[pi].B], 
+																	 &vertices[triangles[pi].C], 
+																	 triangles[pi].MaterialId))
 	}
-	
-/*	n.indexTriangles = make([]primitive.IndexTriangle, len(primitiveIndices))
 
-	for i, pi := range primitiveIndices {
-		n.indexTriangles[i] = primitive.MakeIndexTriangle(indices[pi + 0], indices[pi + 1], indices[pi + 2])
-	}	*/
+	n.endIndex = uint32(len(*outTriangles))
 }
 
-
-var axis = [...]math.Vector3{ 
-	math.MakeVector3(1.0, 0.0, 0.0),
-	math.MakeVector3(0.0, 1.0, 0.0),
-	math.MakeVector3(0.0, 0.0, 1.0), 
-}
-
-func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, triangles []primitive.Triangle, intersection *primitive.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -105,45 +98,36 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.In
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersect(ray, intersection) {
+		if n.children[c].intersect(ray, triangles, intersection) {
 			hit = true
 		} 
 
-		if n.children[1 - c].intersect(ray, intersection) {
+		if n.children[1 - c].intersect(ray, triangles, intersection) {
 			hit = true
 		}
 	} else {
-		var index int
-		
-		for t := range n.triangles {
-			if h, c := n.triangles[t].Intersect(ray); h && c.T < intersection.T {
-				intersection.Coordinates = c
-				index = t
+		ti := primitive.Intersection{}
+		ti.T = ray.MaxT
+
+		for i := n.startIndex; i < n.endIndex; i++ {
+			if h, c := triangles[i].Intersect(ray); h && c.T < ti.T {
+				ti.Coordinates = c
+				ti.Index = i
 				hit = true
 			}
 		}
-		
-		/*
-		for i, t := range n.indexTriangles {
-			if h, c := intersectTriangle(vertices[t.A].P, vertices[t.B].P, vertices[t.C].P, ray); h && c.T < intersection.T {
-				intersection.Coordinates = c
-				index = i
-				hit = true
-			}
-		}
-		*/
 
 		if hit {
-			intersection.Triangle = &n.triangles[index]
-		//	intersection.IndexTriangle = n.indexTriangles[index]
-			ray.MaxT = intersection.T
+			// the idea was not to write these pointers in the loop... Don't know whether it makes a difference
+			*intersection = ti
+			ray.MaxT = ti.T
 		}
 	}
 
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay, triangles []primitive.Triangle) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -151,27 +135,19 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersectP(ray) {
+		if n.children[c].intersectP(ray, triangles) {
 			return true
 		} 
 
-		return n.children[1 - c].intersectP(ray)
+		return n.children[1 - c].intersectP(ray, triangles)
 	}
 
-	
-	for t := range n.triangles {
-		if n.triangles[t].IntersectP(ray) {
+	for i := n.startIndex; i < n.endIndex; i++ {
+		if triangles[i].IntersectP(ray) {
 			return true
 		}
 	}
-	
-	/*
-	for _, t := range n.indexTriangles {
-		if intersectTriangleP(vertices[t.A].P, vertices[t.B].P, vertices[t.C].P, ray) {
-			return true
-		}		
-	}
-	*/
+
 	return false
 }
 
@@ -201,6 +177,12 @@ func triangleMin(a, b, c, x math.Vector3) math.Vector3 {
 
 func triangleMax(a, b, c, x math.Vector3) math.Vector3 {
 	return a.Max(b).Max(c).Max(x)
+}
+
+var axis = [...]math.Vector3{ 
+	math.MakeVector3(1.0, 0.0, 0.0),
+	math.MakeVector3(0.0, 1.0, 0.0),
+	math.MakeVector3(0.0, 0.0, 1.0), 
 }
 
 func triangleSide(a, b, c math.Vector3, p math.Plane) int {
