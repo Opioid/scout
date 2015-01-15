@@ -8,24 +8,19 @@ import (
 	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
-	gomath "math"
 	_ "fmt"
 )
 
 type Mesh struct {
-	triangles []primitive.IndexTriangle
-	vertices []geometry.Vertex
-
 	aabb bounding.AABB
 
 	tree bvh.Tree
 }
 
-func NewMesh(numTriangles, numVertices uint32) *Mesh {
-	m := new(Mesh)
-	m.triangles = make([]primitive.IndexTriangle, numTriangles)
-	m.vertices  = make([]geometry.Vertex, numVertices)
-	return m
+func NewMesh(aabb bounding.AABB, tree bvh.Tree) *Mesh {
+	m := Mesh{aabb: aabb, tree: tree}
+
+	return &m
 }
 
 func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
@@ -37,7 +32,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	intersection := primitive.Intersection{}
 	intersection.T = ray.MaxT
 
-	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, m.triangles, m.vertices, &intersection)
+	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, &intersection)
 
 	if hit {
 		thit := intersection.T
@@ -67,7 +62,7 @@ func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *ma
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 
-	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT, m.triangles, m.vertices)
+	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT)
 }
 
 func (m *Mesh) AABB() *bounding.AABB {
@@ -80,44 +75,6 @@ func (m *Mesh) IsComplex() bool {
 
 func (m *Mesh) IsFinite() bool {
 	return true
-}
-
-func (m *Mesh) SetTriangle(index uint32, tri primitive.IndexTriangle) {
-	m.triangles[index] = tri
-}
-
-func (m *Mesh) SetPosition(index uint32, p math.Vector3) {
-	m.vertices[index].P = p
-}
-
-func (m *Mesh) SetNormal(index uint32, n math.Vector3) {
-	m.vertices[index].N = n
-}
-
-func (m *Mesh) SetTangentAndSign(index uint32, t math.Vector3, s float32) {
-	m.vertices[index].T = t
-	m.vertices[index].BitangentSign = s
-}
-
-func (m *Mesh) SetUV(index uint32, uv math.Vector2) {
-	m.vertices[index].UV = uv
-}
-
-func (m *Mesh) Compile() {
-	min := math.MakeVector3( gomath.MaxFloat32,  gomath.MaxFloat32,  gomath.MaxFloat32)
-	max := math.MakeVector3(-gomath.MaxFloat32, -gomath.MaxFloat32, -gomath.MaxFloat32)
-	
-	for v := range m.vertices {
-		min = m.vertices[v].P.Min(min)
-		max = m.vertices[v].P.Max(max)
-	}
-
-	m.aabb = bounding.MakeAABB(min, max)
-
-	builder := bvh.Builder{}
-	builder.Build(m.triangles, m.vertices, 8, &m.tree)
-
-	m.triangles = nil
 }
 
 func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {

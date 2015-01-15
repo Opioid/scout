@@ -1,9 +1,10 @@
 package bvh
 
 import (
-	"github.com/Opioid/scout/core/scene/shape/geometry"
+	_ "github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/scout/base/math/bounding"
 	_ "math"
 	_ "fmt"
 )
@@ -12,13 +13,17 @@ type Tree struct {
 	root buildNode
 }
 
-
-func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
-	return t.root.intersect(ray, vertices, intersection)
+func (t *Tree) AABB() bounding.AABB {
+	return t.root.aabb
 }
 
-func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) bool {
-	return t.root.intersectP(ray, vertices)
+
+func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, intersection *primitive.Intersection) bool {
+	return t.root.intersect(ray, intersection)
+}
+
+func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
+	return t.root.intersectP(ray)
 }
 
 func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) (bool, primitive.Coordinates) {

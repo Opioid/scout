@@ -1,7 +1,9 @@
 package shape
 
 import (
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/core/scene/shape/triangle"
+	"github.com/Opioid/scout/core/scene/shape/triangle/bvh"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
@@ -97,8 +99,10 @@ func loadGeometry(i interface{}) Shape {
 	}
 
 	numTriangles := uint32(len(indices)) / 3
+	numVertices  := uint32(len(positions))
 
-	m := triangle.NewMesh(numTriangles, uint32(len(positions)))
+	triangles := make([]primitive.IndexTriangle, numTriangles)
+	vertices  := make([]geometry.Vertex, numVertices)
 
 	maxMaterialId := uint32(len(groups) - 1)
 
@@ -115,20 +119,22 @@ func loadGeometry(i interface{}) Shape {
 				a := uint32(indices[i * 3 + 0].(float64))
 				b := uint32(indices[i * 3 + 1].(float64))
 				c := uint32(indices[i * 3 + 2].(float64))
-				m.SetTriangle(i, primitive.MakeIndexTriangle(a, b, c, math.Minui(material, maxMaterialId)))
+
+				triangles[i] = primitive.MakeIndexTriangle(a, b, c, math.Minui(material, maxMaterialId))
 			}
 		}
 	}
 
+
 	for i, position := range positions {
-		m.SetPosition(uint32(i), pkgjson.ParseVector3(position))
-	}
+		vertices[i].P = pkgjson.ParseVector3(position)
+	}	
 
 	if n, ok := geometryNode["normals"]; ok {
 		normals := n.([]interface{})
 
 		for i, normal := range normals {
-			m.SetNormal(uint32(i), pkgjson.ParseVector3(normal))
+			vertices[i].N = pkgjson.ParseVector3(normal)
 		}
 	}
 
@@ -137,7 +143,8 @@ func loadGeometry(i interface{}) Shape {
 
 		for i, tangent := range tangents {
 			tas := pkgjson.ParseVector4(tangent)
-			m.SetTangentAndSign(uint32(i), tas.Vector3(), tas.W)
+			vertices[i].T = tas.Vector3()
+			vertices[i].BitangentSign = tas.W
 		}
 	}
 
@@ -145,11 +152,12 @@ func loadGeometry(i interface{}) Shape {
 		uvs := u.([]interface{})
 
 		for i, uv := range uvs {
-			m.SetUV(uint32(i), pkgjson.ParseVector2(uv))
+			vertices[i].UV = pkgjson.ParseVector2(uv)
 		}
 	}
 
-	m.Compile()
+	builder := bvh.Builder{}
+	tree := builder.Build(triangles, vertices, 8)
 
-	return m
+	return triangle.NewMesh(tree.AABB(), tree)
 }

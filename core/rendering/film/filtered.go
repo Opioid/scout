@@ -22,8 +22,8 @@ func NewFiltered(dimensions math.Vector2i, exposure float32, tonemapper tonemapp
 	radius := float32(1.0)//*/math32.Sqrt(0.5)
 
 //	f.filter = filter.NewTriangle(math.MakeVector2(radius, radius))
-//	f.filter = filter.NewGaussian(math.MakeVector2(radius, radius), 0.2)
-	f.filter = filter.NewMitchellNetravali(math.MakeVector2(radius, radius), 1.0 / 3.0, 1.0 / 3.0)
+	f.filter = filter.NewGaussian(math.MakeVector2(radius, radius), 0.2)
+//	f.filter = filter.NewMitchellNetravali(math.MakeVector2(radius, radius), 1.0 / 3.0, 1.0 / 3.0)
 
 	return f
 }

@@ -13,7 +13,7 @@ type Builder struct {
 
 }
 
-func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives int, tree *Tree) {
+func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives int) Tree {
 	primitiveIndices := make([]uint32, len(triangles))
 
 	for i := range primitiveIndices {
@@ -23,7 +23,7 @@ func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry
 	root := buildNode{}
 	root.split(primitiveIndices, triangles, vertices, maxPrimitives, 0)
 
-	tree.root = root
+	return Tree{root}
 }
 
 type buildNode struct {
@@ -95,7 +95,7 @@ var axis = [...]math.Vector3{
 	math.MakeVector3(0.0, 0.0, 1.0), 
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex, intersection *primitive.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, intersection *primitive.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -105,11 +105,11 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersect(ray, vertices, intersection) {
+		if n.children[c].intersect(ray, intersection) {
 			hit = true
 		} 
 
-		if n.children[1 - c].intersect(ray, vertices, intersection) {
+		if n.children[1 - c].intersect(ray, intersection) {
 			hit = true
 		}
 	} else {
@@ -143,7 +143,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, vertices []geometry.Vertex
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay, vertices []geometry.Vertex) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -151,11 +151,11 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, vertices []geometry.Verte
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersectP(ray, vertices) {
+		if n.children[c].intersectP(ray) {
 			return true
 		} 
 
-		return n.children[1 - c].intersectP(ray, vertices)
+		return n.children[1 - c].intersectP(ray)
 	}
 
 	
