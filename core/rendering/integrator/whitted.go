@@ -56,7 +56,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
 
-		l.Samples(intersection.Dg.P, subsample, 0.0, w.sampler, &w.lightSamples)
+		l.Samples(intersection.Dg.P, ray.Time, subsample, w.maxLightSamples, w.sampler, &w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 

@@ -44,7 +44,7 @@ func (u *Uniform) Restart(numIterations uint32) {
 	u.currentSample = 0
 }
 
-func (u *Uniform) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
+func (u *Uniform) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool {
 	if u.currentSample >= u.numSamples {
 		return false
 	}

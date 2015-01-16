@@ -31,8 +31,9 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 			sampler.Restart(1)
 			w.integrator.StartNewPixel(numSamples)
 			sampleId := uint32(0)
+			offset := math.MakeVector2(float32(x), float32(y))
 
-			for sampler.GenerateNewSample(math.MakeVector2(float32(x), float32(y)), &sample) {
+			for sampler.GenerateCameraSample(offset, &sample) {
 				camera.GenerateRay(&sample, shutterOpen, shutterClose, &ray)
 
 				color := w.Li(sampleId, scene, &ray) 

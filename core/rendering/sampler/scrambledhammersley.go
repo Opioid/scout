@@ -43,7 +43,7 @@ func (s *ScrambledHammersley) Restart(numIterations uint32) {
 	s.randomBits = s.rng.RandomUint32()
 }
 
-func (s *ScrambledHammersley) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
+func (s *ScrambledHammersley) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool {
 	if s.currentSample >= s.numSamplesPerIteration {
 		return false
 	}
@@ -68,4 +68,8 @@ func (s *ScrambledHammersley) GenerateSamples(iteration uint32) []math.Vector2 {
 	}
 
 	return s.samples
+}
+
+func (s *ScrambledHammersley) GenerateSample(index, iteration uint32) math.Vector2 {
+	return math.ScrambledHammersley(index + iteration * s.numSamplesPerIteration, s.numTotalSamples, s.randomBits)
 }

@@ -64,7 +64,7 @@ func (s *Stratified) Restart(numIterations uint32) {
 	s.currentSample = 0
 }
 
-func (s *Stratified) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
+func (s *Stratified) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool {
 	if s.currentSample >= s.numSamples {
 		return false
 	}

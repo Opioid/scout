@@ -38,7 +38,7 @@ func (h *Hammersley) Restart(numIterations uint32) {
 	h.numTotalSamples = h.numSamplesPerIteration * numIterations
 }
 
-func (h *Hammersley) GenerateNewSample(offset math.Vector2, sample *CameraSample) bool {
+func (h *Hammersley) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool {
 	if h.currentSample >= h.numSamplesPerIteration {
 		return false
 	}
