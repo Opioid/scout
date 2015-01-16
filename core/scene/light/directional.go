@@ -13,7 +13,7 @@ func NewDirectional() *Directional {
 	return &Directional{}
 }
 
-func (l *Directional) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Directional) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
 	s := Sample{}
 
 	transformation := l.entity.TransformationAt(time)

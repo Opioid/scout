@@ -17,7 +17,7 @@ func NewSphere(radius float32) *Sphere {
 	return &l
 }
 
-func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
 	transformation := l.entity.TransformationAt(time)
 
 	result := Sample{}

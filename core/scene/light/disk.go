@@ -16,7 +16,7 @@ func NewDisk(radius float32) *Disk {
 	return &d
 }
 
-func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
 	transformation := l.entity.TransformationAt(time)
 
 	result := Sample{}

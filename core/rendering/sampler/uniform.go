@@ -62,3 +62,7 @@ func (u *Uniform) GenerateCameraSample(offset math.Vector2, sample *CameraSample
 func (u *Uniform) GenerateSamples(iteration uint32) []math.Vector2 {
 	return u.samples
 }
+
+func (u *Uniform) GenerateSample(index, iteration uint32) math.Vector2 {
+	return u.samples[index]
+}

@@ -14,7 +14,7 @@ func NewPoint() *Point {
 	return &Point{}
 }
 
-func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler *sampler.ScrambledHammersley, samples *[]Sample) {
+func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
 	result := Sample{}
 
 	transformation := l.entity.TransformationAt(time)

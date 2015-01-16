@@ -7,9 +7,9 @@ type Generator struct {
 	z0, z1, z2, z3 uint32
 }
 
-func Make() Generator {
+func MakeGenerator(s0, s1, s2, s3 uint32) Generator {
 	g := Generator{}
-	g.Seed(0, 1, 2, 3)
+	g.Seed(s0, s1, s2, s3)
 	return g
 }
 

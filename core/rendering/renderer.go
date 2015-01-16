@@ -45,9 +45,8 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, numThreads ui
 
 		wg.Add(1)
 
-		go func () {	
-			rng := random.Generator{}
-			rng.Seed(i + 0, i + 1, i + 2, i + 3)
+		go func (index uint32) {	
+			rng := random.MakeGenerator(index + 0, index + 1, index + 2, index + 3)
 
 			worker := makeWorker(r.IntegratorFactory.New(&rng))
 
@@ -60,7 +59,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, numThreads ui
 			}
 
 			wg.Done()
-		}()
+		}(i)
 	}
 
 	wg.Wait()
