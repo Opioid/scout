@@ -38,7 +38,7 @@ func (w *whitted) StartNewPixel(numSamples uint32) {
 	w.sampler.Restart(numSamples)
 }
 
-func (w *whitted) Li(scene *pkgscene.Scene, tile *rendering.Tile, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	material := intersection.Material()
@@ -81,7 +81,7 @@ func (w *whitted) Li(scene *pkgscene.Scene, tile *rendering.Tile, subsample uint
 	if material.IsMirror() && ray.Depth < w.bounceDepth {
 		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
-		environment = tile.Li(scene, subsample, &secondaryRay)
+		environment = worker.Li(subsample, scene, &secondaryRay)
 	} else {
 		environment = scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
 	}

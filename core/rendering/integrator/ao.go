@@ -26,7 +26,7 @@ func (a *ao) StartNewPixel(numSamples uint32) {
 	a.sampler.Restart(numSamples)
 }
 
-func (a *ao) Li(scene *pkgscene.Scene, tile *rendering.Tile, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (a *ao) Li(worker *rendering.Worker, subsample uint32,scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
 	occlusionRay.Origin = intersection.Dg.P
 	occlusionRay.MinT = intersection.Epsilon
@@ -73,7 +73,7 @@ func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
 	a.rng = rng
 	a.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
 	a.numSamples = f.numSamples	
-	a.numSamplesReciprocal = 1.0 / float32(a.numSamples)
+	a.numSamplesReciprocal = f.numSamplesReciprocal
 	a.radius = f.radius
 
 	return a

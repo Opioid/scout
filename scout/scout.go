@@ -83,7 +83,7 @@ func main() {
 	renderStart := time.Now()
 
 	progressor := progress.NewStdout()
-	renderer.Render(&scene, &take.Context, progressor)
+	renderer.Render(&scene, &take.Context, uint32(runtime.NumCPU()), progressor)
 
 	renderDuration := time.Since(renderStart)
 	seconds = float64(renderDuration.Nanoseconds()) / 1000000000.0

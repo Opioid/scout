@@ -1,9 +1,7 @@
 package rendering
 
 import (
-	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	pkgscene "github.com/Opioid/scout/core/scene"
-	"github.com/Opioid/scout/core/scene/camera"
 	"github.com/Opioid/scout/core/progress"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
@@ -18,7 +16,7 @@ type Renderer struct {
 	currentPixel math.Vector2i
 }
 
-func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor progress.Sink) {
+func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, numThreads uint32, progressor progress.Sink) {
 	dimensions := context.Camera.Film().Dimensions()
 
 	shutterClose := context.ShutterOpen + context.Camera.ShutterSpeed()
@@ -26,40 +24,47 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, progressor pr
 	r.currentPixel = math.MakeVector2i(0, 0)
 	r.tileSize     = math.MakeVector2i(32, 32)
 
-	numSamplers := int(float32(dimensions.X) / float32(r.tileSize.X) + 0.5) * int(float32(dimensions.Y) / float32(r.tileSize.Y) + 0.5)
-	progressor.Start(numSamplers)
-
-	wg := sync.WaitGroup{}
+	numTiles := int(float32(dimensions.X) / float32(r.tileSize.X) + 0.5) * int(float32(dimensions.Y) / float32(r.tileSize.Y) + 0.5)
+	tiles := make(chan tile, numTiles)
 
 	for {
-		rng := random.Generator{}
-		rng.Seed(uint32(r.currentPixel.X) + 0, uint32(r.currentPixel.Y) + 1, uint32(r.currentPixel.X) + 2, uint32(r.currentPixel.Y) + 3)	
-
-		end := r.currentPixel.Add(r.tileSize).Min(dimensions)
-		sampler := context.Sampler.Clone(&rng)
-
-		wg.Add(1)
-
-		go func (tileStart, tileEnd math.Vector2i) {			
-			r.render(scene, context.Camera, context.ShutterOpen, shutterClose, tileStart, tileEnd, sampler, &rng)
-			progressor.Tick()
-			wg.Done()
-		}(r.currentPixel, end)
+		tiles <- tile{r.currentPixel, r.currentPixel.Add(r.tileSize).Min(dimensions)}
 
 		if !r.advanceCurrentPixel(dimensions) {
 			break
-		}
+		}		
+	}
+
+	close(tiles)
+
+	progressor.Start(numTiles)
+
+	wg := sync.WaitGroup{}
+
+	for i := uint32(0); i < numThreads; i++ {
+
+		wg.Add(1)
+
+		go func () {	
+			rng := random.Generator{}
+			rng.Seed(i + 0, i + 1, i + 2, i + 3)
+
+			worker := makeWorker(r.IntegratorFactory.New(&rng))
+
+			sampler := context.Sampler.Clone(&rng)
+
+			for tile := range tiles {
+				worker.render(scene, context.Camera, context.ShutterOpen, shutterClose, tile.start, tile.end, sampler)
+
+				progressor.Tick()
+			}
+
+			wg.Done()
+		}()
 	}
 
 	wg.Wait()
 	progressor.End()
-}
-
-func (r *Renderer) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen, shutterClose float32,
-						  start, end math.Vector2i, sampler pkgsampler.Sampler, rng *random.Generator) {
-	tile := makeTile(r, r.IntegratorFactory.New(rng))
-
-	tile.render(scene, camera, shutterOpen, shutterClose, start, end, sampler)
 }
 
 func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
@@ -75,4 +80,8 @@ func (r *Renderer) advanceCurrentPixel(dimensions math.Vector2i) bool {
 	}
 
 	return true
+}
+
+type tile struct {
+	start, end math.Vector2i
 }

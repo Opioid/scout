@@ -338,7 +338,7 @@ func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
-	numSamples := uint32(1)
+	numSamples := uint32(4)
 	radius := float32(1.0)
 
 	for key, value := range integratorNode {
