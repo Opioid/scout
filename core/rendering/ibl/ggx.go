@@ -30,7 +30,7 @@ func IntegrateGgxBrdf(numSamples uint32, buffer buffer.Buffer) {
 
 			brdf := intefrateBrdf(roughness, v, numSamples)
 
-			buffer.Set(x, y, math.MakeVector4(brdf.X, brdf.Y, 0, 1))
+			buffer.Set(x, y, math.MakeVector4(brdf.X, brdf.Y, 0.0, 1.0))
 		}
 	}
 
@@ -85,13 +85,13 @@ float2 integrate_brdf(float roughness, float n_dot_v, uint32_t num_samples)
 }*/
 
 func intefrateBrdf(roughness, n_dot_v float32, numSamples uint32) math.Vector2 {
-	n := math.MakeVector3(0, 0, 1)
+	n := math.MakeVector3(0.0, 0.0, 1.0)
 
 	n_dot_v = math32.Max(n_dot_v, 0.00001)
 
 	var v math.Vector3
-	v.X = math32.Sqrt(1 - n_dot_v * n_dot_v) // sin
-	v.Y = 0
+	v.X = math32.Sqrt(1.0 - n_dot_v * n_dot_v) // sin
+	v.Y = 0.0
 	v.Z = n_dot_v // cos
 
 	a := float32(0)
@@ -100,18 +100,18 @@ func intefrateBrdf(roughness, n_dot_v float32, numSamples uint32) math.Vector2 {
 	for i := uint32(0); i < numSamples; i++ {
 		xi := math.Hammersley(i, numSamples)
 		h  := ggx.ImportanceSample(xi, roughness, n)
-		l  := h.Scale(2 * v.Dot(h)).Sub(v)
+		l  := h.Scale(2.0 * v.Dot(h)).Sub(v)
 
 		n_dot_l := math.Saturate(l.Z)
 		n_dot_h := math.Saturate(h.Z)
 		v_dot_h := math.Saturate(v.Dot(h))	
 
-		if n_dot_l > 0 {
+		if n_dot_l > 0.0 {
 			g := ggx.G_smith(roughness, n_dot_v, n_dot_l)
 			g_vis := g * v_dot_h / (n_dot_h * n_dot_v)
-			fc := math.Pow(1 - v_dot_h, 5)
+			fc := math.Pow(1.0 - v_dot_h, 5.0)
 
-			a += (1 - fc) * g_vis
+			a += (1.0 - fc) * g_vis
 			b += fc * g_vis
 		}	
 

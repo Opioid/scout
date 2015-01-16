@@ -33,20 +33,20 @@ vec3 importance_sample_GGX(vec2 xi, float roughness, vec3 n)
 func ImportanceSample(xi math.Vector2, roughness float32, n math.Vector3) math.Vector3 {
 	a := roughness * roughness
 
-	phi := 2 * gomath.Pi * xi.X
+	phi := 2.0 * gomath.Pi * xi.X
 
-	cos_theta := math32.Sqrt((1 - xi.Y) / (1 + (a * a - 1) * xi.Y))
+	cos_theta := math32.Sqrt((1.0 - xi.Y) / (1.0 + (a * a - 1.0) * xi.Y))
 
-	sin_theta := math32.Sqrt(1 - cos_theta * cos_theta)
+	sin_theta := math32.Sqrt(1.0 - cos_theta * cos_theta)
 
 	h := math.MakeVector3(sin_theta * math.Cos(phi), sin_theta * math.Sin(phi), cos_theta)
 
 	var up math.Vector3
 
 	if math32.Abs(n.Z) < 0.999 {
-		up = math.MakeVector3(0, 0, 1)
+		up = math.MakeVector3(0.0, 0.0, 1.0)
 	} else {
-		up = math.MakeVector3(1, 0, 0)
+		up = math.MakeVector3(1.0, 0.0, 0.0)
 	}
 
 	tangent_x := up.Cross(n).Normalized()

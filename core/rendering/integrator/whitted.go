@@ -20,7 +20,7 @@ type whittedSettings struct {
 	maxLightSamples uint32
 
 	linearSampler_repeat texture.Sampler2D
-	nearestSampler_clamp texture.Sampler2D
+	linearSampler_clamp texture.Sampler2D
 
 	brdf *texture.Texture2D	
 }
@@ -86,9 +86,11 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 		environment = scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
 	}
 
-	pi_brdf := w.nearestSampler_clamp.Sample(w.brdf, math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
+	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
 
-	result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
+//	result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
+
+	result.AddAssign(environment.Mul(brdf.F0.Scale(pi_brdf.X).AddS(pi_brdf.Y)))
 
 	return result
 }
@@ -104,7 +106,7 @@ func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
 	f.maxLightSamples = maxLightSamples
 
 	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat)) 
-	f.nearestSampler_clamp = texture.NewSampler2D_nearest(new(texture.AddressMode_clamp)) 
+	f.linearSampler_clamp = texture.NewSampler2D_linear(new(texture.AddressMode_clamp)) 
 
 	f.brdf = texture.NewTexture2D(buffer.Float4, math.MakeVector2i(128, 128), 1)
 	ibl.IntegrateGgxBrdf(1024, f.brdf.Image.Buffers[0])
@@ -124,7 +126,7 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
 
 	w.linearSampler_repeat = f.linearSampler_repeat
-	w.nearestSampler_clamp = f.nearestSampler_clamp
+	w.linearSampler_clamp = f.linearSampler_clamp
 	w.brdf = f.brdf
 
 	return w
