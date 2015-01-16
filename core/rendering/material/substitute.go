@@ -50,11 +50,11 @@ func MakeSubstituteBrdf(color math.Vector3, opacity, roughness, metallic float32
 	brdf := SubstituteBrdf{}
 
 	brdf.Color = color
-	brdf.DiffuseColor = color.Scale(1 - metallic).Scale(opacity)
+	brdf.DiffuseColor = color.Scale(1.0 - metallic).Scale(opacity)
 	brdf.Opacity = opacity
 	brdf.N = n
 	brdf.v = v
-	brdf.N_dot_v = math32.Max(n.Dot(v), 0)
+	brdf.N_dot_v = math32.Max(n.Dot(v), 0.0)
 
 	brdf.F0 = math.MakeVector3(0.03, 0.03, 0.03).Lerp(color, metallic).Scale(opacity)
 	
