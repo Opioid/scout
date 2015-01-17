@@ -51,6 +51,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 
 	material := intersection.Material()
 	brdf := material.Sample(&intersection.Dg, v, w.linearSampler_repeat)
+	values := brdf.Values()
 
 	for _, l := range scene.Lights {
 		w.lightSamples = w.lightSamples[:0]
@@ -70,10 +71,10 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 		}
 	}
 
-	ambientColor := scene.Surrounding.SampleDiffuse(brdf.N)
-	result.AddAssign(ambientColor.Mul(brdf.DiffuseColor))
+	ambientColor := scene.Surrounding.SampleDiffuse(values.N)
+	result.AddAssign(ambientColor.Mul(values.DiffuseColor))
 
-	reflection := brdf.N.Reflect(ray.Direction).Normalized()
+	reflection := values.N.Reflect(ray.Direction).Normalized()
 
 	var environment math.Vector3
 
@@ -82,15 +83,18 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 
 		environment = worker.Li(subsample, scene, &secondaryRay)
 	} else {
-		environment = scene.Surrounding.SampleSpecular(reflection, brdf.Roughness)
+		environment = scene.Surrounding.SampleSpecular(reflection, values.Roughness)
 	}
 
-	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
+	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(values.Roughness, values.N_dot_v))
 
-	result.AddAssign(environment.Mul(brdf.F0.Scale(pi_brdf.X).AddS(pi_brdf.Y)))
+	result.AddAssign(environment.Mul(values.F0.Scale(pi_brdf.X).AddS(pi_brdf.Y)))
+
+	material.Free(brdf)
 
 	return result
 }
+
 
 type whittedFactory struct {
 	whittedSettings

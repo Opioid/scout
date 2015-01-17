@@ -23,8 +23,8 @@ func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint3
 
 	tsamples := sampler.GenerateSamples(subsample)
 
-	for _, sample := range tsamples {
-		ls := math.DiskSample_uniform(sample.X, sample.Y)
+	for i := range tsamples {
+		ls := math.DiskSample_uniform(tsamples[i].X, tsamples[i].Y)
 		ws := transformation.Rotation.TransformVector3(ls).Scale(l.radius)
 
 		v := transformation.Rotation.Direction().Scale(-1.0).Add(ws)

@@ -8,11 +8,10 @@ import (
 )
 
 type Material interface {
-	Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) renderingmaterial.Values
+	Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) renderingmaterial.Sample
+
+	Free(sample renderingmaterial.Sample)
 
 	IsMirror() bool
 }
 
-type Sample interface {
-	Evaluate(l math.Vector3) math.Vector3
-}

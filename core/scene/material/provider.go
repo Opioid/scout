@@ -13,11 +13,17 @@ import (
 
 type Provider struct {
 	materials map[string]Material
+
+
+	substitutePool *substitute.Pool
 }
 
 func NewProvider() *Provider {
 	p := Provider{}
 	p.materials = make(map[string]Material)
+
+	p.substitutePool = substitute.NewPool(6)
+
 	return &p
 }
 
@@ -41,13 +47,11 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	root := document.(map[string]interface{})
 
 	r, ok := root["rendering"]
-
 	if !ok {
 		return nil
 	}
 
 	renderingNode, ok := r.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -57,7 +61,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	for key, value := range renderingNode {
 		switch key {
 		case "Substitute":
-			material = loadSubstitute(value, tp)				
+			material = p.loadSubstitute(value, tp)				
 		}
 	}	
 
@@ -68,9 +72,8 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	return material
 }
 
-func loadSubstitute(i interface{}, tp *texture.Provider) Material {
+func (p *Provider) loadSubstitute(i interface{}, tp *texture.Provider) Material {
 	node, ok := i.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -113,15 +116,15 @@ func loadSubstitute(i interface{}, tp *texture.Provider) Material {
 
 	if colorMap != nil {
 		if normalMap != nil {
-			material = substitute.NewColorMap_NormalMap(roughness, metallic, colorMap, normalMap)
+			material = substitute.NewColorMap_NormalMap(roughness, metallic, colorMap, normalMap, p.substitutePool)
 		} else {
-			material = substitute.NewColorMap(roughness, metallic, colorMap)
+			material = substitute.NewColorMap(roughness, metallic, colorMap, p.substitutePool)
 		}
 	} else {
 		if normalMap != nil {
-			material = substitute.NewColorConstant_NormalMap(color, roughness, metallic, normalMap)
+			material = substitute.NewColorConstant_NormalMap(color, roughness, metallic, normalMap, p.substitutePool)
 		} else {		
-			material = substitute.NewColorConstant(color, roughness, metallic)
+			material = substitute.NewColorConstant(color, roughness, metallic, p.substitutePool)
 		}
 	}
 
@@ -130,7 +133,6 @@ func loadSubstitute(i interface{}, tp *texture.Provider) Material {
 
 func readFilename(i interface{}) (string, string) {
 	node, ok := i.(map[string]interface{})
-
 	if !ok {
 		return "", ""
 	}
