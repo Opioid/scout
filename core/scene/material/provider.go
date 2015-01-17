@@ -1,7 +1,7 @@
 package material
 
 import (
-	pkgmaterial "github.com/Opioid/scout/core/rendering/material"
+	"github.com/Opioid/scout/core/rendering/material/substitute"
 	"github.com/Opioid/scout/core/rendering/texture"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
 	"github.com/Opioid/scout/base/math"
@@ -113,15 +113,15 @@ func loadSubstitute(i interface{}, tp *texture.Provider) Material {
 
 	if colorMap != nil {
 		if normalMap != nil {
-			material = pkgmaterial.NewSubstitute_ColorMap_NormalMap(roughness, metallic, colorMap, normalMap)
+			material = substitute.NewColorMap_NormalMap(roughness, metallic, colorMap, normalMap)
 		} else {
-			material = pkgmaterial.NewSubstitute_ColorMap(roughness, metallic, colorMap)
+			material = substitute.NewColorMap(roughness, metallic, colorMap)
 		}
 	} else {
 		if normalMap != nil {
-			material = pkgmaterial.NewSubstitute_ColorConstant_NormalMap(color, roughness, metallic, normalMap)
+			material = substitute.NewColorConstant_NormalMap(color, roughness, metallic, normalMap)
 		} else {		
-			material = pkgmaterial.NewSubstitute_ColorConstant(color, roughness, metallic)
+			material = substitute.NewColorConstant(color, roughness, metallic)
 		}
 	}
 

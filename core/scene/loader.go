@@ -10,11 +10,11 @@ import (
 	"github.com/Opioid/scout/core/resource"
 	"github.com/Opioid/scout/base/math"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
-	_ "github.com/Opioid/scout/base/file"
+	"github.com/Opioid/scout/base/file"
 	"io/ioutil"
 	"encoding/json"
 	"os"
-	_ "path/filepath"
+	"path/filepath"
 	"fmt"
 )
 
@@ -102,28 +102,38 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 
 		filename := textureNode["file"].(string)
 
-	/*	filenameBase := file.WithoutExt(filepath.Base(filename))
+		usaCache := false
 
-		diffuseTextureName  := filenameBase  + "_diffuse.sui"
-		specularTextureName := filenameBase  + "_specular.sui"
+		if usaCache {
+			filenameBase := file.WithoutExt(filepath.Base(filename))
 
-		diffuseTexture  := loadCachedTexture(diffuseTextureName)
-		specularTexture := loadCachedTexture(specularTextureName)
+			diffuseTextureName  := filenameBase  + "_diffuse.sui"
+			specularTextureName := filenameBase  + "_specular.sui"
 
-		if diffuseTexture != nil && specularTexture != nil {
-			loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
-			fmt.Println("Found cached surrounding.")
-		} else */{
+			diffuseTexture  := loadCachedTexture(diffuseTextureName)
+			specularTexture := loadCachedTexture(specularTextureName)
+
+			if diffuseTexture != nil && specularTexture != nil {
+				loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
+				fmt.Println("Found cached surrounding.")
+			} else {
+				if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, texture.Config{Usage: texture.RGBA}); sphericalTexture != nil {
+					s := surrounding.NewSphere(sphericalTexture)
+
+					loader.scene.Surrounding = s
+
+					saveCachedTexture(diffuseTextureName, s.DiffuseTexture())
+					saveCachedTexture(specularTextureName, s.SpecularTexture())
+
+					fmt.Println("Created cached surrounding.")
+				} 
+			}
+		} else {
 			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, texture.Config{Usage: texture.RGBA}); sphericalTexture != nil {
 				s := surrounding.NewSphere(sphericalTexture)
 
 				loader.scene.Surrounding = s
-
-			//	saveCachedTexture(diffuseTextureName, s.DiffuseTexture())
-			//	saveCachedTexture(specularTextureName, s.SpecularTexture())
-
-			//	fmt.Println("Created cached surrounding.")
-			} 
+			}
 		}
 	}
 }
