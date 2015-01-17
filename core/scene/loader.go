@@ -447,7 +447,13 @@ func (loader *Loader) loadMaterials(i interface{}) []material.Material {
 	materials := make([]material.Material, len(materialsNode))
 
 	for c, m := range materialsNode {
-		materials[c] = loader.resourceManager.LoadMaterial(m.(string))
+		material := loader.resourceManager.LoadMaterial(m.(string))
+
+		if material == nil {
+			return nil
+		}
+
+		materials[c] = material
 	}
 
 	return materials

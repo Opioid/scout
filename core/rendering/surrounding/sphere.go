@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	numSamples = 16
+	numSamples = 1
 )
 
 type sphere struct {
@@ -42,7 +42,7 @@ func NewSphere(sphericalTexture *texture.Texture2D) *sphere {
 
 	s.maxRoughnessMip = float32(numMipLevels - 1)
 
-	roughnessIncrement := 1 / s.maxRoughnessMip
+	roughnessIncrement := 1.0 / s.maxRoughnessMip
 
 	for i := uint32(1); i < numMipLevels; i++ {
 		ibl.IntegrateConeSphereMap(s, float32(i) * roughnessIncrement, numSamples, sphericalTexture.Image.Buffers[i])

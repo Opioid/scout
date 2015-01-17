@@ -7,6 +7,7 @@ import (
 	gocolor "image/color"
 	"runtime"
 	"sync"
+	_ "fmt"
 )
 
 type float4 struct {

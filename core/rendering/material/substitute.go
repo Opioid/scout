@@ -75,7 +75,5 @@ func (brdf *SubstituteBrdf) Evaluate(l math.Vector3) math.Vector3 {
 
 	specular := specular_f(v_dot_h, brdf.F0).Scale(specular_d(n_dot_h, brdf.a2)).Scale(specular_g(n_dot_l, brdf.N_dot_v, brdf.a2))
 
-	r := brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
-
-	return r
+	return brdf.DiffuseColor.Add(specular).Scale(n_dot_l)
 }

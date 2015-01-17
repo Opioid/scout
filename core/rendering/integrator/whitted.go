@@ -88,8 +88,6 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 
 	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(brdf.Roughness, brdf.N_dot_v))
 
-//	result.AddAssign(environment.Scale(pi_brdf.X + pi_brdf.Y).Mul(brdf.F0))
-
 	result.AddAssign(environment.Mul(brdf.F0.Scale(pi_brdf.X).AddS(pi_brdf.Y)))
 
 	return result
