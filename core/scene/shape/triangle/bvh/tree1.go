@@ -25,7 +25,6 @@ func (t *Tree1) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT flo
 	return t.intersectNode(0, ray, intersection)
 }
 
-
 func (t *Tree1) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
 	return t.intersectNodeP(0, ray)
 }

@@ -80,7 +80,6 @@ func loadGeometry(i interface{}) Shape {
 
 	var parts []interface{}
 	var indices []interface{}
-	var positions []interface{}
 
 	if p, ok := geometryNode["groups"]; ok {
 		parts = p.([]interface{})
@@ -90,19 +89,14 @@ func loadGeometry(i interface{}) Shape {
 		indices = i.([]interface{})
 	}
 
-	if p, ok := geometryNode["positions"]; ok {
-		positions = p.([]interface{})
-	}
-
-	if parts == nil || indices == nil || positions == nil {
+	if parts == nil || indices == nil {
 		return nil
 	}
 
 	numTriangles := uint32(len(indices)) / 3
-	numVertices  := uint32(len(positions))
+
 
 	triangles := make([]primitive.IndexTriangle, numTriangles)
-	vertices  := make([]geometry.Vertex, numVertices)
 
 	maxMaterialId := uint32(len(parts) - 1)
 
@@ -125,10 +119,21 @@ func loadGeometry(i interface{}) Shape {
 		}
 	}
 
+	var vertices []geometry.Vertex
 
-	for i, position := range positions {
-		vertices[i].P = pkgjson.ParseVector3(position)
-	}	
+	if p, ok := geometryNode["positions"]; ok {
+		positions := p.([]interface{})
+
+		numVertices  := uint32(len(positions))
+
+		vertices = make([]geometry.Vertex, numVertices)
+
+		for i, position := range positions {
+			vertices[i].P = pkgjson.ParseVector3(position)
+		}
+	} else {
+		return nil
+	}
 
 	if n, ok := geometryNode["normals"]; ok {
 		normals := n.([]interface{})
