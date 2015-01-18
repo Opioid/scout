@@ -17,7 +17,9 @@ func NewSphere(radius float32) *Sphere {
 	return &l
 }
 
-func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
+func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+	samples = samples[:0]
+
 	transformation := l.entity.TransformationAt(time)
 
 	result := Sample{}
@@ -37,7 +39,7 @@ func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uin
 		result.L = v.Div(math32.Sqrt(d))
 		result.Energy = l.color.Scale(i * l.lumen)
 
-		*samples = append(*samples, result)
+		samples = append(samples, result)
 	}
 */
 
@@ -55,6 +57,8 @@ func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uin
 		result.L = v.Div(math32.Sqrt(d))
 		result.Energy = l.color.Scale(i * l.lumen)
 
-		*samples = append(*samples, result)		
+		samples = append(samples, result)		
 	}
+
+	return samples	
 }

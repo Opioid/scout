@@ -14,7 +14,9 @@ func NewPoint() *Point {
 	return &Point{}
 }
 
-func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
+func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+	samples = samples[:0]
+
 	result := Sample{}
 
 	transformation := l.entity.TransformationAt(time)
@@ -27,5 +29,7 @@ func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint
 	result.L = v.Div(math32.Sqrt(d))
 	result.Energy = l.color.Scale(i * l.lumen)
 
-	*samples = append(*samples, result)
+	samples = append(samples, result)
+
+	return samples
 }

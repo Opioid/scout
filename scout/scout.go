@@ -35,8 +35,8 @@ import (
 
 func main() {
 	cfg := profile.Config {
-		CPUProfile:     false,
-		MemProfile:  true,
+		CPUProfile:     true,
+		MemProfile:  	false,
 		ProfilePath:    ".",  // store profiles in current directory
 		NoShutdownHook: true, // do not hook SIGINT
 	}
@@ -49,7 +49,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/dragon.take"
+	takename := "../data/takes/light_test.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)

@@ -16,7 +16,9 @@ func NewDisk(radius float32) *Disk {
 	return &d
 }
 
-func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples *[]Sample) {
+func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+	samples = samples[:0]
+
 	transformation := l.entity.TransformationAt(time)
 
 	result := Sample{}
@@ -32,6 +34,8 @@ func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint3
 		result.L = v.Normalized()
 		result.Energy = l.color
 
-		*samples = append(*samples, result)
-	}	
+		samples = append(samples, result)
+	}
+
+	return samples
 }

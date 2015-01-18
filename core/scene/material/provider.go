@@ -1,6 +1,7 @@
 package material
 
 import (
+	"github.com/Opioid/scout/core/rendering/material/glass"
 	"github.com/Opioid/scout/core/rendering/material/substitute"
 	"github.com/Opioid/scout/core/rendering/texture"
 	pkgjson "github.com/Opioid/scout/base/parsing/json"
@@ -14,14 +15,15 @@ import (
 type Provider struct {
 	materials map[string]Material
 
-
-	substitutePool *substitute.Pool
+	glassPool 		*glass.Pool
+	substitutePool 	*substitute.Pool
 }
 
 func NewProvider() *Provider {
 	p := Provider{}
 	p.materials = make(map[string]Material)
 
+	p.glassPool 	 = glass.NewPool(6)
 	p.substitutePool = substitute.NewPool(6)
 
 	return &p
@@ -60,6 +62,8 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 
 	for key, value := range renderingNode {
 		switch key {
+		case "Glass":
+			material = p.loadGlass(value, tp)
 		case "Substitute":
 			material = p.loadSubstitute(value, tp)				
 		}
@@ -72,6 +76,48 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	return material
 }
 
+func (p *Provider) loadGlass(i interface{}, tp *texture.Provider) Material {
+	node, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	color := math.MakeVector3(0.75, 0.75, 0.75)
+	var normalMap *texture.Texture2D
+
+	for key, value := range node {
+		switch key {
+		case "textures":
+			textures, ok := value.([]interface{})
+
+			if !ok {
+				break 
+			}
+
+			for _, t := range textures {
+				texturename, usage := readFilename(t)
+
+				if usage == "Normal" {
+					normalMap = tp.Load2D(texturename, texture.Config{Usage: texture.Normal})
+				}
+			}
+
+		case "color":
+			color = pkgjson.ParseVector3(value)
+		}
+	}
+
+	var material Material
+
+	if normalMap != nil {
+		material = glass.NewColorConstant_NormalMap(color, normalMap, p.glassPool)
+	} else {		
+		material = glass.NewColorConstant(color, p.glassPool)
+	}
+
+	return material
+}
+
 func (p *Provider) loadSubstitute(i interface{}, tp *texture.Provider) Material {
 	node, ok := i.(map[string]interface{})
 	if !ok {
@@ -79,8 +125,8 @@ func (p *Provider) loadSubstitute(i interface{}, tp *texture.Provider) Material 
 	}
 
 	color     := math.MakeVector3(0.75, 0.75, 0.75)
-	roughness := float32(1)
-	metallic  := float32(0)
+	roughness := float32(1.0)
+	metallic  := float32(0.0)
 	var colorMap, normalMap *texture.Texture2D
 
 	for key, value := range node {
