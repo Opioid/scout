@@ -14,10 +14,10 @@ import (
 type Mesh struct {
 	aabb bounding.AABB
 
-	tree bvh.Tree
+	tree bvh.Tree1
 }
 
-func NewMesh(aabb bounding.AABB, tree bvh.Tree) *Mesh {
+func NewMesh(aabb bounding.AABB, tree bvh.Tree1) *Mesh {
 	m := Mesh{aabb: aabb, tree: tree}
 
 	return &m

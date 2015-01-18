@@ -156,7 +156,7 @@ func loadGeometry(i interface{}) Shape {
 		}
 	}
 
-	builder := bvh.Builder{}
+	builder := bvh.Builder1{}
 	tree := builder.Build(triangles, vertices, 8)
 
 	return triangle.NewMesh(tree.AABB(), tree)

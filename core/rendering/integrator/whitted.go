@@ -81,7 +81,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	if material.IsMirror() && ray.Depth < w.maxBounces {
 	//	secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
-		// If this is the second (or more) bounce, this will overwrite ray, because they are actually the same memory!
+		// If this is the second (or more) bounce, this will overwrite ray, because they are actually refering to the same memory!
 		w.secondaryRay.Set(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
 		environment = worker.Li(subsample, scene, &w.secondaryRay)
