@@ -63,6 +63,8 @@ func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.Index
 			}
 		}
 
+		primitiveIndices = nil
+
 		n.children[0] = new(buildNode)
 		n.children[1] = new(buildNode)
 

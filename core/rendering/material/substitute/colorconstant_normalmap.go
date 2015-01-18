@@ -33,7 +33,8 @@ func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vecto
 
 	n := tangentToWorldSpace.TransformVector3(nm).Normalized()
 
-	s := new(Sample)
+//	s := new(Sample)
+	s := m.pool.Get(workerId)
 	s.values.Set(m.color, 1, m.roughness, m.metallic, n, v)
 	return s	
 }
