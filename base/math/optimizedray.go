@@ -23,6 +23,15 @@ func MakeOptimizedRay(origin, direction Vector3, mint, maxt float32, time float3
 	return r
 }
 
+func (r *OptimizedRay) Set(origin, direction Vector3, mint, maxt float32, time float32, depth uint32) {
+	r.Origin = origin
+	r.SetDirection(direction)
+	r.MinT = mint
+	r.MaxT = maxt
+	r.Time = time
+	r.Depth = depth
+}
+
 func (r *OptimizedRay) SetDirection(direction Vector3) {
 	r.Direction = direction
 	r.ReciprocalDirection = MakeVector3(1.0 / direction.X, 1.0 / direction.Y, 1.0 / direction.Z)

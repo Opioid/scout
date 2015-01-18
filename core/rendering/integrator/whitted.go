@@ -15,9 +15,12 @@ import (
 )
 
 type whittedSettings struct {
-	bounceDepth uint32
+	maxBounces uint32
 
 	maxLightSamples uint32
+
+	shadowRay math.OptimizedRay
+	secondaryRay math.OptimizedRay
 
 	linearSampler_repeat texture.Sampler2D
 	linearSampler_clamp texture.Sampler2D
@@ -41,11 +44,10 @@ func (w *whitted) StartNewPixel(numSamples uint32) {
 func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
-	shadowRay := math.OptimizedRay{}
-	shadowRay.Origin = intersection.Dg.P
-	shadowRay.MinT = intersection.Epsilon
-	shadowRay.MaxT = 1000.0
-	shadowRay.Time = ray.Time
+	w.shadowRay.Origin = intersection.Dg.P
+	w.shadowRay.MinT = intersection.Epsilon
+	w.shadowRay.MaxT = 1000.0
+	w.shadowRay.Time = ray.Time
 
 	v := ray.Direction.Scale(-1.0)
 
@@ -61,9 +63,9 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
 		for _, s := range w.lightSamples {
-			shadowRay.SetDirection(s.L)
+			w.shadowRay.SetDirection(s.L)
 
-			if !scene.IntersectP(&shadowRay) {
+			if !scene.IntersectP(&w.shadowRay) {
 				r := brdf.Evaluate(s.L)
 
 				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))		
@@ -78,10 +80,13 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 
 	var environment math.Vector3
 
-	if material.IsMirror() && ray.Depth < w.bounceDepth {
-		secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
+	if material.IsMirror() && ray.Depth < w.maxBounces {
+	//	secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
-		environment = worker.Li(subsample, scene, &secondaryRay)
+		// If this is the second (or more) bounce, this will overwrite ray, because they are actually the same memory!
+		w.secondaryRay.Set(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
+
+		environment = worker.Li(subsample, scene, &w.secondaryRay)
 	} else {
 		environment = scene.Surrounding.SampleSpecular(reflection, values.Roughness)
 	}
@@ -95,15 +100,18 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	return result
 }
 
+func (w *whitted) MaxBounces() uint32 {
+	return w.maxBounces
+}
 
 type whittedFactory struct {
 	whittedSettings
 }
 
-func NewWhittedFactory(bounceDepth, maxLightSamples uint32) *whittedFactory {
+func NewWhittedFactory(maxBounces, maxLightSamples uint32) *whittedFactory {
 	f := new(whittedFactory)
 
-	f.bounceDepth = bounceDepth
+	f.maxBounces = maxBounces
 	f.maxLightSamples = maxLightSamples
 
 	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat)) 
@@ -119,7 +127,7 @@ func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
 	w := new(whitted)
 
 	w.rng = rng
-	w.bounceDepth = f.bounceDepth
+	w.maxBounces = f.maxBounces
 	w.maxLightSamples = f.maxLightSamples
 //	w.sampler = pkgsampler.MakeStratified(rng)
 //	w.sampler.Resize(math.MakeVector2i(4, 4))

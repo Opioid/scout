@@ -53,6 +53,10 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32,scene *pkgscene.Scene
 	return math.MakeVector3(result, result, result)
 }
 
+func (a *ao) MaxBounces() uint32 {
+	return 0
+}
+
 type aoFactory struct {
 	aoSettings
 }

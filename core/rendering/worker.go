@@ -11,10 +11,17 @@ import (
 
 type Worker struct {
 	integrator Integrator
+	sample pkgsampler.CameraSample
+	ray math.OptimizedRay
+	intersections []prop.Intersection
 } 
 
 func makeWorker(integrator Integrator) Worker {
-	w := Worker{integrator}
+	w := Worker{integrator: integrator}
+
+	// To reduce strain on the GC the max amount of intersection is alloceted once only.
+	// I believe it would be possible to design the integrators so that only one intersection is ever needed regardless of depth.
+	w.intersections = make([]prop.Intersection, integrator.MaxBounces() + 1)
 	return w
 }
 
@@ -23,9 +30,6 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 
 	numSamples := sampler.NumSamplesPerIteration()
 
-	var sample pkgsampler.CameraSample
-	var ray math.OptimizedRay
-
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			sampler.Restart(1)
@@ -33,12 +37,12 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 			sampleId := uint32(0)
 			offset := math.MakeVector2(float32(x), float32(y))
 
-			for sampler.GenerateCameraSample(offset, &sample) {
-				camera.GenerateRay(&sample, shutterOpen, shutterClose, &ray)
+			for sampler.GenerateCameraSample(offset, &w.sample) {
+				camera.GenerateRay(&w.sample, shutterOpen, shutterClose, &w.ray)
 
-				color := w.Li(sampleId, scene, &ray) 
+				color := w.Li(sampleId, scene, &w.ray) 
 
-				f.AddSample(&sample, color, start, end)
+				f.AddSample(&w.sample, color, start, end)
 
 				sampleId++
 			}
@@ -47,10 +51,10 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 }
 
 func (w *Worker) Li(subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay) math.Vector3 {
-	var intersection prop.Intersection
+	intersection := &w.intersections[ray.Depth]
 
-	if scene.Intersect(ray, &intersection) {
-		c := w.integrator.Li(w, subsample, scene, ray, &intersection) 
+	if scene.Intersect(ray, intersection) {
+		c := w.integrator.Li(w, subsample, scene, ray, intersection) 
 		return c
 	} else {
 		c := scene.Surrounding.Sample(ray)

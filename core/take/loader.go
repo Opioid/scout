@@ -316,19 +316,19 @@ func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
-	bounceDepth := uint32(1)
+	maxBounces := uint32(1)
 	maxLightSamples := uint32(16)
 
 	for key, value := range integratorNode {
 		switch key {
-		case "bounce_depth":
-			bounceDepth = uint32(value.(float64))
+		case "max_bounces":
+			maxBounces = uint32(value.(float64))
 		case "max_light_samples":
 			maxLightSamples = uint32(value.(float64))
 		}
 	}
 
-	return integrator.NewWhittedFactory(bounceDepth, maxLightSamples)
+	return integrator.NewWhittedFactory(maxBounces, maxLightSamples)
 }
 
 func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
