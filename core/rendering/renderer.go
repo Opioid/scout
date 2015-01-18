@@ -48,7 +48,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, numThreads ui
 		go func (index uint32) {	
 			rng := random.MakeGenerator(index + 0, index + 1, index + 2, index + 3)
 
-			worker := makeWorker(r.IntegratorFactory.New(&rng))
+			worker := makeWorker(r.IntegratorFactory.New(index, &rng))
 
 			sampler := context.Sampler.Clone(&rng)
 

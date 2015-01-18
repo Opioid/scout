@@ -26,7 +26,7 @@ func NewColorConstant_NormalMap(color math.Vector3, roughness, metallic float32,
 	return m
 }
 
-func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) material.Sample {
+func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
 	nm := sampler.Sample(m.normalMap, dg.UV).Vector3()
 
 	tangentToWorldSpace := math.MakeMatrix3x3FromAxes(dg.T, dg.B, dg.N)

@@ -35,7 +35,8 @@ import (
 
 func main() {
 	cfg := profile.Config {
-		CPUProfile:     true,
+		CPUProfile:     false,
+		MemProfile:  true,
 		ProfilePath:    ".",  // store profiles in current directory
 		NoShutdownHook: true, // do not hook SIGINT
 	}

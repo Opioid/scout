@@ -24,11 +24,11 @@ func NewColorMap(roughness, metallic float32, colorMap *texture.Texture2D, pool 
 	return m
 }
 
-func (m *ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) material.Sample {
+func (m *ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
 	cs := sampler.Sample(m.colorMap, dg.UV)
 
-	s := new(Sample)
-//	s := m.pool.Borrow()
+//	s := new(Sample)
+	s := m.pool.Get(workerId)
 	s.values.Set(cs.Vector3(), cs.W, m.roughness, m.metallic, dg.N, v)
 	return s	
 }

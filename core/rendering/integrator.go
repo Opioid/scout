@@ -16,5 +16,5 @@ type Integrator interface {
 }
 
 type IntegratorFactory interface {
-	New(rng *random.Generator) Integrator
+	New(id uint32, rng *random.Generator) Integrator
 }

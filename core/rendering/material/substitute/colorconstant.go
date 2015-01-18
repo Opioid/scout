@@ -25,9 +25,9 @@ func NewColorConstant(color math.Vector3, roughness, metallic float32, pool *Poo
 	return m
 }
 
-func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) material.Sample {
-	s := new(Sample)
-//	s := m.pool.Borrow()
+func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
+//	s := new(Sample)
+	s := m.pool.Get(workerId)
 	s.values.Set(m.color, 1, m.roughness, m.metallic, dg.N, v)
 	return s
 }

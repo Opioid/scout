@@ -8,9 +8,9 @@ import (
 )
 
 type Material interface {
-	Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D) renderingmaterial.Sample
+	Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) renderingmaterial.Sample
 
-	Free(sample renderingmaterial.Sample)
+	Free(sample renderingmaterial.Sample, workerId uint32)
 
 	IsMirror() bool
 }

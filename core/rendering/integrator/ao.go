@@ -71,9 +71,10 @@ func NewAoFactory(numSamples uint32, radius float32) *aoFactory {
 	return f
 }
 
-func (f *aoFactory) New(rng *random.Generator) rendering.Integrator {
+func (f *aoFactory) New(id uint32, rng *random.Generator) rendering.Integrator {
 	a := new(ao)
 
+	a.id = id
 	a.rng = rng
 	a.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
 	a.numSamples = f.numSamples	

@@ -38,8 +38,8 @@ type base struct {
 	pool *Pool
 }
 
-func (b *base) Free(sample material.Sample) {
-//	b.pool.Return(sample.(*Sample))
+func (b *base) Free(sample material.Sample, workerId uint32) {
+	b.pool.Put(sample, workerId)
 }
 
 type Sample struct {

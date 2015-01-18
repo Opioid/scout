@@ -52,7 +52,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	v := ray.Direction.Scale(-1.0)
 
 	material := intersection.Material()
-	brdf := material.Sample(&intersection.Dg, v, w.linearSampler_repeat)
+	brdf := material.Sample(&intersection.Dg, v, w.linearSampler_repeat, w.id)
 	values := brdf.Values()
 
 	for _, l := range scene.Lights {
@@ -95,7 +95,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 
 	result.AddAssign(environment.Mul(values.F0.Scale(pi_brdf.X).AddS(pi_brdf.Y)))
 
-	material.Free(brdf)
+	material.Free(brdf, w.id)
 
 	return result
 }
@@ -123,9 +123,10 @@ func NewWhittedFactory(maxBounces, maxLightSamples uint32) *whittedFactory {
 	return f
 }
 
-func (f *whittedFactory) New(rng *random.Generator) rendering.Integrator {
+func (f *whittedFactory) New(id uint32, rng *random.Generator) rendering.Integrator {
 	w := new(whitted)
 
+	w.id = id
 	w.rng = rng
 	w.maxBounces = f.maxBounces
 	w.maxLightSamples = f.maxLightSamples

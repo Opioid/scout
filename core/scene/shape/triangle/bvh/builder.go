@@ -31,11 +31,11 @@ func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry
 type buildNode struct {
 	aabb bounding.AABB
 
-	axis int
-
 	startIndex, endIndex uint32
 
 	children [2]*buildNode
+
+	axis int8
 }
 
 func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives, depth int, 
@@ -209,7 +209,7 @@ func triangleSide(a, b, c math.Vector3, p math.Plane) int {
 	}
 }
 
-func splittingPlane(aabb *bounding.AABB) (int, float32) {
+func splittingPlane(aabb *bounding.AABB) (int8, float32) {
 	position := aabb.Position()
 	halfsize := aabb.Halfsize()
 
@@ -225,7 +225,7 @@ func splittingPlane(aabb *bounding.AABB) (int, float32) {
 	}
 }
 
-func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int) {
+func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int8) {
 	position := aabb.Position()
 	halfsize := aabb.Halfsize()
 

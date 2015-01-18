@@ -5,5 +5,6 @@ import (
 )
 
 type integrator struct {
+	id uint32
 	rng *random.Generator
 }
