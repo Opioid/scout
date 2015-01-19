@@ -130,7 +130,7 @@ func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
 }
 
 
-func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *float32) bool {
+func (b *AABB) Intersect(ray *math.OptimizedRay) (bool, float32, float32) {
     tmin := (b.Bounds[    ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
     tmax := (b.Bounds[1 - ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
 
@@ -138,7 +138,7 @@ func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *flo
     tymax := (b.Bounds[1 - ray.Sign[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
 
     if tmin > tymax || tymin > tmax {
-        return false
+        return false, 0.0, 0.0
     }
 
     if tymin > tmin {
@@ -153,7 +153,7 @@ func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *flo
     tzmax := (b.Bounds[1 - ray.Sign[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
 
     if tmin > tzmax || tzmin > tmax {
-        return false
+        return false, 0.0, 0.0
     }
 
     if tzmin > tmin {
@@ -164,10 +164,7 @@ func (b *AABB) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT *flo
         tmax = tzmax
     }
 
-    *boundingMinT = tmin
-    *boundingMaxT = tmax
-
-    return tmin < ray.MaxT && tmax > ray.MinT
+    return tmin < ray.MaxT && tmax > ray.MinT, tmin, tmax
 }
 
 func (b *AABB) Merge(other *AABB) AABB {

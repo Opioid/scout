@@ -19,10 +19,14 @@ func NewStaticProp() *StaticProp {
 }
 
 func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersection) bool {
+	var hit bool
 	var boundingMinT, boundingMaxT float32
 
-	if p.Shape.IsComplex() && !p.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
-		return false
+	if p.Shape.IsComplex() {
+		hit, boundingMinT, boundingMaxT = p.AABB.Intersect(ray) 
+		if !hit {
+			return false
+		}
 	}
 
 	if hit, thit, epsilon := p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &intersection.Dg); hit {
@@ -36,10 +40,14 @@ func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersectio
 }
 
 func (p *StaticProp) IntersectP(ray *math.OptimizedRay) bool {
+	var hit bool
 	var boundingMinT, boundingMaxT float32
 
-	if p.Shape.IsComplex() && !p.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
-		return false
+	if p.Shape.IsComplex() {
+		hit, boundingMinT, boundingMaxT = p.AABB.Intersect(ray) 
+		if !hit {
+			return false
+		}
 	}
 
 	return p.Shape.IntersectP(&p.transformation, ray, boundingMinT, boundingMaxT) 

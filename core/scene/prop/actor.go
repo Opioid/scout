@@ -17,10 +17,14 @@ func NewActor() *Actor {
 }
 
 func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bool {
+	var hit bool
 	var boundingMinT, boundingMaxT float32
 
-	if a.Shape.IsComplex() && !a.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
-		return false
+	if a.Shape.IsComplex() {
+		hit, boundingMinT, boundingMaxT = a.AABB.Intersect(ray) 
+		if !hit {
+			return false
+		}
 	}
 
 	transformation := a.TransformationAt(ray.Time)
@@ -36,10 +40,14 @@ func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bo
 }
 
 func (a *Actor) IntersectP(ray *math.OptimizedRay) bool {
+	var hit bool
 	var boundingMinT, boundingMaxT float32
 
-	if a.Shape.IsComplex() && !a.AABB.Intersect(ray, &boundingMinT, &boundingMaxT) {
-		return false
+	if a.Shape.IsComplex() {
+		hit, boundingMinT, boundingMaxT = a.AABB.Intersect(ray) 
+		if !hit {
+			return false
+		}
 	}
 
 	transformation := a.TransformationAt(ray.Time)
