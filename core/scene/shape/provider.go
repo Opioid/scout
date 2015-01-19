@@ -6,9 +6,11 @@ import (
 	"github.com/Opioid/scout/core/scene/shape/triangle/bvh"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
 	"github.com/Opioid/scout/base/math"
-	pkgjson "github.com/Opioid/scout/base/parsing/json"
+	_ "github.com/Opioid/scout/base/parsing/json"
 	"io/ioutil"
+	_ "os"
 	"encoding/json"
+	"runtime"
 	_ "fmt"
 )
 
@@ -27,16 +29,59 @@ func (p *Provider) Load(filename string) Shape {
 		return mesh
 	}
 
-	
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
+	triangles, vertices := loadMeshData(filename)
+
+	runtime.GC()
+
+	if triangles == nil || vertices == nil {
 		return nil
 	}
 
-	var document interface{}
-	if err = json.Unmarshal(data, &document); err != nil {
-		return nil
+	builder := bvh.Builder1{}
+	tree := builder.Build(triangles, vertices, 8)
+
+	mesh := triangle.NewMesh(tree.AABB(), tree)	
+
+	p.meshes[filename] = mesh
+
+	return mesh
+}
+
+type jsonMesh struct {
+	Geometry Geometry
+}
+
+type Geometry struct {
+	Groups []group
+
+	Primitive_topology string
+
+	Indices []uint32
+
+	Positions [][3]float32
+	Normals   [][3]float32
+	Tangents_and_bitangent_signs [][4]float32
+
+	Texture_coordinates_0 [][2]float32
+}
+
+type group struct {
+	Material_index uint32
+	Start_index    uint32
+	Num_indices    uint32
+}
+
+func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex) {
+	
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, nil
 	}
+
+	var mesh jsonMesh
+	if err = json.Unmarshal(data, &mesh); err != nil {
+		return nil, nil
+	}	
 	
 	/*
 	fi, err := os.Open(filename)
@@ -44,125 +89,65 @@ func (p *Provider) Load(filename string) Shape {
 	defer fi.Close()
 
 	if err != nil {
-		return nil
+		return nil, nil
 	}	
 
-	var document interface{}
-	if err = json.NewDecoder(fi).Decode(&document); err != nil {
-		return nil
+	var mesh jsonMesh
+	if err = json.NewDecoder(fi).Decode(&mesh); err != nil {
+		return nil, nil
 	}
 	*/
-	root := document.(map[string]interface{})
 
-	var mesh Shape
-
-	if g, ok := root["geometry"]; ok {
-		mesh = loadGeometry(g)
+	if mesh.Geometry.Primitive_topology != "triangle_list" {
+		return nil, nil
 	}
 
-	if mesh != nil {
-		p.meshes[filename] = mesh
-	}
-
-	return mesh
-}
-
-func loadGeometry(i interface{}) Shape {
-	geometryNode, ok := i.(map[string]interface{})
-
-	if !ok {
-		return nil
-	}
-
-	if geometryNode["primitive_topology"] != "triangle_list" {
-		return nil
-	}
-
-	var parts []interface{}
-	var indices []interface{}
-
-	if p, ok := geometryNode["groups"]; ok {
-		parts = p.([]interface{})
-	}
-
-	if i, ok := geometryNode["indices"]; ok {
-		indices = i.([]interface{})
-	}
-
-	if parts == nil || indices == nil {
-		return nil
-	}
-
-	numTriangles := uint32(len(indices)) / 3
-
+	numTriangles := uint32(len(mesh.Geometry.Indices)) / 3
 
 	triangles := make([]primitive.IndexTriangle, numTriangles)
 
-	maxMaterialId := uint32(len(parts) - 1)
+	maxMaterialId := uint32(len(mesh.Geometry.Groups) - 1)
 
-	for _, p := range parts {
-		if partNode, ok := p.(map[string]interface{}); ok {
-			start    := pkgjson.ReadUint32(partNode, "start_index", 0)
-			count    := pkgjson.ReadUint32(partNode, "num_indices", 0)
-			material := pkgjson.ReadUint32(partNode, "material_index", 0)
+	for _, p := range mesh.Geometry.Groups {
+		trianglesStart := p.Start_index / 3
+		trianglesEnd := (p.Start_index + p.Num_indices) / 3
 
-			trianglesStart := start / 3
-			trianglesEnd := (start + count) / 3
+		for i := trianglesStart; i < trianglesEnd; i++ {
+			a := mesh.Geometry.Indices[i * 3 + 0]
+			b := mesh.Geometry.Indices[i * 3 + 1]
+			c := mesh.Geometry.Indices[i * 3 + 2]
 
-			for i := trianglesStart; i < trianglesEnd; i++ {
-				a := uint32(indices[i * 3 + 0].(float64))
-				b := uint32(indices[i * 3 + 1].(float64))
-				c := uint32(indices[i * 3 + 2].(float64))
-
-				triangles[i] = primitive.MakeIndexTriangle(a, b, c, math.Minui(material, maxMaterialId))
-			}
+			triangles[i] = primitive.MakeIndexTriangle(a, b, c, math.Minui(p.Material_index, maxMaterialId))
 		}
 	}
 
-	var vertices []geometry.Vertex
+	numVertices := len(mesh.Geometry.Positions)
 
-	if p, ok := geometryNode["positions"]; ok {
-		positions := p.([]interface{})
-
-		numVertices  := uint32(len(positions))
-
-		vertices = make([]geometry.Vertex, numVertices)
-
-		for i, position := range positions {
-			vertices[i].P = pkgjson.ParseVector3(position)
-		}
-	} else {
-		return nil
+	if numVertices == 0 {
+		return nil, nil
 	}
 
-	if n, ok := geometryNode["normals"]; ok {
-		normals := n.([]interface{})
+	vertices := make([]geometry.Vertex, numVertices)
 
-		for i, normal := range normals {
-			vertices[i].N = pkgjson.ParseVector3(normal)
-		}
+	for i := range mesh.Geometry.Positions {
+		vertices[i].P = math.MakeVector3(mesh.Geometry.Positions[i][0], mesh.Geometry.Positions[i][1], mesh.Geometry.Positions[i][2])
 	}
 
-	if t, ok := geometryNode["tangents_and_bitangent_signs"]; ok {
-		tangents := t.([]interface{})
-
-		for i, tangent := range tangents {
-			tas := pkgjson.ParseVector4(tangent)
-			vertices[i].T = tas.Vector3()
-			vertices[i].BitangentSign = tas.W
-		}
+	for i := range mesh.Geometry.Normals {
+		vertices[i].N = math.MakeVector3(mesh.Geometry.Normals[i][0], mesh.Geometry.Normals[i][1], mesh.Geometry.Normals[i][2])
 	}
 
-	if u, ok := geometryNode["texture_coordinates_0"]; ok {
-		uvs := u.([]interface{})
+	for i := range mesh.Geometry.Tangents_and_bitangent_signs {
+		vertices[i].T = math.MakeVector3(mesh.Geometry.Tangents_and_bitangent_signs[i][0], 
+										 mesh.Geometry.Tangents_and_bitangent_signs[i][1], 
+										 mesh.Geometry.Tangents_and_bitangent_signs[i][2])
 
-		for i, uv := range uvs {
-			vertices[i].UV = pkgjson.ParseVector2(uv)
-		}
+		vertices[i].BitangentSign = mesh.Geometry.Tangents_and_bitangent_signs[i][3]
 	}
 
-	builder := bvh.Builder1{}
-	tree := builder.Build(triangles, vertices, 8)
+	for i := range mesh.Geometry.Texture_coordinates_0 {
+		vertices[i].UV = math.MakeVector2(mesh.Geometry.Texture_coordinates_0[i][0], mesh.Geometry.Texture_coordinates_0[i][1])
+	}
 
-	return triangle.NewMesh(tree.AABB(), tree)
+	return triangles, vertices
 }
