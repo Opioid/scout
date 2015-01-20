@@ -149,5 +149,18 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 		vertices[i].UV = math.MakeVector2(mesh.Geometry.Texture_coordinates_0[i][0], mesh.Geometry.Texture_coordinates_0[i][1])
 	}
 
+	if len(mesh.Geometry.Normals) > 0 && len(mesh.Geometry.Tangents_and_bitangent_signs) == 0 {
+		// If normals but no tangents were loaded, compute the tangent space manually
+
+		basis := math.Matrix3x3{}
+
+		for i := range vertices {
+			basis.SetBasis(vertices[i].N)
+
+			vertices[i].T = basis.Row(0)
+			vertices[i].BitangentSign = 1.0
+		}
+	}
+
 	return triangles, vertices
 }

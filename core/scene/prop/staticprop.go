@@ -2,6 +2,7 @@ package prop
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 	_ "github.com/Opioid/scout/base/math/bounding"
 	_ "fmt"
@@ -18,7 +19,7 @@ func NewStaticProp() *StaticProp {
 	return p
 }
 
-func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersection) bool {
+func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *geometry.Intersection) bool {
 	var hit bool
 	var boundingMinT, boundingMaxT float32
 
@@ -29,7 +30,7 @@ func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersectio
 		}
 	}
 
-	if hit, thit := p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &intersection.Geo); hit {
+	if hit, thit := p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, intersection); hit {
 		ray.MaxT = thit
 
 		return true

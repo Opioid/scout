@@ -2,6 +2,7 @@ package prop
 
 import (
 	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 )
 
@@ -16,7 +17,7 @@ func NewActor() *Actor {
 	return a
 }
 
-func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bool {
+func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *geometry.Intersection) bool {
 	var hit bool
 	var boundingMinT, boundingMaxT float32
 
@@ -29,7 +30,7 @@ func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bo
 
 	transformation := a.TransformationAt(ray.Time)
 
-	if hit, thit := a.Shape.Intersect(&transformation, ray, boundingMinT, boundingMaxT, &intersection.Geo); hit {
+	if hit, thit := a.Shape.Intersect(&transformation, ray, boundingMinT, boundingMaxT, intersection); hit {
 		ray.MaxT = thit
 
 		return true		

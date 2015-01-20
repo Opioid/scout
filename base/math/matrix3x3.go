@@ -14,9 +14,9 @@ type Matrix3x3 struct {
 
 func MakeIdentityMatrix3x3() Matrix3x3 {
 	return Matrix3x3{
-		1, 0, 0,
-		0, 1, 0,
-		0, 0, 1,
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
 	}
 }
 

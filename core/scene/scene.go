@@ -52,7 +52,7 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Interse
 	}
 
 	for _, a := range scene.Actors {
-		if a.Intersect(ray, intersection) {
+		if a.Intersect(ray, &intersection.Geo) {
 			intersection.Prop = &a.Prop
 			hit = true
 		}

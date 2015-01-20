@@ -134,7 +134,7 @@ func (n *node) intersect(ray *math.OptimizedRay, intersection *prop.Intersection
 		}
 	} else {
 		for _, p := range n.props {
-			if p.Intersect(ray, intersection) {
+			if p.Intersect(ray, &intersection.Geo) {
 				intersection.Prop = &p.Prop
 				hit = true
 			}

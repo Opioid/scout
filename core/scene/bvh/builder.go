@@ -183,7 +183,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 	} else {
 		for i := n.offset; i < n.propsEnd; i++ {
 			p := props[i]
-			if p.Intersect(ray, intersection) {
+			if p.Intersect(ray, &intersection.Geo) {
 				intersection.Prop = &p.Prop
 				hit = true
 			}

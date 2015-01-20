@@ -43,6 +43,8 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scen
 		s := math.HemisphereSample_cos(sample.X, sample.Y)
 
 		v := basis.TransformVector3(s)
+	//	v := intersection.Geo.TangentToWorld(s)
+
 		occlusionRay.SetDirection(v)
 
 		if !scene.IntersectP(&occlusionRay) {

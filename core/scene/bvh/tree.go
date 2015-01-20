@@ -22,7 +22,7 @@ func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, inter
 
 	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
 		p := props[i]
-		if p.Intersect(ray, intersection) {
+		if p.Intersect(ray, &intersection.Geo) {
 			intersection.Prop = &p.Prop
 			hit = true
 		}
