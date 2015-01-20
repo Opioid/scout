@@ -303,6 +303,8 @@ func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 			return loadWhittedIntegrator(value)
 		case "AO":
 			return loadAoIntegrator(value)
+		case "Pathtracer":
+			return loadPathtracerIntegrator(value)
 		}
 	}
 
@@ -338,8 +340,8 @@ func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
-	numSamples := uint32(4)
-	radius := float32(1.0)
+	numSamples := uint32(8)
+	radius := float32(2.0)
 
 	for key, value := range integratorNode {
 		switch key {
@@ -351,4 +353,26 @@ func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 	}
 
 	return integrator.NewAoFactory(numSamples, radius)
+}
+
+func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
+	integratorNode, ok := i.(map[string]interface{})
+
+	if !ok {
+		return nil
+	}
+
+	numSamples := uint32(8)
+	maxBounces := uint32(2)
+
+	for key, value := range integratorNode {
+		switch key {
+		case "num_samples":
+			numSamples = uint32(value.(float64))
+		case "max_bounces":
+			maxBounces = uint32(value.(float64))
+		}
+	}
+
+	return integrator.NewPathtracerFactory(numSamples, maxBounces)
 }

@@ -80,6 +80,13 @@ func (a Vector3) Mul(b Vector3) Vector3 {
 	return Vector3{a.X * b.X, a.Y * b.Y, a.Z * b.Z}
 }
 
+func (a *Vector3) MulAssign(b Vector3) Vector3 {
+	a.X *= b.X
+	a.Y *= b.Y
+	a.Z *= b.Z
+	return *a
+}
+
 func (a Vector3) Div(s float32) Vector3 {
 	return a.Scale(1 / s)
 }

@@ -66,7 +66,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 			if !scene.IntersectP(&w.shadowRay) {
 				r := brdf.Evaluate(s.L)
 
-				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))		
+				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
 			}
 		}
 	}

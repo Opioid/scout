@@ -6,7 +6,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	gomath "math"
-	"fmt"
+	_ "fmt"
 )
 
 type Builder struct {
@@ -34,8 +34,6 @@ func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry
 
 	b.numNodes = 1
 	root.numSubNodes(&b.numNodes)
-
-	fmt.Println(b.numNodes)
 
 	b.nodes = tree.allocateNodes(b.numNodes)
 
