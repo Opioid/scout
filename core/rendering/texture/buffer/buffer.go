@@ -15,8 +15,9 @@ type Buffer interface {
 	Dimensions() math.Vector2i
 	Resize(dimensions math.Vector2i)
 	At(x, y int32) math.Vector4
+	At3(x, y int32) math.Vector3
 	Set(x, y int32, color math.Vector4)
-	SetRgb(x, y int32, color math.Vector3)
+	Set3(x, y int32, color math.Vector3)
 	SetChannel(x, y, c int32, value float32)
 //	RGBA() *image.RGBA
 }

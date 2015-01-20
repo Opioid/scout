@@ -28,6 +28,10 @@ func (b *float3) At(x, y int32) math.Vector4 {
 	return math.MakeVector4FromVector3(b.data[b.dimensions.X * y + x], 1.0)
 }
 
+func (b *float3) At3(x, y int32) math.Vector3 {
+	return b.data[b.dimensions.X * y + x]
+}
+
 func (b *float3) Set(x, y int32, color math.Vector4) {
 	v := &b.data[b.dimensions.X * y + x]
 
@@ -36,7 +40,7 @@ func (b *float3) Set(x, y int32, color math.Vector4) {
 	v.Z = color.Z
 }
 
-func (b *float3) SetRgb(x, y int32, color math.Vector3) {
+func (b *float3) Set3(x, y int32, color math.Vector3) {
 	b.data[b.dimensions.X * y + x] = color
 }
 
