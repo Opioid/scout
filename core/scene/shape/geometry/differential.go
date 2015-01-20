@@ -8,7 +8,6 @@ type Differential struct {
 	P math.Vector3			// posisition in world space
 	T, B, N math.Vector3	// tangent frame in world space
 	UV math.Vector2			// texture coordinates
-	MaterialId uint32		// Material id (relative to the shape)
 }
 
 func (dg *Differential) TangentToWorld(v math.Vector3) math.Vector3 {

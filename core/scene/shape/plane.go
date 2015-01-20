@@ -20,7 +20,7 @@ func NewPlane() *Plane {
 
 // works from both sides of the plane
 func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-						  dg *geometry.Differential) (bool, float32, float32) {
+						  intersection *geometry.Intersection) (bool, float32) {
 	normal := transformation.Rotation.Row(2)
 
 	d := -normal.Dot(transformation.Position)
@@ -32,25 +32,25 @@ func (p *Plane) Intersect(transformation *entity.ComposedTransformation, ray *ma
 	thit := -(numer / denom)
 	
 	if thit > ray.MinT && thit < ray.MaxT {
-		epsilon := 5e-4 * thit
+		intersection.Epsilon = 5e-4 * thit
 
-		dg.P = ray.Point(thit)
-		dg.T = transformation.Rotation.Row(0)
-		dg.B = transformation.Rotation.Row(1)
-		dg.N = normal
+		intersection.P = ray.Point(thit)
+		intersection.T = transformation.Rotation.Row(0)
+		intersection.B = transformation.Rotation.Row(1)
+		intersection.N = normal
 
-		u := transformation.ObjectToWorld.Row(0).Vector3().Dot(dg.P)
-		dg.UV.X = u - math32.Floor(u)
+		u := transformation.ObjectToWorld.Row(0).Vector3().Dot(intersection.P)
+		intersection.UV.X = u - math32.Floor(u)
 
-		v := transformation.ObjectToWorld.Row(1).Vector3().Dot(dg.P)
-		dg.UV.Y = v - math32.Floor(v)
+		v := transformation.ObjectToWorld.Row(1).Vector3().Dot(intersection.P)
+		intersection.UV.Y = v - math32.Floor(v)
 
-		dg.MaterialId = 0
+		intersection.MaterialId = 0
 
-		return true, thit, epsilon
+		return true, thit
 	} 
 
-	return false, 0.0, 0.0
+	return false, 0.0
 }
 
 // works from both sides of the plane

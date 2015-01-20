@@ -61,7 +61,7 @@ func (t *Tree1) intersectNode(n uint32, ray *math.OptimizedRay, intersection *pr
 		}
 
 		if hit {
-			// the idea was not to write these pointers in the loop... Don't know whether it makes a difference
+			// the idea was not to write to these pointers in the loop... Don't know whether it makes a difference
 			*intersection = ti
 			ray.MaxT = ti.T
 		}

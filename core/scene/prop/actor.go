@@ -29,8 +29,7 @@ func (a *Actor) Intersect(ray *math.OptimizedRay, intersection *Intersection) bo
 
 	transformation := a.TransformationAt(ray.Time)
 
-	if hit, thit, epsilon := a.Shape.Intersect(&transformation, ray, boundingMinT, boundingMaxT, &intersection.Dg); hit {
-		intersection.Epsilon = epsilon
+	if hit, thit := a.Shape.Intersect(&transformation, ray, boundingMinT, boundingMaxT, &intersection.Geo); hit {
 		ray.MaxT = thit
 
 		return true		

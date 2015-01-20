@@ -24,35 +24,34 @@ func NewMesh(aabb bounding.AABB, tree bvh.Tree1) *Mesh {
 }
 
 func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-						 dg *geometry.Differential) (bool, float32, float32) {
+						 intersection *geometry.Intersection) (bool, float32) {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 
-	intersection := primitive.Intersection{}
-	intersection.T = ray.MaxT
+	pi := primitive.Intersection{}
+//	pi.T = ray.MaxT
 
-	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, &intersection)
+	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, &pi)
 
 	if hit {
-		thit := intersection.T
-		epsilon := 5e-3 * thit
+		thit := pi.T
+		intersection.Epsilon = 5e-3 * thit
 
-		dg.P = ray.Point(thit)
+		intersection.P = ray.Point(thit)
 
-		dg.MaterialId = m.tree.Triangles[intersection.Index].MaterialId
+		intersection.MaterialId = m.tree.Triangles[pi.Index].MaterialId
+		n, t, uv := m.tree.Triangles[pi.Index].Interpolate(pi.U, pi.V)
 
-		dg.N, dg.T, dg.UV = m.tree.Triangles[intersection.Index].Interpolate(intersection.U, intersection.V)
+		intersection.N = transformation.WorldToObject.TransposedTransformVector3(n)
+		intersection.T = transformation.WorldToObject.TransposedTransformVector3(t)
+		intersection.B = intersection.N.Cross(intersection.T)
+		intersection.UV = uv
 
-		dg.N = transformation.WorldToObject.TransposedTransformVector3(dg.N)
-		dg.T = transformation.WorldToObject.TransposedTransformVector3(dg.T)
-
-		dg.B = dg.N.Cross(dg.T)
-
-		return hit, thit, epsilon
+		return hit, thit
 	}
 
-	return false, 0.0, 0.0
+	return false, 0.0
 }
 
 func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {

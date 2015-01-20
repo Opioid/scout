@@ -18,7 +18,7 @@ func NewDisk() *Disk {
 }
 
 func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-							dg *geometry.Differential) (bool, float32, float32) {
+							intersection *geometry.Intersection) (bool, float32) {
 	normal := transformation.Rotation.Row(2)
 
 	d := -normal.Dot(transformation.Position)
@@ -37,28 +37,28 @@ func (disk *Disk) Intersect(transformation *entity.ComposedTransformation, ray *
 		radius := transformation.Scale.X
 
 		if l <= radius * radius {
-			epsilon := 5e-4 * thit
+			intersection.Epsilon = 5e-4 * thit
 
-			dg.P = p
-			dg.T = transformation.Rotation.Row(0)
-			dg.B = transformation.Rotation.Row(1)	
-			dg.N = normal
+			intersection.P = p
+			intersection.T = transformation.Rotation.Row(0)
+			intersection.B = transformation.Rotation.Row(1)	
+			intersection.N = normal
 
 			sk := k.Div(radius)
 
 			u := transformation.Rotation.Row(0).Dot(sk)
-			dg.UV.X = (u + 1.0) * 0.5
+			intersection.UV.X = (u + 1.0) * 0.5
 
 			v := transformation.Rotation.Row(1).Dot(sk)
-			dg.UV.Y = (v + 1.0) * 0.5
+			intersection.UV.Y = (v + 1.0) * 0.5
 
-			dg.MaterialId = 0
+			intersection.MaterialId = 0
 
-			return true, thit, epsilon
+			return true, thit
 		}
 	} 
 
-	return false, 0.0, 0.0
+	return false, 0.0
 }
 
 func (disk *Disk) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {

@@ -26,14 +26,14 @@ func (a *ao) StartNewPixel(numSamples uint32) {
 	a.sampler.Restart(numSamples)
 }
 
-func (a *ao) Li(worker *rendering.Worker, subsample uint32,scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
-	occlusionRay.Origin = intersection.Dg.P
-	occlusionRay.MinT = intersection.Epsilon
+	occlusionRay.Origin = intersection.Geo.P
+	occlusionRay.MinT = intersection.Geo.Epsilon
 	occlusionRay.MaxT = a.radius
 
 	basis := math.Matrix3x3{}
-	basis.SetBasis(intersection.Dg.N)
+	basis.SetBasis(intersection.Geo.N)
 
 	result := float32(0.0)
 

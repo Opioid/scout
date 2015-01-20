@@ -7,10 +7,9 @@ import (
 
 type Intersection struct {
 	Prop *Prop
-	Dg geometry.Differential
-	Epsilon float32
+	Geo geometry.Intersection
 }
 
 func (i *Intersection) Material() material.Material {
-	return i.Prop.Materials[i.Dg.MaterialId]
+	return i.Prop.Materials[i.Geo.MaterialId]
 }

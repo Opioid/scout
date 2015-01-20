@@ -44,19 +44,19 @@ func (w *whitted) StartNewPixel(numSamples uint32) {
 func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
-	w.shadowRay.Origin = intersection.Dg.P
-	w.shadowRay.MinT = intersection.Epsilon
+	w.shadowRay.Origin = intersection.Geo.P
+	w.shadowRay.MinT = intersection.Geo.Epsilon
 	w.shadowRay.MaxT = 1000.0
 	w.shadowRay.Time = ray.Time
 
 	v := ray.Direction.Scale(-1.0)
 
 	material := intersection.Material()
-	brdf := material.Sample(&intersection.Dg, v, w.linearSampler_repeat, w.id)
+	brdf := material.Sample(&intersection.Geo.Differential, v, w.linearSampler_repeat, w.id)
 	values := brdf.Values()
 
 	for _, l := range scene.Lights {
-		w.lightSamples = l.Samples(intersection.Dg.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
+		w.lightSamples = l.Samples(intersection.Geo.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
@@ -82,7 +82,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	//	secondaryRay := math.MakeOptimizedRay(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
 		// If this is the second (or more) bounce, this will overwrite ray, because they are actually refering to the same memory!
-		w.secondaryRay.Set(intersection.Dg.P, reflection, intersection.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
+		w.secondaryRay.Set(intersection.Geo.P, reflection, intersection.Geo.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
 		environment = worker.Li(subsample, scene, &w.secondaryRay)
 	} else {

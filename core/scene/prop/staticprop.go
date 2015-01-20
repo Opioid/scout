@@ -29,8 +29,7 @@ func (p *StaticProp) Intersect(ray *math.OptimizedRay, intersection *Intersectio
 		}
 	}
 
-	if hit, thit, epsilon := p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &intersection.Dg); hit {
-		intersection.Epsilon = epsilon
+	if hit, thit := p.Shape.Intersect(&p.transformation, ray, boundingMinT, boundingMaxT, &intersection.Geo); hit {
 		ray.MaxT = thit
 
 		return true
