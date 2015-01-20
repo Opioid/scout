@@ -63,7 +63,6 @@ func NewMatrix3x3FromQuaternion(q Quaternion) *Matrix3x3 {
 }
 
 func (m *Matrix3x3) Row(i int32) Vector3 {
-//	return MakeVector3(m.m[i * 3], m.m[i * 3 + 1], m.m[i * 3 + 2])
 	switch i {
 	case 0:
 		return MakeVector3(m.m00, m.m01, m.m02)
@@ -105,24 +104,6 @@ func (m *Matrix3x3) SetFromQuaternion(q Quaternion) {
 	m.m20 = xz - wy;         m.m21 = yz + wx;         m.m22 = 1.0 - (xx + yy)
 }
 
-/*
-template<typename T>
-inline void setBasis(Matrix3x3_t<T> &m, const Vector3_t<T> &v)
-{
-	m.rows[2] = v;
-
-	if (v.x < T(0.6) && v.x > -T(0.6)) 
-		m.rows[1] = Vector3_t<T>(T(1), T(0), T(0));
-	else if (v.y < T(0.6) && v.y > T(0.6)) 
-		m.rows[1] = Vector3_t<T>(T(0), T(1), T(0));
-	else 
-		m.rows[1] = Vector3_t<T>(T(0), T(0), T(1));
-	
-	m.rows[0] = normalize(cross(v, m.rows[1]));
-	m.rows[1] = cross(m.rows[0], m.rows[2]);
-}
-*/
-
 func (m *Matrix3x3) SetBasis(v Vector3) {
 	var r1 Vector3
 
@@ -142,7 +123,24 @@ func (m *Matrix3x3) SetBasis(v Vector3) {
 	m.m20 =  v.X; m.m21 =  v.Y; m.m22 =  v.Z
 }
 
-func (m *Matrix3x3) MuliplyAssign(o *Matrix3x3) {
+func CalculateTangentAndBitangent(v Vector3) (Vector3, Vector3) {
+	var r1 Vector3
+
+	if v.X < 0.6 && v.X > -0.6 {
+		r1 = MakeVector3(1.0, 0.0, 0.0)
+	} else if v.Y < 0.6 && v.Y > -0.6 {
+		r1 = MakeVector3(0.0, 1.0, 0.0)
+	} else {
+		r1 = MakeVector3(0.0, 0.0, 1.0)
+	}
+
+	r0 := v.Cross(r1).Normalized()
+	r1 = r0.Cross(v)
+
+	return r0, r1
+}
+
+func (m *Matrix3x3) MultiplyAssign(o *Matrix3x3) {
 	m.m00 = m.m00 * o.m00 + m.m01 * o.m10 + m.m02 * o.m20
 	m.m01 = m.m00 * o.m01 + m.m01 * o.m11 + m.m02 * o.m21
 	m.m02 = m.m00 * o.m02 + m.m01 * o.m12 + m.m02 * o.m22

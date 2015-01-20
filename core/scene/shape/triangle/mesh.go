@@ -36,7 +36,8 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 	if hit {
 		thit := pi.T
-		intersection.Epsilon = 5e-3 * thit
+	//	intersection.Epsilon = 5e-3 * thit
+		intersection.Epsilon = 4e-3 * thit
 
 		intersection.P = ray.Point(thit)
 

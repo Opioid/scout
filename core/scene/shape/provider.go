@@ -157,7 +157,7 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 		for i := range vertices {
 			basis.SetBasis(vertices[i].N)
 
-			vertices[i].T = basis.Row(0)
+			vertices[i].T = basis.Right()
 			vertices[i].BitangentSign = 1.0
 		}
 	}

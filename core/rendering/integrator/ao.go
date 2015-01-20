@@ -32,8 +32,8 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scen
 	occlusionRay.MinT = intersection.Geo.Epsilon
 	occlusionRay.MaxT = a.radius
 
-	basis := math.Matrix3x3{}
-	basis.SetBasis(intersection.Geo.N)
+//	basis := math.Matrix3x3{}
+//	basis.SetBasis(intersection.Geo.N)
 
 	result := float32(0.0)
 
@@ -42,8 +42,8 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scen
 	for _, sample := range samples {
 		s := math.HemisphereSample_cos(sample.X, sample.Y)
 
-		v := basis.TransformVector3(s)
-	//	v := intersection.Geo.TangentToWorld(s)
+	//	v := basis.TransformVector3(s)
+		v := intersection.Geo.TangentToWorld(s)
 
 		occlusionRay.SetDirection(v)
 

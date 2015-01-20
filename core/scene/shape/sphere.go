@@ -35,6 +35,10 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 			intersection.P = ray.Point(thit)
 			intersection.N = intersection.P.Sub(transformation.Position).Div(radius)
 
+			t, b := math.CalculateTangentAndBitangent(intersection.N)
+			intersection.T = t
+			intersection.B = b
+
 			intersection.MaterialId = 0
 
 			return true, thit
