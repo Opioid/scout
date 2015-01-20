@@ -37,7 +37,7 @@ func (p *Provider) Load(filename string) Shape {
 		return nil
 	}
 
-	builder := bvh.Builder1{}
+	builder := bvh.Builder{}
 	tree := builder.Build(triangles, vertices, 8)
 
 	mesh := triangle.NewMesh(tree.AABB(), tree)	

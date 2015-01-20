@@ -6,11 +6,12 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	gomath "math"
-	_ "fmt"
+	"fmt"
 )
 
 type Builder struct {
-
+	nodes []node
+	numNodes, currentNode uint32
 }
 
 func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives int) Tree {
@@ -25,7 +26,51 @@ func (b *Builder) Build(triangles []primitive.IndexTriangle, vertices []geometry
 	root := buildNode{}
 	root.split(primitiveIndices, triangles, vertices, maxPrimitives, 0, &outTriangles)
 
-	return Tree{root, outTriangles}
+//	return Tree1{root: root, Triangles: outTriangles}
+
+	tree := Tree{}
+
+	tree.Triangles = outTriangles
+
+	b.numNodes = 1
+	root.numSubNodes(&b.numNodes)
+
+	fmt.Println(b.numNodes)
+
+	b.nodes = tree.allocateNodes(b.numNodes)
+
+	b.currentNode = 0
+	b.serialize(&root)
+
+	return tree
+}
+
+func (b *Builder) serialize(node *buildNode) {
+	n := b.newNode()
+	n.aabb = node.aabb
+	n.startIndex = node.startIndex
+	n.endIndex = node.endIndex
+	n.axis = node.axis
+
+	if node.children[0] != nil {
+		b.serialize(node.children[0])
+
+		n.setRightChild(b.currentNodeIndex())
+
+		b.serialize(node.children[1])
+
+		n.setHasChildren(true)
+	}
+}
+
+func (b *Builder) newNode() *node {
+	n := &b.nodes[b.currentNode]
+	b.currentNode++
+	return n
+}
+
+func (b *Builder) currentNodeIndex() uint32 {
+	return b.currentNode
 }
 
 type buildNode struct {
@@ -88,6 +133,15 @@ func (n *buildNode) assign(primitiveIndices []uint32, triangles []primitive.Inde
 	}
 
 	n.endIndex = uint32(len(*outTriangles))
+}
+
+func (n *buildNode) numSubNodes(num *uint32) {
+	if n.children[0] != nil {
+		*num += 2
+
+		n.children[0].numSubNodes(num);
+		n.children[1].numSubNodes(num);
+	}
 }
 
 func (n *buildNode) intersect(ray *math.OptimizedRay, triangles []primitive.Triangle, intersection *primitive.Intersection) bool {

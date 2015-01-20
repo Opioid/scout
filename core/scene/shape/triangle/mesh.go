@@ -14,10 +14,10 @@ import (
 type Mesh struct {
 	aabb bounding.AABB
 
-	tree bvh.Tree1
+	tree bvh.Tree
 }
 
-func NewMesh(aabb bounding.AABB, tree bvh.Tree1) *Mesh {
+func NewMesh(aabb bounding.AABB, tree bvh.Tree) *Mesh {
 	m := Mesh{aabb: aabb, tree: tree}
 
 	return &m
@@ -36,8 +36,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 
 	if hit {
 		thit := pi.T
-	//	intersection.Epsilon = 5e-3 * thit
-		intersection.Epsilon = 4e-3 * thit
+		intersection.Epsilon = 3e-3 * thit
 
 		intersection.P = ray.Point(thit)
 

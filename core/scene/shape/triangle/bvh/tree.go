@@ -9,86 +9,130 @@ import (
 	_ "fmt"
 )
 
+const hasChildrenFlag uint32 = 0xFFFFFFFF
+
 type Tree struct {
-	root buildNode
+	nodes []node
 
 	Triangles []primitive.Triangle
 }
 
 func (t *Tree) AABB() bounding.AABB {
-	return t.root.aabb
+	return t.nodes[0].aabb
 }
 
 func (t *Tree) Intersect(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, intersection *primitive.Intersection) bool {
-	return t.root.intersect(ray, t.Triangles, intersection)
+	return t.intersectNode(0, ray, intersection)
 }
 
 func (t *Tree) IntersectP(ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
-	return t.root.intersectP(ray, t.Triangles)
+	return t.intersectNodeP(0, ray)
 }
 
-func intersectTriangle(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) (bool, primitive.Coordinates) {
-	e1 := v1.Sub(v0)
-	e2 := v2.Sub(v0)
+func (t *Tree) intersectNode(n uint32, ray *math.OptimizedRay, intersection *primitive.Intersection) bool {
+	node := &t.nodes[n]
 
-	pvec := ray.Direction.Cross(e2)
-
-	det := e1.Dot(pvec)
-	invDet := 1.0 / det
-
-	tvec := ray.Origin.Sub(v0)
-
-	c := primitive.Coordinates{}
-	c.U = tvec.Dot(pvec) * invDet
-
-	if c.U < 0.0 || c.U > 1.0 {
-		return false, c
-	}
-
-	qvec := tvec.Cross(e1)
-	c.V = ray.Direction.Dot(qvec) * invDet
-
-	if c.V < 0.0 || c.U + c.V > 1.0 {
-		return false, c
-	}
-
-	c.T = e2.Dot(qvec) * invDet
-
-	if c.T > ray.MinT && c.T < ray.MaxT {
-		return true, c
-	} 
-
-	return false, c
-}
-
-func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
-	e1 := v1.Sub(v0)
-	e2 := v2.Sub(v0)
-
-	pvec := ray.Direction.Cross(e2)
-
-	det := e1.Dot(pvec)
-	invDet := 1.0 / det
-
-	tvec := ray.Origin.Sub(v0)
-	u := tvec.Dot(pvec) * invDet
-
-	if u < 0.0 || u > 1.0 {
+	if !node.aabb.IntersectP(ray) {
 		return false
 	}
 
-	qvec := tvec.Cross(e1)
-	v := ray.Direction.Dot(qvec) * invDet
+	hit := false
 
-	if v < 0.0 || u + v > 1.0 {
+	if node.hasChildren() {
+		a, b := node.children(ray.Sign[node.axis], n)
+
+		if t.intersectNode(a, ray, intersection) {
+			hit = true
+		} 
+
+		if t.intersectNode(b, ray, intersection) {
+			hit = true
+		}
+	} else {
+		ti := primitive.Intersection{}
+		ti.T = ray.MaxT
+
+		for i := node.startIndex; i < node.endIndex; i++ {
+			if h, c := t.Triangles[i].Intersect(ray); h && c.T < ti.T {
+				ti.Coordinates = c
+				ti.Index = i
+				hit = true
+			}
+		}
+
+		if hit {
+			// the idea was not to write to these pointers in the loop... Don't know whether it makes a difference
+			*intersection = ti
+			ray.MaxT = ti.T
+		}
+	}
+
+	return hit
+}
+
+func (t *Tree) intersectNodeP(n uint32, ray *math.OptimizedRay) bool {
+	node := &t.nodes[n]
+
+	if !node.aabb.IntersectP(ray) {
 		return false
 	}
 
-	thit := e2.Dot(qvec) * invDet
+	if node.hasChildren() {
+		a, b := node.children(ray.Sign[node.axis], n)
 
-	if thit > ray.MinT && thit < ray.MaxT {
-		return true
-	} 
+		if t.intersectNodeP(a, ray) {
+			return true
+		}
+
+		return t.intersectNodeP(b, ray)
+	}
+
+	for i := node.startIndex; i < node.endIndex; i++ {
+		if t.Triangles[i].IntersectP(ray) {
+			return true
+		}
+	}
 
 	return false
+
+}
+
+func (t *Tree) allocateNodes(numNodes uint32) []node {
+	if uint32(len(t.nodes)) < numNodes {
+		t.nodes = make([]node, numNodes)
+	}
+
+	return t.nodes
+}
+
+type node struct {
+	aabb bounding.AABB
+
+	startIndex, endIndex uint32
+
+	axis int8
+}
+
+func (n *node) hasChildren() bool {
+	return (n.startIndex & hasChildrenFlag) == hasChildrenFlag
+}
+
+func (n *node) setHasChildren(children bool) {
+	if children {
+		n.startIndex |= hasChildrenFlag
+	} else {
+		n.startIndex &= ^hasChildrenFlag
+	}
+}
+
+func (n *node) children(sign uint32, id uint32) (uint32, uint32) {
+	if sign == 0 {
+		return id + 1, n.endIndex
+	} else {
+		return n.endIndex, id + 1
+	}
+}
+
+func (n *node) setRightChild(offset uint32) {
+	n.endIndex = offset
 }
