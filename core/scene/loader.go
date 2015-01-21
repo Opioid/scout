@@ -4,7 +4,6 @@ import (
 	"github.com/Opioid/scout/core/rendering/surrounding"
 	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/core/scene/light"
-	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/scene/material"
 	"github.com/Opioid/scout/core/resource"
@@ -105,7 +104,16 @@ func (loader *Loader) loadSurrounding(js *jsonSurrounding) {
 }
 
 func (loader *Loader) loadEntities(entities []jsonEntity) {
-
+	for e := range entities {
+		switch entities[e].Type {
+		case "Light":
+			loader.loadLight(&entities[e])
+		case "Prop":
+			loader.loadProp(&entities[e])
+	//	case "Complex":
+	//		loader.loadComplex(entityNode)
+		}
+	}
 }
 
 type jsonScene struct {
@@ -154,38 +162,53 @@ type jsonKeyframe struct {
 	Rotation [3]float32
 }
 
+func (loader *Loader) loadLight(e *jsonEntity) {
+//	shape := loader.loadShape(&e.Shape)
+
+//	materials := loader.loadMaterials(e.Materials)
+
+	var l light.Light
+
+	switch e.Class {
+	case "Directional":
+		l = light.NewDirectional()
+	case "Disk":
+		l = light.NewDisk(e.Radius)
+	case "Sun":
+		l = light.NewDisk(0.0125)
+	case "Point":
+		l = light.NewPoint()
+	case "Sphere":
+		l = light.NewSphere(e.Radius)
+	}
+
+	if l == nil {
+		return
+	}
+
+	position := math.MakeVector3FromArray(e.Position)
+	scale := math.MakeVector3FromArray(e.Scale)
+	rotation := pkgjson.MakeRotationQuaternion(e.Rotation)
+
+	color := math.MakeVector3FromArray(e.Color)
+
+	l.SetColor(color)
+	l.SetLumen(e.Lumen)
+	l.Prop().SetTransformation(position, scale, rotation)
+//	l.Entity().Animation = animation
+
+	loader.scene.AddLight(l)
+
+
 /*
-func (loader *Loader) loadEntities(i interface{}) {
-	entities, ok := i.([]interface{})
-	if !ok {
-		return 
-	}
+	prop := loader.scene.CreateProp()
+	prop.Shape = shape
+	prop.Materials = materials
+	prop.SetTransformation(position, scale, rotation)	
+	*/	
+}
 
-	for _, entity := range entities {
-		entityNode, ok := entity.(map[string]interface{})
-		if !ok {
-			continue
-		}
-
-		classNode, ok := entityNode["class"]
-
-		if !ok {
-			continue
-		}
-
-		className := classNode.(string)
-
-		switch className {
-		case "Light":
-			loader.loadLight(entityNode)
-		case "Actor":
-			loader.loadActor(entityNode)
-		case "Complex":
-			loader.loadComplex(entityNode)
-		}
-	}
-}*/
-
+/*
 func (loader *Loader) loadLight(i interface{}) {
 	lightNode, ok := i.(map[string]interface{})
 
@@ -237,7 +260,7 @@ func (loader *Loader) loadLight(i interface{}) {
 	case "Disk":
 		l = light.NewDisk(radius)
 	case "Sun":
-		l = light.NewDisk(/*0.5 * 0.00935*/0.0125)
+		l = light.NewDisk(0.0125)
 	case "Point":
 		l = light.NewPoint()
 	case "Sphere":
@@ -255,7 +278,8 @@ func (loader *Loader) loadLight(i interface{}) {
 
 	loader.scene.AddLight(l)
 }
-
+/*
+/*
 func (loader *Loader) loadActor(i interface{}) {
 	actorNode, ok := i.(map[string]interface{})
 
@@ -311,7 +335,7 @@ func (loader *Loader) loadActor(i interface{}) {
 	a.SetTransformation(position, scale, rotation)
 	a.Animation = animation	
 }
-
+*/
 func (loader *Loader) loadComplex(i interface{}) {
 	complexNode, ok := i.(map[string]interface{})
 
@@ -332,6 +356,28 @@ func (loader *Loader) loadComplex(i interface{}) {
 	c.Init(loader.scene, loader.resourceManager)
 }
 
+func (loader *Loader) loadProp(e *jsonEntity) {
+	shape := loader.loadShape(&e.Shape)
+	if shape == nil {
+		return
+	}
+
+	materials := loader.loadMaterials(e.Materials)
+	if materials == nil {
+		return
+	}
+
+	position := math.MakeVector3FromArray(e.Position)
+	scale := math.MakeVector3FromArray(e.Scale)
+	rotation := pkgjson.MakeRotationQuaternion(e.Rotation)
+
+	prop := loader.scene.CreateProp()
+	prop.Shape = shape
+	prop.Materials = materials
+	prop.SetTransformation(position, scale, rotation)	
+}
+
+/*
 func (loader *Loader) loadStaticProps(i interface{}) {
 	props, ok := i.([]interface{})
 
@@ -395,17 +441,11 @@ func (loader *Loader) loadStaticProp(i interface{}) {
 	prop.Materials = materials
 	prop.SetTransformation(position, scale, rotation)
 }
+*/
 
-func (loader *Loader) loadShape(i interface{}) shape.Shape {
-	shapeNode, ok := i.(map[string]interface{})
-
-	if !ok {
-		return nil
-	}
-
-	if t, ok := shapeNode["type"]; ok {
-		typename := t.(string)
-		switch typename {
+func (loader *Loader) loadShape(s *jsonShape) shape.Shape {
+	if len(s.Class) > 0 {
+		switch s.Class {
 		case "Disk":
 			if loader.disk == nil {
 				loader.disk = shape.NewDisk()
@@ -422,35 +462,28 @@ func (loader *Loader) loadShape(i interface{}) shape.Shape {
 			}
 			return loader.sphere
 		}
-	} else if f, ok := shapeNode["file"]; ok {
-		file := f.(string)
-		return loader.resourceManager.LoadShape(file)
+	} else if len(s.File) > 0 {
+		return loader.resourceManager.LoadShape(s.File)
 	}
 
 	return nil
 }
 
-func (loader *Loader) loadMaterials(i interface{}) []material.Material {
-	materialsNode, ok := i.([]interface{})
+func (loader *Loader) loadMaterials(materialNames []string) []material.Material {
+	materials := make([]material.Material, len(materialNames))
 
-	if !ok {
-		return nil
-	}
-
-	materials := make([]material.Material, len(materialsNode))
-
-	for c, m := range materialsNode {
-		material := loader.resourceManager.LoadMaterial(m.(string))
+	for i, m := range materialNames {
+		material := loader.resourceManager.LoadMaterial(m)
 
 		if material == nil {
 			return nil
 		}
 
-		materials[c] = material
+		materials[i] = material
 	}
 
 	return materials
-}
+}	
 
 func saveCachedTexture(filename string, t *texture.Texture2D) error {
 	fo, err := os.Create("../cache/" + filename)

@@ -20,7 +20,7 @@ func NewSphere(radius float32) *Sphere {
 func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
 	samples = samples[:0]
 
-	transformation := l.entity.TransformationAt(time)
+	transformation := l.prop.TransformationAt(time)
 
 	result := Sample{}
 

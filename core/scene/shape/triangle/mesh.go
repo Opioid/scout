@@ -5,7 +5,6 @@ import (
 	_ "github.com/Opioid/scout/core/scene/shape/triangle/kd"
 	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/core/scene/shape/triangle/primitive"
-	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	_ "fmt"
@@ -23,7 +22,7 @@ func NewMesh(aabb bounding.AABB, tree bvh.Tree) *Mesh {
 	return &m
 }
 
-func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
+func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
 						 intersection *geometry.Intersection) (bool, float32) {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
@@ -54,7 +53,7 @@ func (m *Mesh) Intersect(transformation *entity.ComposedTransformation, ray *mat
 	return false, 0.0
 }
 
-func (m *Mesh) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
+func (m *Mesh) IntersectP(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
 	oray := *ray
 	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
 	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))

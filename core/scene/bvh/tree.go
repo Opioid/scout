@@ -13,7 +13,7 @@ type Tree struct {
 	infinitePropsEnd   uint32
 }
 
-func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, intersection *prop.Intersection) bool {
+func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.Prop, intersection *prop.Intersection) bool {
 	hit := false
 
 	if t.root.intersect(ray, props, intersection) {
@@ -23,7 +23,7 @@ func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, inter
 	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
 		p := props[i]
 		if p.Intersect(ray, &intersection.Geo) {
-			intersection.Prop = &p.Prop
+			intersection.Prop = p
 			hit = true
 		}
 	}	
@@ -69,7 +69,7 @@ func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.StaticProp, inter
 	return hit
 }
 
-func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.StaticProp) bool {
+func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.Prop) bool {
 	if t.root.intersectP(ray, props) {
 		return true
 	}

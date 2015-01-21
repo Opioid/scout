@@ -29,7 +29,7 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 	for z := 0; z < numZ; z++ {
 		for y := 0; y < numY; y++ {
 			for x := 0; x < numX; x++ {
-				p := scene.CreateStaticProp()
+				p := scene.CreateProp()
 				p.Shape = shape
 				p.Materials = materials
 

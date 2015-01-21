@@ -13,8 +13,8 @@ type Builder struct {
 }
 
 
-func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree, outProps *[]*prop.StaticProp) {
-	*outProps = make([]*prop.StaticProp, 0, len(props))
+func (b *Builder) Build(props []*prop.Prop, maxShapes int, tree *Tree, outProps *[]*prop.Prop) {
+	*outProps = make([]*prop.Prop, 0, len(props))
 
 	root := buildNode{}
 
@@ -35,9 +35,9 @@ func (b *Builder) Build(props []*prop.StaticProp, maxShapes int, tree *Tree, out
 	tree.infinitePropsBegin = uint32(len(*outProps))
 	tree.infinitePropsEnd   = uint32(len(props))
 
-	for _, p := range props {
-		if !p.Shape.IsFinite() {
-			*outProps = append(*outProps, p)
+	for _, e := range props {
+		if !e.Shape.IsFinite() {
+			*outProps = append(*outProps, e)
 		}
 	}
 
@@ -106,7 +106,7 @@ type buildNode struct {
 	children [2]*buildNode
 }
 
-func (n *buildNode) split(props []*prop.StaticProp, maxShapes int, outProps *[]*prop.StaticProp) {
+func (n *buildNode) split(props []*prop.Prop, maxShapes int, outProps *[]*prop.Prop) {
 	n.aabb = miniaabb(props)
 
 	if len(props) <= maxShapes {
@@ -115,9 +115,9 @@ func (n *buildNode) split(props []*prop.StaticProp, maxShapes int, outProps *[]*
 		n.children[0] = new(buildNode)
 		n.children[1] = new(buildNode)
 
-		numProps := len(props) / 2
-		props0 := make([]*prop.StaticProp, 0, numProps)
-		props1 := make([]*prop.StaticProp, 0, numProps)
+		numprops := len(props) / 2
+		props0 := make([]*prop.Prop, 0, numprops)
+		props1 := make([]*prop.Prop, 0, numprops)
 
 		sp, axis := chooseSplittingPlane(&n.aabb)
 
@@ -142,7 +142,7 @@ func (n *buildNode) split(props []*prop.StaticProp, maxShapes int, outProps *[]*
 	}
 }
 
-func (n *buildNode) assign(props []*prop.StaticProp, outProps *[]*prop.StaticProp) {
+func (n *buildNode) assign(props []*prop.Prop, outProps *[]*prop.Prop) {
 	n.offset = uint32(len(*outProps))
 
 	for _, p := range props {
@@ -163,7 +163,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 	}
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, intersection *prop.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, intersection *prop.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -184,7 +184,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 		for i := n.offset; i < n.propsEnd; i++ {
 			p := props[i]
 			if p.Intersect(ray, &intersection.Geo) {
-				intersection.Prop = &p.Prop
+				intersection.Prop = p
 				hit = true
 			}
 		}
@@ -193,7 +193,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.StaticProp, 
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -217,11 +217,11 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.StaticProp)
 	return false
 }
 
-func miniaabb(props []*prop.StaticProp) bounding.AABB {
+func miniaabb(props []*prop.Prop) bounding.AABB {
 	b := bounding.MakeEmptyAABB()
 
-	for _, p := range props {
-		b = b.Merge(&p.AABB)
+	for _, e := range props {
+		b = b.Merge(&e.AABB)
 	}
 
 	return b

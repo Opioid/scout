@@ -1,7 +1,6 @@
 package shape
 
 import (
-	"github.com/Opioid/scout/core/scene/entity"
 	"github.com/Opioid/scout/core/scene/shape/geometry"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
@@ -19,7 +18,7 @@ func NewSphere() *Sphere {
 }
 
 // Won't work from the inside!
-func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32,
+func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32,
 						   intersection *geometry.Intersection) (bool, float32) {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
@@ -48,7 +47,7 @@ func (s *Sphere) Intersect(transformation *entity.ComposedTransformation, ray *m
 	return false, 0.0
 }
 
-func (s *Sphere) IntersectP(transformation *entity.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
+func (s *Sphere) IntersectP(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
 	radius := transformation.Scale.X

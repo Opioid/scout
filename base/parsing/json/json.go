@@ -110,3 +110,24 @@ func ParseRotationQuaternion(value interface{}) math.Quaternion {
 	m := ParseRotationMatrix(value)
 	return math.MakeQuaternionFromMatrix3x3(&m)
 }
+
+func MakeRotationMatrix(a [3]float32) math.Matrix3x3 {
+	rotation := math.MakeVector3FromArray(a)
+
+	rotationX := math.Matrix3x3{}
+	rotationX.SetRotationX(math.DegreesToRadians(rotation.X))
+
+	rotationY := math.Matrix3x3{}
+	rotationY.SetRotationY(math.DegreesToRadians(rotation.Y))
+
+	rotationZ := math.Matrix3x3{}
+	rotationZ.SetRotationZ(math.DegreesToRadians(rotation.Z))
+
+	t := rotationZ.Multiply(&rotationX)
+	return t.Multiply(&rotationY)
+}
+
+func MakeRotationQuaternion(a [3]float32) math.Quaternion {
+	m := MakeRotationMatrix(a)
+	return math.MakeQuaternionFromMatrix3x3(&m)
+}

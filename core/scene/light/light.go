@@ -1,13 +1,13 @@
 package light
 
 import (
-	"github.com/Opioid/scout/core/scene/entity"
+	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 )
 
 type Light interface {
-	Entity() *entity.Entity
+	Prop() *prop.Prop
 
 	SetColor(color math.Vector3)
 	SetLumen(lumen float32)
@@ -16,13 +16,13 @@ type Light interface {
 }
 
 type light struct {
-	entity entity.Entity
+	prop prop.Prop
 	color math.Vector3
 	lumen float32
 }
 
-func (l *light) Entity() *entity.Entity {
-	return &l.entity
+func (l *light) Prop() *prop.Prop {
+	return &l.prop
 }
 
 func (l *light) SetColor(color math.Vector3) {

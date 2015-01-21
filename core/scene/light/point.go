@@ -19,7 +19,7 @@ func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint
 
 	result := Sample{}
 
-	transformation := l.entity.TransformationAt(time)
+	transformation := l.prop.TransformationAt(time)
 
 	v := transformation.Position.Sub(p)
 

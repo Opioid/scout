@@ -18,7 +18,7 @@ func (l *Directional) Samples(p math.Vector3, time float32, subsample, maxSample
 
 	s := Sample{}
 
-	transformation := l.entity.TransformationAt(time)
+	transformation := l.prop.TransformationAt(time)
 
 	s.L = transformation.Rotation.Direction().Scale(-1.0)
 	s.Energy = l.color
