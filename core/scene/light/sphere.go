@@ -8,12 +8,10 @@ import (
 
 type Sphere struct {
 	light
-	radius float32
 }
 
-func NewSphere(radius float32) *Sphere {
+func NewSphere() *Sphere {
 	l := Sphere{}
-	l.radius = radius
 	return &l
 }
 
@@ -47,7 +45,7 @@ func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uin
 		sample := sampler.GenerateSample(s, subsample)
 
 		ls := math.HemisphereSample_uniform(sample.X, sample.Y)
-		ws := transformation.Rotation.TransformVector3(ls).Scale(l.radius)
+		ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
 
 		v := transformation.Position.Add(ws).Sub(p)
 

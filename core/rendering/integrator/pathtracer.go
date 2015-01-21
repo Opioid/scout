@@ -33,19 +33,25 @@ func (pt *pathtracer) StartNewPixel(numSamples uint32) {
 }
 
 func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+	material := intersection.Material()
+
+	if material.IsLight() {
+		return material.Energy()
+	}
+
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	nextDepth := ray.Depth + 1
+
 	if nextDepth > pt.maxBounces {
 		return result
 	}
 
-//	basis := math.Matrix3x3{}
-//	basis.SetBasis(intersection.Geo.N)
+	basis := math.Matrix3x3{}
+	basis.SetBasis(intersection.Geo.N)
+
 
 	v := ray.Direction.Scale(-1.0)
-
-	material := intersection.Material()
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 	values := brdf.Values()
 
@@ -54,21 +60,23 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 	for _, sample := range samples {
 		s := math.HemisphereSample_cos(sample.X, sample.Y)
 
-	//	v := basis.TransformVector3(s)
-		v := intersection.Geo.TangentToWorld(s)
+		v := basis.TransformVector3(s)
+	//	v := intersection.Geo.TangentToWorld(s)
 
 		pt.secondaryRay.Set(intersection.Geo.P, v, intersection.Geo.Epsilon, 1000.0, ray.Time, nextDepth)
 
 		environment := worker.Li(subsample, scene, &pt.secondaryRay)
 
-		result.AddAssign(environment.Scale(pt.numSamplesReciprocal))
+		result.AddAssign((environment).Scale(pt.numSamplesReciprocal))
 	}
+
 
 	result.MulAssign(values.DiffuseColor)
 
 	material.Free(brdf, pt.id)
 
 	return result
+
 }
 
 func (pt *pathtracer) MaxBounces() uint32 {

@@ -209,7 +209,7 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop) bool 
 	}
 
 	for i := n.offset; i < n.propsEnd; i++ {
-		if props[i].IntersectP(ray) {
+		if props[i].CastsShadow && props[i].IntersectP(ray) {
 			return true
 		}
 	}

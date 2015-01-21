@@ -3,6 +3,7 @@ package complex
 import (
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/resource"
+	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/scene/material"
 	"github.com/Opioid/scout/base/math"
@@ -29,7 +30,7 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 	for z := 0; z < numZ; z++ {
 		for y := 0; y < numY; y++ {
 			for x := 0; x < numX; x++ {
-				p := scene.CreateProp()
+				p := prop.NewProp()
 				p.Shape = shape
 				p.Materials = materials
 
@@ -41,6 +42,8 @@ func (c *sphereBlock) Init(scene *pkgscene.Scene, resourceManager *resource.Mana
 					-math.Sin(float32(x) / float32(numX - 1) * 2.0 * gomath.Pi))
 
 				p.SetTransformation(offset.Add(position.Add(modifier)), scale, math.MakeIdentityQuaternion())
+
+				scene.AddProp(p)
 			}
 		}
 	}

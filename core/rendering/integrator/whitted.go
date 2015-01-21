@@ -49,9 +49,13 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	w.shadowRay.MaxT = 1000.0
 	w.shadowRay.Time = ray.Time
 
-	v := ray.Direction.Scale(-1.0)
-
 	material := intersection.Material()
+
+	if material.IsLight() {
+		return material.Energy()
+	}
+
+	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, w.linearSampler_repeat, w.id)
 	values := brdf.Values()
 

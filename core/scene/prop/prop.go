@@ -16,19 +16,24 @@ type Prop struct {
 
 	AABB bounding.AABB	
 
-	Materials []material.Material		
+	Materials []material.Material
+
+	CastsShadow bool	
 }
 
 func NewProp() *Prop {
 	p := new(Prop)
 //	a.transformation.ObjectToWorld.SetIdentity()
+	p.CastsShadow = true
 	return p
 }
 
 func (p *Prop) SetTransformation(position, scale math.Vector3, rotation math.Quaternion) {
 	p.Transformation.Set(position, scale, rotation)
 
-	p.Shape.AABB().Transform(&p.Transformation.ObjectToWorld, &p.AABB)
+	if p.Shape != nil {
+		p.Shape.AABB().Transform(&p.Transformation.ObjectToWorld, &p.AABB)
+	}
 }
 
 func (p *Prop) Intersect(ray *math.OptimizedRay, intersection *geometry.Intersection) bool {

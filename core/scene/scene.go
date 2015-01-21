@@ -8,7 +8,7 @@ import (
 	"github.com/Opioid/scout/core/scene/light"
 	_ "github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/base/math"
-	 "fmt"
+	_ "fmt"
 )
 
 type Scene struct {
@@ -36,8 +36,6 @@ func (scene *Scene) Compile() {
 	builder.Build(scene.StaticProps, 4, &scene.bvh, &outProps)
 
 	scene.StaticProps = outProps
-
-	fmt.Println(len(scene.StaticProps))
 
 	/*
 	buffer := texture.Buffer{}
@@ -77,15 +75,17 @@ func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
 	return false
 }
 
-func (scene *Scene) CreateProp() *prop.Prop {
-	p := prop.NewProp()
+func (scene *Scene) AddProp(p *prop.Prop) {
 	scene.StaticProps = append(scene.StaticProps, p)
-
-	return p
 }
 
 func (scene *Scene) AddLight(l light.Light) {
 	scene.Lights = append(scene.Lights, l)
+
+	if p := l.Prop(); p.Shape != nil {
+		p.CastsShadow = false
+		scene.AddProp(p)
+	}
 }
 
 func (scene *Scene) CreateComplex(typename string) Complex {

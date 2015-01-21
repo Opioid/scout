@@ -75,7 +75,7 @@ func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.Prop) bool {
 	}
 
 	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
-		if props[i].IntersectP(ray) {
+		if  props[i].CastsShadow && props[i].IntersectP(ray) {
 			return true
 		}
 	}	

@@ -9,7 +9,10 @@ import (
 type Light interface {
 	Prop() *prop.Prop
 
+	Color() math.Vector3
 	SetColor(color math.Vector3)
+
+	Lumen() float32
 	SetLumen(lumen float32)
 
 	Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample
@@ -25,8 +28,16 @@ func (l *light) Prop() *prop.Prop {
 	return &l.prop
 }
 
+func (l *light) Color() math.Vector3 {
+	return l.color
+}
+
 func (l *light) SetColor(color math.Vector3) {
 	l.color = color
+}
+
+func (l *light) Lumen() float32 {
+	return l.lumen
 }
 
 func (l *light) SetLumen(lumen float32) {

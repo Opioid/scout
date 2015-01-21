@@ -8,10 +8,13 @@ import (
 )
 
 type Material interface {
+	Energy() math.Vector3
+
 	Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) renderingmaterial.Sample
 
 	Free(sample renderingmaterial.Sample, workerId uint32)
 
 	IsMirror() bool
+	IsLight() bool
 }
 

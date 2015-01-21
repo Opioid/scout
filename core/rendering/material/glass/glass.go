@@ -16,6 +16,14 @@ func (b *base) Free(sample material.Sample, workerId uint32) {
 	b.pool.Put(sample, workerId)
 }
 
+func (b *base) Energy() math.Vector3 {
+	return math.MakeVector3(0.0, 0.0, 0.0)
+}
+
+func (b *base) IsLight() bool {
+	return false
+}
+
 type Sample struct {
 	values material.Values
 }

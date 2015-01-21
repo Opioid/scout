@@ -22,6 +22,7 @@ func makeWorker(integrator Integrator) Worker {
 	// To reduce strain on the GC the max amount of intersection is alloceted once only.
 	// I believe it would be possible to design the integrators so that only one intersection is ever needed regardless of depth.
 	w.intersections = make([]prop.Intersection, integrator.MaxBounces() + 1)
+
 	return w
 }
 
