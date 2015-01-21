@@ -38,74 +38,34 @@ func NewLoader(scene *Scene, resourceManager *resource.Manager) *Loader {
 
 func (loader *Loader) Load(filename string) error {
 	data, err := ioutil.ReadFile(filename)
-
 	if err != nil {
 		return err
 	}
 
-	var document interface{}
-	if err = json.Unmarshal(data, &document); err != nil {
+	var scene jsonScene
+	if err = json.Unmarshal(data, &scene); err != nil {
 		return err
-	}
+	}	 
 
-	root := document.(map[string]interface{})
+	loader.loadSurrounding(&scene.Surrounding)
 
-	for key, value := range root {
-		switch key {
-		case "surrounding":
-			loader.loadSurrounding(value)
-		case "entities":
-			loader.loadEntities(value)
-		case "static_props":
-			loader.loadStaticProps(value)
-		} 
-	} 
-
-	if loader.scene.Surrounding == nil {
-		loader.scene.Surrounding = surrounding.NewUniform(math.MakeVector3(0, 0, 0))
-	}
+	loader.loadEntities(scene.Entities)
 
 	loader.scene.Compile()
 
 	return nil
 }
 
-func (loader *Loader) loadSurrounding(i interface{}) {
-	surroundingNode, ok := i.(map[string]interface{})
-
-	if !ok {
-		return
-	}
-
-	typeNode, ok := surroundingNode["type"]
-
-	if !ok {
-		return
-	}
-
-	typename := typeNode.(string)
-
-	switch typename {
-	case "Uniform": 
-		color := pkgjson.ReadVector3(surroundingNode, "color", math.MakeVector3(0, 0, 0))
+func (loader *Loader) loadSurrounding(js *jsonSurrounding) {
+	switch js.Class {
+	case "Uniform":
+		color := math.MakeVector3FromArray(js.Color)  
 		loader.scene.Surrounding = surrounding.NewUniform(color)
-
 	case "Textured":
-
-		t, ok := surroundingNode["texture"]
-
-		if !ok {
-			return
-		}
-
-		textureNode, ok := t.(map[string]interface{})
-
-		filename := textureNode["file"].(string)
-
 		usaCache := false
 
 		if usaCache {
-			filenameBase := file.WithoutExt(filepath.Base(filename))
+			filenameBase := file.WithoutExt(filepath.Base(js.Texture.File))
 
 			diffuseTextureName  := filenameBase  + "_diffuse.sui"
 			specularTextureName := filenameBase  + "_specular.sui"
@@ -117,7 +77,8 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 				loader.scene.Surrounding = surrounding.NewSphereFromCache(diffuseTexture, specularTexture)
 				fmt.Println("Found cached surrounding.")
 			} else {
-				if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, texture.Config{Usage: texture.RGBA}); sphericalTexture != nil {
+				if sphericalTexture := loader.resourceManager.LoadTexture2D(js.Texture.File, texture.Config{Usage: texture.RGBA}); 
+				   sphericalTexture != nil {
 					s := surrounding.NewSphere(sphericalTexture)
 
 					loader.scene.Surrounding = s
@@ -129,57 +90,79 @@ func (loader *Loader) loadSurrounding(i interface{}) {
 				} 
 			}
 		} else {
-			if sphericalTexture := loader.resourceManager.LoadTexture2D(filename, texture.Config{Usage: texture.RGBA}); sphericalTexture != nil {
+			if sphericalTexture := loader.resourceManager.LoadTexture2D(js.Texture.File, texture.Config{Usage: texture.RGBA}); 
+			   sphericalTexture != nil {
 				s := surrounding.NewSphere(sphericalTexture)
 
 				loader.scene.Surrounding = s
 			}
-		}
-	}
-}
-
-func saveCachedTexture(filename string, t *texture.Texture2D) error {
-	fo, err := os.Create("../cache/" + filename)
-	defer fo.Close()
-
-	if err == nil {
-		if err := texture.Save(fo, t); err != nil {
-			fmt.Println(err)
-			return err
-		}
+		}		
 	}
 
-	return nil
-}
-
-func loadCachedTexture(filename string) *texture.Texture2D {
-	fi, err := os.Open("../cache/" + filename)
-	defer fi.Close()
-
-	if err == nil {
-		texture, err := texture.Load(fi)
-
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		} else {
-			return texture
-		}
+	if loader.scene.Surrounding == nil {
+		loader.scene.Surrounding = surrounding.NewUniform(math.MakeVector3(1.0, 0.5, 0.75))
 	}	
-
-	return nil
 }
 
+func (loader *Loader) loadEntities(entities []jsonEntity) {
+
+}
+
+type jsonScene struct {
+	Surrounding jsonSurrounding
+
+	Entities []jsonEntity
+}
+
+type jsonSurrounding struct {
+	Class string
+
+	Texture jsonTexture
+
+	Color [3]float32
+}
+
+type jsonTexture struct {
+	File string
+}
+
+type jsonEntity struct {
+	Type, Class  string
+
+	Position [3]float32
+	Scale    [3]float32
+	Rotation [3]float32
+
+	Shape jsonShape
+
+	Keyframes []jsonKeyframe
+
+	Materials []string
+
+	Color [3]float32
+	Lumen float32
+	Radius float32
+}
+
+type jsonShape struct {
+	Class, File string
+}
+
+type jsonKeyframe struct {
+	Position [3]float32
+	Scale    [3]float32
+	Rotation [3]float32
+}
+
+/*
 func (loader *Loader) loadEntities(i interface{}) {
 	entities, ok := i.([]interface{})
-
 	if !ok {
 		return 
 	}
 
 	for _, entity := range entities {
 		entityNode, ok := entity.(map[string]interface{})
-
 		if !ok {
 			continue
 		}
@@ -201,7 +184,7 @@ func (loader *Loader) loadEntities(i interface{}) {
 			loader.loadComplex(entityNode)
 		}
 	}
-}
+}*/
 
 func (loader *Loader) loadLight(i interface{}) {
 	lightNode, ok := i.(map[string]interface{})
@@ -467,4 +450,36 @@ func (loader *Loader) loadMaterials(i interface{}) []material.Material {
 	}
 
 	return materials
+}
+
+func saveCachedTexture(filename string, t *texture.Texture2D) error {
+	fo, err := os.Create("../cache/" + filename)
+	defer fo.Close()
+
+	if err == nil {
+		if err := texture.Save(fo, t); err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func loadCachedTexture(filename string) *texture.Texture2D {
+	fi, err := os.Open("../cache/" + filename)
+	defer fi.Close()
+
+	if err == nil {
+		texture, err := texture.Load(fi)
+
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		} else {
+			return texture
+		}
+	}	
+
+	return nil
 }

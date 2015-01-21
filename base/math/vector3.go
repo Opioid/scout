@@ -16,8 +16,12 @@ func MakeIdentityVector3() Vector3 {
 	return Vector3{1.0, 1.0, 1.0}
 }
 
-func MakeVector3All(s float32) Vector3 {
+func MakeVector3FromScalar(s float32) Vector3 {
 	return Vector3{s, s, s}
+}
+
+func MakeVector3FromArray(a [3]float32) Vector3 {
+	return Vector3{a[0], a[1], a[2]}
 }
 
 func (a Vector3) At(i int32) float32 {
