@@ -7,11 +7,9 @@ import (
 )
 
 type Hammersley struct {
-	currentSample uint32
-	numSamplesPerIteration uint32
-	numTotalSamples uint32	
+	sampler
 
-	samples []math.Vector2
+	numTotalSamples uint32	
 }
 
 func NewHammersley(numSamplesPerIteration uint32) *Hammersley {
@@ -22,15 +20,11 @@ func NewHammersley(numSamplesPerIteration uint32) *Hammersley {
 
 func (h *Hammersley) allocateSamples(numSamplesPerIteration uint32) {
 	h.numSamplesPerIteration = numSamplesPerIteration
-	h.samples = make([]math.Vector2, numSamplesPerIteration)
+	h.samples2d = make([]math.Vector2, numSamplesPerIteration)
 }
 
 func (h *Hammersley) Clone(rng *random.Generator) Sampler {
 	return NewHammersley(h.numSamplesPerIteration)
-}
-
-func (h *Hammersley) NumSamplesPerIteration() uint32 {
-	return h.numSamplesPerIteration
 }
 
 func (h *Hammersley) Restart(numIterations uint32) {
@@ -59,10 +53,10 @@ func (h *Hammersley) GenerateSamples(iteration uint32) []math.Vector2 {
 	offset := iteration * h.numSamplesPerIteration
 
 	for i := uint32(0); i < h.numSamplesPerIteration; i++ {
-		h.samples[i] = math.Hammersley(i + offset, h.numTotalSamples)
+		h.samples2d[i] = math.Hammersley(i + offset, h.numTotalSamples)
 	}
 
-	return h.samples
+	return h.samples2d
 }
 
 func (h *Hammersley) GenerateSample(index, iteration uint32) math.Vector2 {

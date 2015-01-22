@@ -133,7 +133,6 @@ func (take *Take) loadCamera(c interface{}) {
 
 func loadSampler(s interface{}) sampler.Sampler {
 	samplerNode, ok := s.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -147,7 +146,9 @@ func loadSampler(s interface{}) sampler.Sampler {
 		case "Hammersley":
 			return loadHammersleySampler(value)				
 		case "Scrambled_hammersley":
-			return loadScrambledHammersleySampler(value)					
+			return loadScrambledHammersleySampler(value)		
+		case "Random":
+			return loadRandomSampler(value)			
 		}
 	}
 
@@ -156,7 +157,6 @@ func loadSampler(s interface{}) sampler.Sampler {
 
 func loadUniformSampler(s interface{}) sampler.Sampler {
 	samplerNode, ok := s.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -175,7 +175,6 @@ func loadUniformSampler(s interface{}) sampler.Sampler {
 
 func loadStratifiedSampler(s interface{}) sampler.Sampler {
 	samplerNode, ok := s.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -194,7 +193,6 @@ func loadStratifiedSampler(s interface{}) sampler.Sampler {
 
 func loadHammersleySampler(s interface{}) sampler.Sampler {
 	samplerNode, ok := s.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -213,7 +211,6 @@ func loadHammersleySampler(s interface{}) sampler.Sampler {
 
 func loadScrambledHammersleySampler(s interface{}) sampler.Sampler {
 	samplerNode, ok := s.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -228,6 +225,24 @@ func loadScrambledHammersleySampler(s interface{}) sampler.Sampler {
 	}
 
 	return sampler.NewScrambledHammersley(samplesPerPixel, nil)
+}
+
+func loadRandomSampler(s interface{}) sampler.Sampler {
+	samplerNode, ok := s.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	samplesPerPixel := uint32(1)
+
+	for key, value := range samplerNode {
+		switch key {
+		case "samples_per_pixel":
+			samplesPerPixel = uint32(value.(float64))
+		}
+	}
+
+	return sampler.NewRandom(samplesPerPixel, nil)
 }
 
 func loadFilm(f interface{}) pkgfilm.Film {

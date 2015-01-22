@@ -7,19 +7,14 @@ import (
 )
 
 type Stratified struct {
+	sampler 
+	
 	numStratifiedSamples math.Vector2i
-
-	numSamples uint32
-
-	currentSample uint32
 
 	area math.Vector2
 
 	// offsets never change after initialization
 	offsets []math.Vector2
-
-	// filled with the actual stratified samples every time GenerateSamples is called
-	samples []math.Vector2
 
 	rng *random.Generator
 }
@@ -33,10 +28,10 @@ func NewStratified(numStratifiedSamples math.Vector2i, rng *random.Generator) *S
 
 func (s *Stratified) allocateSamples(numStratifiedSamples math.Vector2i) {
 	s.numStratifiedSamples = numStratifiedSamples
-	s.numSamples = uint32(numStratifiedSamples.X * numStratifiedSamples.Y)
+	s.numSamplesPerIteration = uint32(numStratifiedSamples.X * numStratifiedSamples.Y)
 
-	s.offsets = make([]math.Vector2, s.numSamples)
-	s.samples = make([]math.Vector2, s.numSamples)
+	s.offsets = make([]math.Vector2, s.numSamplesPerIteration)
+	s.samples2d = make([]math.Vector2, s.numSamplesPerIteration)
 
 	s.area.X = 1.0 / float32(numStratifiedSamples.X)
 	s.area.Y = 1.0 / float32(numStratifiedSamples.Y)
@@ -56,16 +51,12 @@ func (s *Stratified) Clone(rng *random.Generator) Sampler {
 	return ns
 }
 
-func (s *Stratified) NumSamplesPerIteration() uint32 {
-	return s.numSamples
-}
-
 func (s *Stratified) Restart(numIterations uint32) {
 	s.currentSample = 0
 }
 
 func (s *Stratified) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool {
-	if s.currentSample >= s.numSamples {
+	if s.currentSample >= s.numSamplesPerIteration {
 		return false
 	}
 
@@ -81,11 +72,11 @@ func (s *Stratified) GenerateCameraSample(offset math.Vector2, sample *CameraSam
 }
 
 func (s *Stratified) GenerateSamples(iteration uint32) []math.Vector2 {
-	for i := uint32(0); i < s.numSamples; i++ {
-		s.samples[i] = s.sample(i)
+	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
+		s.samples2d[i] = s.sample(i)
 	}
 
-	return s.samples
+	return s.samples2d
 }
 
 func (s *Stratified) GenerateSample(index, iteration uint32) math.Vector2 {

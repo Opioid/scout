@@ -6,22 +6,20 @@ import (
 )
 
 type Uniform struct {
-	numSamples uint32
-	currentSample uint32
-	samples []math.Vector2
+	sampler
 }
 
 func NewUniform(samplesPerPixel math.Vector2i) *Uniform {
 	u := new(Uniform)
-	u.numSamples = uint32(samplesPerPixel.X * samplesPerPixel.Y)
-	u.samples = make([]math.Vector2, u.numSamples)
+	u.numSamplesPerIteration = uint32(samplesPerPixel.X * samplesPerPixel.Y)
+	u.samples2d = make([]math.Vector2, u.numSamplesPerIteration)
 
 	ax := 1.0 / float32(samplesPerPixel.X)
 	ay := 1.0 / float32(samplesPerPixel.Y)
 
 	for y, i := int32(0), int32(0); y < samplesPerPixel.Y; y++ {
 		for x := int32(0); x < samplesPerPixel.X; x++ {
-			u.samples[i] = math.MakeVector2((0.5 + float32(x)) * ax, (0.5 + float32(y)) * ay)
+			u.samples2d[i] = math.MakeVector2((0.5 + float32(x)) * ax, (0.5 + float32(y)) * ay)
 			i++
 		}
 	}	
@@ -31,13 +29,9 @@ func NewUniform(samplesPerPixel math.Vector2i) *Uniform {
 
 func (u *Uniform) Clone(rng *random.Generator) Sampler {
 	nu := new(Uniform)
-	nu.numSamples = u.numSamples
-	nu.samples = u.samples
+	nu.numSamplesPerIteration = u.numSamplesPerIteration
+	nu.samples2d = u.samples2d
 	return nu
-}
-
-func (u *Uniform) NumSamplesPerIteration() uint32 {
-	return u.numSamples
 }
 
 func (u *Uniform) Restart(numIterations uint32) {
@@ -45,11 +39,11 @@ func (u *Uniform) Restart(numIterations uint32) {
 }
 
 func (u *Uniform) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool {
-	if u.currentSample >= u.numSamples {
+	if u.currentSample >= u.numSamplesPerIteration {
 		return false
 	}
 
-	s2d := u.samples[u.currentSample]
+	s2d := u.samples2d[u.currentSample]
 
 	sample.Coordinates = offset.Add(s2d)
 	sample.RelativeOffset = s2d.SubS(0.5)
@@ -60,9 +54,9 @@ func (u *Uniform) GenerateCameraSample(offset math.Vector2, sample *CameraSample
 }
 
 func (u *Uniform) GenerateSamples(iteration uint32) []math.Vector2 {
-	return u.samples
+	return u.samples2d
 }
 
 func (u *Uniform) GenerateSample(index, iteration uint32) math.Vector2 {
-	return u.samples[index]
+	return u.samples2d[index]
 }

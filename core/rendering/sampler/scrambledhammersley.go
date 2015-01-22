@@ -7,14 +7,12 @@ import (
 )
 
 type ScrambledHammersley struct {
+	sampler
+
 	rng *random.Generator
 	randomBits uint32
 
-	currentSample uint32
-	numSamplesPerIteration uint32
 	numTotalSamples uint32	
-
-	samples []math.Vector2
 }
 
 func NewScrambledHammersley(numSamplesPerIteration uint32, rng *random.Generator) *ScrambledHammersley {
@@ -26,15 +24,11 @@ func NewScrambledHammersley(numSamplesPerIteration uint32, rng *random.Generator
 
 func (s *ScrambledHammersley) allocateSamples(numSamplesPerIteration uint32) {
 	s.numSamplesPerIteration = numSamplesPerIteration
-	s.samples = make([]math.Vector2, numSamplesPerIteration)
+	s.samples2d = make([]math.Vector2, numSamplesPerIteration)
 }
 
 func (s *ScrambledHammersley) Clone(rng *random.Generator) Sampler {
 	return NewScrambledHammersley(s.numSamplesPerIteration, rng)
-}
-
-func (s *ScrambledHammersley) NumSamplesPerIteration() uint32 {
-	return s.numSamplesPerIteration
 }
 
 func (s *ScrambledHammersley) Restart(numIterations uint32) {
@@ -64,10 +58,10 @@ func (s *ScrambledHammersley) GenerateSamples(iteration uint32) []math.Vector2 {
 	offset := iteration * s.numSamplesPerIteration
 
 	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
-		s.samples[i] = math.ScrambledHammersley(i + offset, s.numTotalSamples, s.randomBits)
+		s.samples2d[i] = math.ScrambledHammersley(i + offset, s.numTotalSamples, s.randomBits)
 	}
 
-	return s.samples
+	return s.samples2d
 }
 
 func (s *ScrambledHammersley) GenerateSample(index, iteration uint32) math.Vector2 {

@@ -18,3 +18,14 @@ type Sampler interface {
 
 	GenerateSample(index, iteration uint32) math.Vector2
 }
+
+type sampler struct {
+	currentSample uint32
+	numSamplesPerIteration uint32
+
+	samples2d []math.Vector2	
+}
+
+func (s *sampler) NumSamplesPerIteration() uint32 {
+	return s.numSamplesPerIteration
+}
