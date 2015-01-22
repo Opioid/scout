@@ -6,6 +6,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/texture"
 	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
+	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
 	_ "fmt"
@@ -22,16 +23,20 @@ type pathtracerSettings struct {
 	secondaryRay math.OptimizedRay
 
 	linearSampler_repeat texture.Sampler2D
+
+	shadowRay math.OptimizedRay
 }
 
 type pathtracer struct {
 	integrator
-	sampler *pkgsampler.ScrambledHammersley
+	sampler *pkgsampler.Random
 	pathtracerSettings
+
+	lightSamples []light.Sample
 }
 
 func (pt *pathtracer) StartNewPixel(numSamples uint32) {
-	pt.sampler.Restart(numSamples)
+	pt.sampler.Restart(numSamples * pt.maxBounces)
 }
 
 func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
@@ -51,28 +56,50 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
-	values := brdf.Values()
 
-	basis := math.Matrix3x3{}
-	basis.SetBasis(values.N)
+	fifty := pt.rng.RandomFloat32()
 
-	samples := pt.sampler.GenerateSamples(subsample, pt.samples) 
+	if fifty < 0.5 {
+		for _, l := range scene.Lights {
+			pt.lightSamples = l.Samples(intersection.Geo.P, ray.Time, subsample, 1, pt.sampler, pt.lightSamples)
 
-	for _, sample := range samples {
-		s := math.HemisphereSample_cos(sample.X, sample.Y)
+			numSamplesReciprocal := 1.0 / float32(len(pt.lightSamples))
 
-		v := basis.TransformVector3(s)
-	//	v := intersection.Geo.TangentToWorld(s)
+			for _, s := range pt.lightSamples {
+				pt.shadowRay.SetDirection(s.L)
 
-		pt.secondaryRay.Set(intersection.Geo.P, v, intersection.Geo.Epsilon, 1000.0, ray.Time, nextDepth)
+				if !scene.IntersectP(&pt.shadowRay) {
+					r := brdf.Evaluate(s.L)
 
-		environment := worker.Li(subsample, scene, &pt.secondaryRay)
+					result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
+				}
+			}
+		}
+	} else {
+		/*
+		samples := pt.sampler.GenerateSamples(ray.Depth + subsample * pt.maxBounces, pt.samples) 
 
-		result.AddAssign((environment).Scale(pt.numSamplesReciprocal))
+		values := brdf.Values()
+
+		basis := math.Matrix3x3{}
+		basis.SetBasis(values.N)
+
+		for _, sample := range samples {
+			s := math.HemisphereSample_cos(sample.X, sample.Y)
+
+			v := basis.TransformVector3(s)
+		//	v := intersection.Geo.TangentToWorld(s)
+
+			pt.secondaryRay.Set(intersection.Geo.P, v, intersection.Geo.Epsilon, 1000.0, ray.Time, nextDepth)
+
+			environment := worker.Li(subsample, scene, &pt.secondaryRay)
+
+			result.AddAssign((environment).Scale(pt.numSamplesReciprocal))
+		}
+
+		result.MulAssign(values.DiffuseColor)
+		*/
 	}
-
-
-	result.MulAssign(values.DiffuseColor)
 
 	material.Free(brdf, pt.id)
 
@@ -109,8 +136,10 @@ func (f *pathtracerFactory) New(id uint32, rng *random.Generator) rendering.Inte
 	pt.numSamples = f.numSamples
 	pt.numSamplesReciprocal = f.numSamplesReciprocal
 	pt.maxBounces = f.maxBounces
-	pt.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
+	pt.sampler = pkgsampler.NewRandom(f.numSamples, rng)
 	pt.samples = make([]math.Vector2, f.numSamples)
+
+	pt.lightSamples = make([]light.Sample, 0, 1)
 
 	pt.linearSampler_repeat = f.linearSampler_repeat
 
