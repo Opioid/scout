@@ -20,7 +20,6 @@ func NewHammersley(numSamplesPerIteration uint32) *Hammersley {
 
 func (h *Hammersley) allocateSamples(numSamplesPerIteration uint32) {
 	h.numSamplesPerIteration = numSamplesPerIteration
-	h.samples2d = make([]math.Vector2, numSamplesPerIteration)
 }
 
 func (h *Hammersley) Clone(rng *random.Generator) Sampler {
@@ -49,14 +48,14 @@ func (h *Hammersley) GenerateCameraSample(offset math.Vector2, sample *CameraSam
 	return true
 }
 
-func (h *Hammersley) GenerateSamples(iteration uint32) []math.Vector2 {
+func (h *Hammersley) GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2 {
 	offset := iteration * h.numSamplesPerIteration
 
 	for i := uint32(0); i < h.numSamplesPerIteration; i++ {
-		h.samples2d[i] = math.Hammersley(i + offset, h.numTotalSamples)
+		buffer[i] = math.Hammersley(i + offset, h.numTotalSamples)
 	}
 
-	return h.samples2d
+	return buffer
 }
 
 func (h *Hammersley) GenerateSample(index, iteration uint32) math.Vector2 {

@@ -24,7 +24,6 @@ func NewScrambledHammersley(numSamplesPerIteration uint32, rng *random.Generator
 
 func (s *ScrambledHammersley) allocateSamples(numSamplesPerIteration uint32) {
 	s.numSamplesPerIteration = numSamplesPerIteration
-	s.samples2d = make([]math.Vector2, numSamplesPerIteration)
 }
 
 func (s *ScrambledHammersley) Clone(rng *random.Generator) Sampler {
@@ -54,14 +53,14 @@ func (s *ScrambledHammersley) GenerateCameraSample(offset math.Vector2, sample *
 	return true
 }
 
-func (s *ScrambledHammersley) GenerateSamples(iteration uint32) []math.Vector2 {
+func (s *ScrambledHammersley) GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2 {
 	offset := iteration * s.numSamplesPerIteration
 
 	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
-		s.samples2d[i] = math.ScrambledHammersley(i + offset, s.numTotalSamples, s.randomBits)
+		buffer[i] = math.ScrambledHammersley(i + offset, s.numTotalSamples, s.randomBits)
 	}
 
-	return s.samples2d
+	return buffer
 }
 
 func (s *ScrambledHammersley) GenerateSample(index, iteration uint32) math.Vector2 {

@@ -24,7 +24,6 @@ func NewEMS(numSamplesPerIteration uint32, rng *random.Generator) *EMS {
 
 func (s *EMS) allocateSamples(numSamplesPerIteration uint32) {
 	s.numSamplesPerIteration = numSamplesPerIteration
-	s.samples2d = make([]math.Vector2, numSamplesPerIteration)
 }
 
 func (s *EMS) Clone(rng *random.Generator) Sampler {
@@ -54,15 +53,15 @@ func (s *EMS) GenerateCameraSample(offset math.Vector2, sample *CameraSample) bo
 	return true
 }
 
-func (s *EMS) GenerateSamples(iteration uint32) []math.Vector2 {
+func (s *EMS) GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2 {
 	offset := iteration * s.numSamplesPerIteration
 
 	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
 		index := i + offset
-		s.samples2d[i] = math.MakeVector2(math.ScrambledRadicalInverse_vdC(index, s.randomBits), math.RadicalInverse_S(index, s.randomBits))
+		buffer[i] = math.MakeVector2(math.ScrambledRadicalInverse_vdC(index, s.randomBits), math.RadicalInverse_S(index, s.randomBits))
 	}
 
-	return s.samples2d
+	return buffer
 }
 
 func (s *EMS) GenerateSample(index, iteration uint32) math.Vector2 {

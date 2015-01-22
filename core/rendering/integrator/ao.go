@@ -13,6 +13,7 @@ import (
 type aoSettings struct {
 	numSamples uint32
 	numSamplesReciprocal float32
+	samples []math.Vector2
 	radius float32
 }
 
@@ -37,7 +38,7 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scen
 
 	result := float32(0.0)
 
-	samples := a.sampler.GenerateSamples(subsample) 
+	samples := a.sampler.GenerateSamples(subsample, a.samples) 
 
 	for _, sample := range samples {
 		s := math.HemisphereSample_cos(sample.X, sample.Y)
@@ -81,6 +82,7 @@ func (f *aoFactory) New(id uint32, rng *random.Generator) rendering.Integrator {
 	a.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
 	a.numSamples = f.numSamples	
 	a.numSamplesReciprocal = f.numSamplesReciprocal
+	a.samples = make([]math.Vector2, f.numSamples)
 	a.radius = f.radius
 
 	return a

@@ -31,7 +31,6 @@ func (s *Stratified) allocateSamples(numStratifiedSamples math.Vector2i) {
 	s.numSamplesPerIteration = uint32(numStratifiedSamples.X * numStratifiedSamples.Y)
 
 	s.offsets = make([]math.Vector2, s.numSamplesPerIteration)
-	s.samples2d = make([]math.Vector2, s.numSamplesPerIteration)
 
 	s.area.X = 1.0 / float32(numStratifiedSamples.X)
 	s.area.Y = 1.0 / float32(numStratifiedSamples.Y)
@@ -71,12 +70,12 @@ func (s *Stratified) GenerateCameraSample(offset math.Vector2, sample *CameraSam
 	return true
 }
 
-func (s *Stratified) GenerateSamples(iteration uint32) []math.Vector2 {
+func (s *Stratified) GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2 {
 	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
-		s.samples2d[i] = s.sample(i)
+		buffer[i] = s.sample(i)
 	}
 
-	return s.samples2d
+	return buffer
 }
 
 func (s *Stratified) GenerateSample(index, iteration uint32) math.Vector2 {

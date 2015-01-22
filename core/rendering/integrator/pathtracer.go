@@ -17,6 +17,8 @@ type pathtracerSettings struct {
 
 	numSamplesReciprocal float32
 
+	samples []math.Vector2
+
 	secondaryRay math.OptimizedRay
 
 	linearSampler_repeat texture.Sampler2D
@@ -54,7 +56,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 	basis := math.Matrix3x3{}
 	basis.SetBasis(values.N)
 
-	samples := pt.sampler.GenerateSamples(subsample) 
+	samples := pt.sampler.GenerateSamples(subsample, pt.samples) 
 
 	for _, sample := range samples {
 		s := math.HemisphereSample_cos(sample.X, sample.Y)
@@ -108,6 +110,7 @@ func (f *pathtracerFactory) New(id uint32, rng *random.Generator) rendering.Inte
 	pt.numSamplesReciprocal = f.numSamplesReciprocal
 	pt.maxBounces = f.maxBounces
 	pt.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
+	pt.samples = make([]math.Vector2, f.numSamples)
 
 	pt.linearSampler_repeat = f.linearSampler_repeat
 

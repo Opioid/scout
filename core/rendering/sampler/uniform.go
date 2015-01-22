@@ -7,6 +7,8 @@ import (
 
 type Uniform struct {
 	sampler
+
+	samples2d []math.Vector2
 }
 
 func NewUniform(samplesPerPixel math.Vector2i) *Uniform {
@@ -53,8 +55,9 @@ func (u *Uniform) GenerateCameraSample(offset math.Vector2, sample *CameraSample
 	return true
 }
 
-func (u *Uniform) GenerateSamples(iteration uint32) []math.Vector2 {
-	return u.samples2d
+func (u *Uniform) GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2 {
+	copy(buffer, u.samples2d)
+	return buffer
 }
 
 func (u *Uniform) GenerateSample(index, iteration uint32) math.Vector2 {

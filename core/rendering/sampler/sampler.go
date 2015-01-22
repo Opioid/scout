@@ -14,16 +14,14 @@ type Sampler interface {
 
 	GenerateCameraSample(offset math.Vector2, sample *CameraSample) bool
 
-	GenerateSamples(iteration uint32) []math.Vector2
+	GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2
 
 	GenerateSample(index, iteration uint32) math.Vector2
 }
 
 type sampler struct {
 	currentSample uint32
-	numSamplesPerIteration uint32
-
-	samples2d []math.Vector2	
+	numSamplesPerIteration uint32	
 }
 
 func (s *sampler) NumSamplesPerIteration() uint32 {

@@ -21,7 +21,6 @@ func NewRandom(numSamplesPerIteration uint32, rng *random.Generator) *Random {
 
 func (s *Random) allocateSamples(numSamplesPerIteration uint32) {
 	s.numSamplesPerIteration = numSamplesPerIteration
-	s.samples2d = make([]math.Vector2, numSamplesPerIteration)
 }
 
 func (s *Random) Clone(rng *random.Generator) Sampler {
@@ -49,12 +48,12 @@ func (s *Random) GenerateCameraSample(offset math.Vector2, sample *CameraSample)
 	return true
 }
 
-func (s *Random) GenerateSamples(iteration uint32) []math.Vector2 {
+func (s *Random) GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2 {
 	for i := uint32(0); i < s.numSamplesPerIteration; i++ {
-		s.samples2d[i] = math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
+		buffer[i] = math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
 	}
 
-	return s.samples2d
+	return buffer
 }
 
 func (s *Random) GenerateSample(index, iteration uint32) math.Vector2 {
