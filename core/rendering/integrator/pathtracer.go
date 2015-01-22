@@ -47,13 +47,12 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 		return result
 	}
 
-	basis := math.Matrix3x3{}
-	basis.SetBasis(intersection.Geo.N)
-
-
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 	values := brdf.Values()
+
+	basis := math.Matrix3x3{}
+	basis.SetBasis(values.N)
 
 	samples := pt.sampler.GenerateSamples(subsample) 
 
