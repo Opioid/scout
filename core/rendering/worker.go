@@ -13,7 +13,11 @@ type Worker struct {
 	integrator Integrator
 	sample pkgsampler.CameraSample
 	ray math.OptimizedRay
+	
 	intersections []prop.Intersection
+
+	Scene *pkgscene.Scene
+	Transformation math.ComposedTransformation
 } 
 
 func makeWorker(integrator Integrator) Worker {
@@ -27,6 +31,8 @@ func makeWorker(integrator Integrator) Worker {
 }
 
 func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen, shutterClose float32, start, end math.Vector2i, sampler pkgsampler.Sampler) {
+	w.Scene = scene
+
 	f := camera.Film()
 
 	numSamples := sampler.NumSamplesPerIteration()
@@ -39,9 +45,9 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 			offset := math.MakeVector2(float32(x), float32(y))
 
 			for sampler.GenerateCameraSample(offset, &w.sample) {
-				camera.GenerateRay(&w.sample, shutterOpen, shutterClose, &w.ray)
+				camera.GenerateRay(&w.sample, shutterOpen, shutterClose, &w.Transformation, &w.ray)
 
-				color := w.Li(sampleId, scene, &w.ray) 
+				color := w.Li(sampleId, &w.ray) 
 
 				f.AddSample(&w.sample, color, start, end)
 
@@ -51,14 +57,18 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 	}
 }
 
-func (w *Worker) Li(subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay) math.Vector3 {
+func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 	intersection := &w.intersections[ray.Depth]
 
-	if scene.Intersect(ray, intersection) {
-		c := w.integrator.Li(w, subsample, scene, ray, intersection) 
+	if w.Scene.Intersect(ray, &w.Transformation, intersection) {
+		c := w.integrator.Li(w, subsample, ray, intersection) 
 		return c
 	} else {
-		c := scene.Surrounding.Sample(ray)
+		c := w.Scene.Surrounding.Sample(ray)
 		return c
 	}
+}
+
+func (w *Worker) Shadow(ray *math.OptimizedRay) bool {
+	return w.Scene.IntersectP(ray, &w.Transformation)
 }

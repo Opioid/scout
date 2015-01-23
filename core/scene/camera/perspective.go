@@ -45,7 +45,7 @@ func (p *Perspective) UpdateView() {
 	p.dy = leftBottom.Sub(p.leftTop).Div(float32(p.film.Dimensions().Y))
 }
 
-func (p *Perspective) GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, ray *math.OptimizedRay) {
+func (p *Perspective) GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, transformation *math.ComposedTransformation, ray *math.OptimizedRay) {
 	direction := p.leftTop.Add(p.dx.Scale(sample.Coordinates.X)).Add(p.dy.Scale(sample.Coordinates.Y))
 
 	r := math.Ray{math.MakeVector3(0.0, 0.0, 0.0), direction, 0.0, 1000.0}
@@ -62,7 +62,7 @@ func (p *Perspective) GenerateRay(sample *sampler.CameraSample, shutterOpen, shu
 
 	ray.Time = math32.Lerp(shutterOpen, shutterClose, sample.Time)
 
-	transformation := p.entity.TransformationAt(ray.Time)
+	p.entity.TransformationAt(ray.Time, transformation)
 
 	ray.Origin = transformation.ObjectToWorld.TransformPoint(r.Origin)
 	ray.SetDirection(transformation.ObjectToWorld.TransformVector3(r.Direction.Normalized()))

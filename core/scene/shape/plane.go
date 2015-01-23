@@ -20,7 +20,7 @@ func NewPlane() *Plane {
 // works from both sides of the plane
 func (p *Plane) Intersect(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
 						  intersection *geometry.Intersection) (bool, float32) {
-	normal := transformation.Rotation.Row(2)
+	normal := transformation.Rotation.Direction()
 
 	d := -normal.Dot(transformation.Position)
 
@@ -34,14 +34,14 @@ func (p *Plane) Intersect(transformation *math.ComposedTransformation, ray *math
 		intersection.Epsilon = 5e-4 * thit
 
 		intersection.P = ray.Point(thit)
-		intersection.T = transformation.Rotation.Row(0)
-		intersection.B = transformation.Rotation.Row(1)
+		intersection.T = transformation.Rotation.Right()
+		intersection.B = transformation.Rotation.Up()
 		intersection.N = normal
 
-		u := transformation.ObjectToWorld.Row(0).Vector3().Dot(intersection.P)
+		u := transformation.ObjectToWorld.Right().Dot(intersection.P)
 		intersection.UV.X = u - math32.Floor(u)
 
-		v := transformation.ObjectToWorld.Row(1).Vector3().Dot(intersection.P)
+		v := transformation.ObjectToWorld.Up().Dot(intersection.P)
 		intersection.UV.Y = v - math32.Floor(v)
 
 		intersection.MaterialId = 0

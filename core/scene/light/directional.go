@@ -13,12 +13,12 @@ func NewDirectional() *Directional {
 	return &Directional{}
 }
 
-func (l *Directional) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+func (l *Directional) Samples(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
 	samples = samples[:0]
 
 	s := Sample{}
 
-	transformation := l.prop.TransformationAt(time)
+	l.prop.TransformationAt(time, transformation)
 
 	s.L = transformation.Rotation.Direction().Scale(-1.0)
 	s.Energy = l.color
@@ -28,8 +28,8 @@ func (l *Directional) Samples(p math.Vector3, time float32, subsample, maxSample
 	return samples
 }
 
-func (l *Directional) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
-	transformation := l.prop.TransformationAt(time)
+func (l *Directional) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	l.prop.TransformationAt(time, transformation)
 
 	result := Sample{Energy: l.color, L: transformation.Rotation.Direction().Scale(-1.0)}
 

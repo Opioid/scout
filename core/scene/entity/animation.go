@@ -30,6 +30,18 @@ func (a *Animation) at(time float32) math.ComposedTransformation {
 //	return MakeComposedTransformation(&fi)
 } 
 
+func (a *Animation) at1(time float32, transformation *math.ComposedTransformation)  {
+	f0 := &a.keyframes[0]
+	f1 := &a.keyframes[1]
+
+//	d := f1.time - f0.time
+
+	fi := f0.transformation.Lerp(&f1.transformation, time)
+
+	transformation.SetFromTransformation(&fi)
+} 
+
+
 type keyframe struct {
 	time float32
 	transformation math.Transformation

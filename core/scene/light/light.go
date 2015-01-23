@@ -15,9 +15,9 @@ type Light interface {
 	Lumen() float32
 	SetLumen(lumen float32)
 
-	Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample
+	Samples(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample
 
-	Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample
+	Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample
 }
 
 type light struct {

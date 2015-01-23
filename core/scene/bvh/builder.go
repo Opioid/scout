@@ -163,7 +163,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 	}
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, intersection *prop.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -173,17 +173,17 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, inters
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersect(ray, props, intersection) {
+		if n.children[c].intersect(ray, props, transformation, intersection) {
 			hit = true
 		} 
 
-		if n.children[1 - c].intersect(ray, props, intersection) {
+		if n.children[1 - c].intersect(ray, props, transformation, intersection) {
 			hit = true
 		}
 	} else {
 		for i := n.offset; i < n.propsEnd; i++ {
 			p := props[i]
-			if p.Intersect(ray, &intersection.Geo) {
+			if p.Intersect(ray, transformation, &intersection.Geo) {
 				intersection.Prop = p
 				hit = true
 			}
@@ -193,7 +193,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, inters
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop, transformation *math.ComposedTransformation) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -201,15 +201,15 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop) bool 
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersectP(ray, props) {
+		if n.children[c].intersectP(ray, props, transformation) {
 			return true
 		} 
 
-		return n.children[1 - c].intersectP(ray, props)
+		return n.children[1 - c].intersectP(ray, props, transformation)
 	}
 
 	for i := n.offset; i < n.propsEnd; i++ {
-		if props[i].CastsShadow && props[i].IntersectP(ray) {
+		if props[i].CastsShadow && props[i].IntersectP(ray, transformation) {
 			return true
 		}
 	}

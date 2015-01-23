@@ -4,7 +4,6 @@ import (
 	"github.com/Opioid/scout/core/rendering"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering/texture"
-	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	_ "github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
@@ -30,7 +29,7 @@ func (pt *pathtracer) StartNewPixel(numSamples uint32) {
 	pt.sampler.Restart(numSamples * pt.maxBounces)
 }
 
-func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	material := intersection.Material()
 /*
 	if material.IsLight() {
@@ -48,7 +47,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 
-	l, probability := scene.RandomLight(pt.rng.RandomFloat32())
+	l, probability := worker.Scene.RandomLight(pt.rng.RandomFloat32())
 
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon
@@ -57,11 +56,12 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 	pt.secondaryRay.Depth = nextDepth
 
 	if l != nil {
-		ls := l.Sample(intersection.Geo.P, ray.Time, subsample, pt.sampler)
+		ls := l.Sample(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
 
 		pt.secondaryRay.SetDirection(ls.L)
 
-		if !scene.IntersectP(&pt.secondaryRay) {
+	//	if !scene.IntersectP(&pt.secondaryRay) {
+		if !worker.Shadow(&pt.secondaryRay) {	
 			r := brdf.Evaluate(ls.L)
 
 			result.AddAssign(ls.Energy.Mul(r))
@@ -81,7 +81,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 
 		pt.secondaryRay.SetDirection(v)
 
-		environment := worker.Li(subsample, scene, &pt.secondaryRay)
+		environment := worker.Li(subsample, &pt.secondaryRay)
 
 		result.AddAssign(values.DiffuseColor.Mul(environment))
 	}

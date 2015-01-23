@@ -14,12 +14,12 @@ func NewPoint() *Point {
 	return &Point{}
 }
 
-func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+func (l *Point) Samples(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
 	samples = samples[:0]
 
 	result := Sample{}
 
-	transformation := l.prop.TransformationAt(time)
+	l.prop.TransformationAt(time, transformation)
 
 	v := transformation.Position.Sub(p)
 
@@ -34,8 +34,8 @@ func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint
 	return samples
 }
 
-func (l *Point) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
-	transformation := l.prop.TransformationAt(time)
+func (l *Point) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	l.prop.TransformationAt(time, transformation)
 
 	v := transformation.Position.Sub(p)
 

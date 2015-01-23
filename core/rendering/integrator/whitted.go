@@ -6,7 +6,6 @@ import (
 	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/ibl"
-	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
@@ -41,7 +40,7 @@ func (w *whitted) StartNewPixel(numSamples uint32) {
 	w.sampler.Restart(numSamples)
 }
 
-func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	w.shadowRay.Origin = intersection.Geo.P
@@ -59,15 +58,15 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 	brdf := material.Sample(&intersection.Geo.Differential, v, w.linearSampler_repeat, w.id)
 	values := brdf.Values()
 
-	for _, l := range scene.Lights {
-		w.lightSamples = l.Samples(intersection.Geo.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
+	for _, l := range worker.Scene.Lights {
+		w.lightSamples = l.Samples(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 
 		for _, s := range w.lightSamples {
 			w.shadowRay.SetDirection(s.L)
 
-			if !scene.IntersectP(&w.shadowRay) {
+			if !worker.Shadow(&w.shadowRay) {
 				r := brdf.Evaluate(s.L)
 
 				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
@@ -75,7 +74,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 		}
 	}
 
-	ambientColor := scene.Surrounding.SampleDiffuse(values.N)
+	ambientColor := worker.Scene.Surrounding.SampleDiffuse(values.N)
 	result.AddAssign(ambientColor.Mul(values.DiffuseColor))
 
 	reflection := values.N.Reflect(ray.Direction).Normalized()
@@ -88,9 +87,9 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene
 		// If this is the second (or more) bounce, this will overwrite ray, because they are actually refering to the same memory!
 		w.secondaryRay.Set(intersection.Geo.P, reflection, intersection.Geo.Epsilon, 1000.0, ray.Time, ray.Depth + 1)
 
-		environment = worker.Li(subsample, scene, &w.secondaryRay)
+		environment = worker.Li(subsample, &w.secondaryRay)
 	} else {
-		environment = scene.Surrounding.SampleSpecular(reflection, values.Roughness)
+		environment = worker.Scene.Surrounding.SampleSpecular(reflection, values.Roughness)
 	}
 
 	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(values.Roughness, values.N_dot_v))

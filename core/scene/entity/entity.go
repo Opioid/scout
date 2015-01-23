@@ -13,12 +13,12 @@ func NewEntity() *Entity {
 	return &Entity{}
 }
 
-func (e *Entity) TransformationAt(time float32) math.ComposedTransformation {
+func (e *Entity) TransformationAt(time float32, transformation *math.ComposedTransformation)  {
 	if !e.Animation.empty() {
-		return e.Animation.at(time)
-	} 
-
-	return e.Transformation
+		e.Animation.at1(time, transformation)
+	} else {
+		*transformation = e.Transformation
+	}
 }
 
 func (e *Entity) SetTransformation(position, scale math.Vector3, rotation math.Quaternion) {

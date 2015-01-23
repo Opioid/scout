@@ -44,15 +44,15 @@ func (scene *Scene) Compile() {
 	*/
 }
 
-func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Intersection) bool {
+func (scene *Scene) Intersect(ray *math.OptimizedRay, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
 	hit := false
 
-	if scene.bvh.Intersect(ray, scene.StaticProps, intersection) {
+	if scene.bvh.Intersect(ray, scene.StaticProps, transformation, intersection) {
 		hit = true
 	}
 
 	for _, p := range scene.DynamicProps {
-		if p.Intersect(ray, &intersection.Geo) {
+		if p.Intersect(ray, transformation, &intersection.Geo) {
 			intersection.Prop = p
 			hit = true
 		}
@@ -61,13 +61,13 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, intersection *prop.Interse
 	return hit
 }
 
-func (scene *Scene) IntersectP(ray *math.OptimizedRay) bool {
-	if scene.bvh.IntersectP(ray, scene.StaticProps) {
+func (scene *Scene) IntersectP(ray *math.OptimizedRay, transformation *math.ComposedTransformation) bool {
+	if scene.bvh.IntersectP(ray, scene.StaticProps, transformation) {
 		return true
 	}
 
 	for _, p := range scene.DynamicProps {
-		if p.IntersectP(ray) {
+		if p.IntersectP(ray, transformation) {
 			return true
 		}
 	}

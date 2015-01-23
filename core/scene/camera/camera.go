@@ -13,7 +13,7 @@ type Camera interface {
 	Film() film.Film
 	ShutterSpeed() float32
 
-	GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, ray *math.OptimizedRay)
+	GenerateRay(sample *sampler.CameraSample, shutterOpen, shutterClose float32, transformation *math.ComposedTransformation, ray *math.OptimizedRay)
 }
 
 type projectiveCamera struct {

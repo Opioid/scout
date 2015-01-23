@@ -15,10 +15,10 @@ func NewSphere() *Sphere {
 	return &l
 }
 
-func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+func (l *Sphere) Samples(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
 	samples = samples[:0]
 
-	transformation := l.prop.TransformationAt(time)
+	l.prop.TransformationAt(time, transformation)
 
 	result := Sample{}
 
@@ -61,8 +61,8 @@ func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uin
 	return samples	
 }
 
-func (l *Sphere) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
-	transformation := l.prop.TransformationAt(time)
+func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	l.prop.TransformationAt(time, transformation)
 
 	sample := sampler.GenerateSample(0, subsample)
 

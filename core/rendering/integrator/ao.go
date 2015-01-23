@@ -3,7 +3,6 @@ package integrator
 import (
 	"github.com/Opioid/scout/core/rendering"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
-	pkgscene "github.com/Opioid/scout/core/scene"
 	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
@@ -27,7 +26,7 @@ func (a *ao) StartNewPixel(numSamples uint32) {
 	a.sampler.Restart(numSamples)
 }
 
-func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+func (a *ao) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	occlusionRay := math.OptimizedRay{}
 	occlusionRay.Origin = intersection.Geo.P
 	occlusionRay.MinT = intersection.Geo.Epsilon
@@ -48,7 +47,7 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scen
 
 		occlusionRay.SetDirection(v)
 
-		if !scene.IntersectP(&occlusionRay) {
+		if !worker.Shadow(&occlusionRay) {
 			result += a.numSamplesReciprocal
 		}
 	}

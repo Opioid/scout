@@ -14,10 +14,10 @@ func NewDisk() *Disk {
 	return &d
 }
 
-func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
+func (l *Disk) Samples(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
 	samples = samples[:0]
 
-	transformation := l.prop.TransformationAt(time)
+	l.prop.TransformationAt(time, transformation)
 
 	result := Sample{}
 /*
@@ -55,8 +55,8 @@ func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint3
 	return samples		
 }
 
-func (l *Disk) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
-	transformation := l.prop.TransformationAt(time)
+func (l *Disk) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	l.prop.TransformationAt(time, transformation)
 
 	sample := sampler.GenerateSample(0, subsample)
 
