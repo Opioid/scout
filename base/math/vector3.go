@@ -92,7 +92,11 @@ func (a *Vector3) MulAssign(b Vector3) Vector3 {
 }
 
 func (a Vector3) Div(s float32) Vector3 {
-	return a.Scale(1 / s)
+	return a.Scale(1.0 / s)
+}
+
+func (a* Vector3) DivAssign(s float32) Vector3 {
+	return a.ScaleAssign(1.0 / s)
 }
 
 func (a Vector3) DivV(b Vector3) Vector3 {

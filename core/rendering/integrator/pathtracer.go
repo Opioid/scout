@@ -57,7 +57,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 
-	l := scene.RandomLight(pt.rng.RandomFloat32())
+	l, probability := scene.RandomLight(pt.rng.RandomFloat32())
 
 	if l != nil {
 		pt.shadowRay.Origin = intersection.Geo.P
@@ -67,19 +67,16 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 
 		pt.lightSamples = l.Samples(intersection.Geo.P, ray.Time, subsample, 1, pt.sampler, pt.lightSamples)
 
-		numSamplesReciprocal := 1.0 / float32(len(pt.lightSamples))
+		s := pt.lightSamples[0] 
+		pt.shadowRay.SetDirection(s.L)
 
-		for _, s := range pt.lightSamples {
-			pt.shadowRay.SetDirection(s.L)
+		if !scene.IntersectP(&pt.shadowRay) {
+			r := brdf.Evaluate(s.L)
 
-			if !scene.IntersectP(&pt.shadowRay) {
-				r := brdf.Evaluate(s.L)
-
-				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
-			}
+			result.AddAssign(s.Energy.Mul(r))
 		}
 	} else {
-		
+
 		samples := pt.sampler.GenerateSamples(ray.Depth + subsample * pt.maxBounces, pt.samples) 
 
 		values := brdf.Values()
@@ -101,8 +98,9 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 		}
 
 		result.MulAssign(values.DiffuseColor)
-	
 	}
+
+	result.DivAssign(probability)
 
 	material.Free(brdf, pt.id)
 
