@@ -90,7 +90,11 @@ func (scene *Scene) AddLight(l light.Light) {
 
 func (scene *Scene) CreateComplex(typename string) Complex {
 	c := scene.ComplexProvider.NewComplex(typename)
-	scene.Complexes = append(scene.Complexes, c)
+
+	if c != nil {
+		scene.Complexes = append(scene.Complexes, c)
+	}
+
 	return c
 }
 

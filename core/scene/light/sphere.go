@@ -60,3 +60,21 @@ func (l *Sphere) Samples(p math.Vector3, time float32, subsample, maxSamples uin
 
 	return samples	
 }
+
+func (l *Sphere) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	transformation := l.prop.TransformationAt(time)
+
+	sample := sampler.GenerateSample(0, subsample)
+
+	ls := math.HemisphereSample_uniform(sample.X, sample.Y)
+	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
+
+	v := transformation.Position.Add(ws).Sub(p)
+
+	d := v.SquaredLength()
+	i := 1.0 / d
+
+	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(math32.Sqrt(d))}
+
+	return result
+}

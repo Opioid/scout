@@ -17,7 +17,6 @@ import (
 
 func (take *Take) Load(filename string) bool {
 	data, err := ioutil.ReadFile(filename)
-
 	if err != nil {
 		return false
 	}
@@ -63,7 +62,6 @@ func (take *Take) Load(filename string) bool {
 
 func (take *Take) loadCamera(c interface{}) {
 	cameraNode, ok := c.(map[string]interface{})
-
 	if !ok {
 		return
 	}
@@ -78,7 +76,6 @@ func (take *Take) loadCamera(c interface{}) {
 	}
 
 	settingsNode, ok := typevalue.(map[string]interface{})
-
 	if !ok {
 		return
 	}
@@ -247,7 +244,6 @@ func loadRandomSampler(s interface{}) sampler.Sampler {
 
 func loadFilm(f interface{}) pkgfilm.Film {
 	filmNode, ok := f.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -276,7 +272,6 @@ func loadFilm(f interface{}) pkgfilm.Film {
 
 func loadTonemapper(t interface{}) tonemapping.Tonemapper {
 	tonemapperNode, ok := t.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -295,7 +290,6 @@ func loadTonemapper(t interface{}) tonemapping.Tonemapper {
 
 func loadFilmicTonemapper(f interface{}) tonemapping.Tonemapper {
 	filmicNode, ok := f.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -307,7 +301,6 @@ func loadFilmicTonemapper(f interface{}) tonemapping.Tonemapper {
 
 func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -328,7 +321,6 @@ func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 
 func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -350,7 +342,6 @@ func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
 
 func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
@@ -372,22 +363,18 @@ func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 
 func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
-
 	if !ok {
 		return nil
 	}
 
-	numSamples := uint32(8)
 	maxBounces := uint32(2)
 
 	for key, value := range integratorNode {
 		switch key {
-		case "num_samples":
-			numSamples = uint32(value.(float64))
 		case "max_bounces":
 			maxBounces = uint32(value.(float64))
 		}
 	}
 
-	return integrator.NewPathtracerFactory(numSamples, maxBounces)
+	return integrator.NewPathtracerFactory(maxBounces)
 }

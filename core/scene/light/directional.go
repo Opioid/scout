@@ -27,3 +27,11 @@ func (l *Directional) Samples(p math.Vector3, time float32, subsample, maxSample
 
 	return samples
 }
+
+func (l *Directional) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	transformation := l.prop.TransformationAt(time)
+
+	result := Sample{Energy: l.color, L: transformation.Rotation.Direction().Scale(-1.0)}
+
+	return result
+}

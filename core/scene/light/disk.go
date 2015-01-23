@@ -54,3 +54,18 @@ func (l *Disk) Samples(p math.Vector3, time float32, subsample, maxSamples uint3
 
 	return samples		
 }
+
+func (l *Disk) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	transformation := l.prop.TransformationAt(time)
+
+	sample := sampler.GenerateSample(0, subsample)
+
+	ls := math.DiskSample_uniform(sample.X, sample.Y)
+	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
+
+	v := transformation.Rotation.Direction().Scale(-1.0).Add(ws)
+
+	result := Sample{Energy: l.color, L: v.Normalized()}
+
+	return result
+}

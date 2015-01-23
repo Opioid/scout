@@ -24,7 +24,7 @@ func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint
 	v := transformation.Position.Sub(p)
 
 	d := v.SquaredLength()
-	i := 1 / d
+	i := 1.0 / d
 
 	result.L = v.Div(math32.Sqrt(d))
 	result.Energy = l.color.Scale(i * l.lumen)
@@ -32,4 +32,17 @@ func (l *Point) Samples(p math.Vector3, time float32, subsample, maxSamples uint
 	samples = append(samples, result)
 
 	return samples
+}
+
+func (l *Point) Sample(p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
+	transformation := l.prop.TransformationAt(time)
+
+	v := transformation.Position.Sub(p)
+
+	d := v.SquaredLength()
+	i := 1.0 / d
+
+	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(math32.Sqrt(d))}
+
+	return result
 }

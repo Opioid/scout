@@ -112,8 +112,8 @@ func (loader *Loader) loadEntities(entities []jsonEntity) {
 			loader.loadLight(&entities[e])
 		case "Prop":
 			loader.loadProp(&entities[e])
-	//	case "Complex":
-	//		loader.loadComplex(entityNode)
+		default:
+			loader.loadComplex(&entities[e])
 		}
 	}
 }
@@ -272,22 +272,11 @@ func (loader *Loader) loadActor(i interface{}) {
 	a.Animation = animation	
 }
 */
-func (loader *Loader) loadComplex(i interface{}) {
-	complexNode, ok := i.(map[string]interface{})
-
-	if !ok {
+func (loader *Loader) loadComplex(e *jsonEntity) {
+	c := loader.scene.CreateComplex(e.Type)
+	if c == nil {
 		return
 	}
-
-	typeNode, ok := complexNode["type"]
-
-	if !ok {
-		return
-	}
-
-	typename := typeNode.(string)
-
-	c := loader.scene.CreateComplex(typename)
 
 	c.Init(loader.scene, loader.resourceManager)
 }
@@ -313,72 +302,6 @@ func (loader *Loader) loadProp(e *jsonEntity) {
 	prop.SetTransformation(position, scale, rotation)
 	loader.scene.AddProp(prop)
 }
-
-/*
-func (loader *Loader) loadStaticProps(i interface{}) {
-	props, ok := i.([]interface{})
-
-	if !ok {
-		return 
-	}
-
-	for _, prop := range props {
-		loader.loadStaticProp(prop)
-	}
-}
-
-func (loader *Loader) loadStaticProp(i interface{}) {
-	propNode, ok := i.(map[string]interface{})
-
-	if !ok {
-		return
-	}
-
-	s, ok := propNode["shape"]
-
-	if !ok {
-		return
-	}
-
-	shape := loader.loadShape(s)
-
-	if shape == nil {
-		return
-	}
-
-	m, ok := propNode["materials"]
-
-	if !ok {
-		return
-	}
-
-	materials := loader.loadMaterials(m)
-
-	if materials == nil {
-		return
-	}
-
-	var position math.Vector3
-	scale := math.MakeIdentityVector3()
-	rotation := math.MakeIdentityQuaternion()
-
-	for key, value := range propNode {
-		switch key {
-		case "position":
-			position = pkgjson.ParseVector3(value)
-		case "scale":
-			scale = pkgjson.ParseVector3(value)
-		case "rotation":
-			rotation = pkgjson.ParseRotationQuaternion(value)
-		}
-	}
-
-	prop := loader.scene.CreateStaticProp()
-	prop.Shape = shape
-	prop.Materials = materials
-	prop.SetTransformation(position, scale, rotation)
-}
-*/
 
 func (loader *Loader) loadShape(s *jsonShape) shape.Shape {
 	if len(s.Type) > 0 {
@@ -413,6 +336,10 @@ func (loader *Loader) shape(typename string) shape.Shape {
 }
 
 func (loader *Loader) loadMaterials(materialNames []string) []material.Material {
+	if len(materialNames) == 0 {
+		return nil
+	}
+
 	materials := make([]material.Material, len(materialNames))
 
 	for i, m := range materialNames {
