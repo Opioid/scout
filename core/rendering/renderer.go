@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/core/progress"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
+	"github.com/Opioid/math32"
 	"sync"
 	_ "fmt"
 )
@@ -24,7 +25,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, numThreads ui
 	r.currentPixel = math.MakeVector2i(0, 0)
 	r.tileSize     = math.MakeVector2i(32, 32)
 
-	numTiles := int(float32(dimensions.X) / float32(r.tileSize.X) + 0.5) * int(float32(dimensions.Y) / float32(r.tileSize.Y) + 0.5)
+	numTiles := int(math32.Ceil(float32(dimensions.X) / float32(r.tileSize.X))) * int(math32.Ceil(float32(dimensions.Y) / float32(r.tileSize.Y)))
 	tiles := make(chan tile, numTiles)
 
 	for {

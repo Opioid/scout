@@ -93,3 +93,15 @@ func (scene *Scene) CreateComplex(typename string) Complex {
 	scene.Complexes = append(scene.Complexes, c)
 	return c
 }
+
+func (scene *Scene) RandomLight(r float32) light.Light {
+	num := len(scene.Lights)
+	l := int(float32(num + 1) * r)
+
+	if l >= num {
+		// the intention is that this symbolizes the surrounding light
+		return nil
+	} else {
+		return scene.Lights[l]
+	}
+}

@@ -41,11 +41,11 @@ func (pt *pathtracer) StartNewPixel(numSamples uint32) {
 
 func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgscene.Scene, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	material := intersection.Material()
-
+/*
 	if material.IsLight() {
 		return material.Energy()
 	}
-
+*/
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	nextDepth := ray.Depth + 1
@@ -57,26 +57,29 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 
-	fifty := pt.rng.RandomFloat32()
+	l := scene.RandomLight(pt.rng.RandomFloat32())
 
-	if fifty < 0.5 {
-		for _, l := range scene.Lights {
-			pt.lightSamples = l.Samples(intersection.Geo.P, ray.Time, subsample, 1, pt.sampler, pt.lightSamples)
+	if l != nil {
+		pt.shadowRay.Origin = intersection.Geo.P
+		pt.shadowRay.MinT = intersection.Geo.Epsilon
+		pt.shadowRay.MaxT = 1000.0
+		pt.shadowRay.Time = ray.Time
 
-			numSamplesReciprocal := 1.0 / float32(len(pt.lightSamples))
+		pt.lightSamples = l.Samples(intersection.Geo.P, ray.Time, subsample, 1, pt.sampler, pt.lightSamples)
 
-			for _, s := range pt.lightSamples {
-				pt.shadowRay.SetDirection(s.L)
+		numSamplesReciprocal := 1.0 / float32(len(pt.lightSamples))
 
-				if !scene.IntersectP(&pt.shadowRay) {
-					r := brdf.Evaluate(s.L)
+		for _, s := range pt.lightSamples {
+			pt.shadowRay.SetDirection(s.L)
 
-					result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
-				}
+			if !scene.IntersectP(&pt.shadowRay) {
+				r := brdf.Evaluate(s.L)
+
+				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
 			}
 		}
 	} else {
-		/*
+		
 		samples := pt.sampler.GenerateSamples(ray.Depth + subsample * pt.maxBounces, pt.samples) 
 
 		values := brdf.Values()
@@ -98,7 +101,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, scene *pkgs
 		}
 
 		result.MulAssign(values.DiffuseColor)
-		*/
+	
 	}
 
 	material.Free(brdf, pt.id)
