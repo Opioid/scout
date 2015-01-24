@@ -49,7 +49,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/light_test.take"
+	takename := "../data/takes/material_test.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)
@@ -84,7 +84,7 @@ func main() {
 	renderStart := time.Now()
 
 	progressor := progress.NewStdout()
-	renderer.Render(&scene, &take.Context, uint32(runtime.NumCPU()), progressor)
+	renderer.Render(&scene, &take.Context, uint32(runtime.NumCPU()) - 1, progressor)
 
 	renderDuration := time.Since(renderStart)
 	seconds = float64(renderDuration.Nanoseconds()) / 1000000000.0

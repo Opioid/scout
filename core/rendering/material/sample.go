@@ -6,5 +6,5 @@ import (
 
 type Sample interface {
 	Evaluate(l math.Vector3) math.Vector3
-	Values() Values
+	Values() *Values
 }

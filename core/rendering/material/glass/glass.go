@@ -32,7 +32,7 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	return math.MakeVector3(0.3, 0.3, 0.3)
 }
 
-func (s *Sample) Values() material.Values {
-	return s.values
+func (s *Sample) Values() *material.Values {
+	return &s.values
 }
 

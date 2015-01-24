@@ -71,28 +71,6 @@ func (b *AABB) Transform(m *math.Matrix4x4, other *AABB) {
 }
 
 func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
-/* 
-    txmin := (b.Bounds[    ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
-    txmax := (b.Bounds[1 - ray.DirIsNeg[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
-
-    tmin := math.Max(ray.MinT, txmin)
-    tmax := math.Min(ray.MaxT, txmax)
-
-    tymin := (b.Bounds[    ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
-    tymax := (b.Bounds[1 - ray.DirIsNeg[1]].Y - ray.Origin.Y) * ray.ReciprocalDirection.Y
-
-    tmin = math.Max(tmin, tymin)
-    tmax = math.Min(tmax, tymax)
-
-    tzmin := (b.Bounds[    ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
-    tzmax := (b.Bounds[1 - ray.DirIsNeg[2]].Z - ray.Origin.Z) * ray.ReciprocalDirection.Z
-
-    tmin = math.Max(tmin, tzmin)
-    tmax = math.Min(tmax, tzmax)
-
-    return tmax >= tmin
-    */
-
     tmin := (b.Bounds[    ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
     tmax := (b.Bounds[1 - ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X
 
@@ -128,7 +106,6 @@ func (b *AABB) IntersectP(ray *math.OptimizedRay) bool {
 
     return tmin < ray.MaxT && tmax > ray.MinT 
 }
-
 
 func (b *AABB) Intersect(ray *math.OptimizedRay) (bool, float32, float32) {
     tmin := (b.Bounds[    ray.Sign[0]].X - ray.Origin.X) * ray.ReciprocalDirection.X

@@ -67,7 +67,7 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	return s.values.DiffuseColor.Add(specular).Scale(n_dot_l)
 }
 
-func (s *Sample) Values() material.Values {
-	return s.values
+func (s *Sample) Values() *material.Values {
+	return &s.values
 }
 

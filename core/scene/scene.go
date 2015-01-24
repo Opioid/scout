@@ -98,7 +98,7 @@ func (scene *Scene) CreateComplex(typename string) Complex {
 	return c
 }
 
-func (scene *Scene) RandomLight(r float32) (light.Light, float32) {
+func (scene *Scene) MonteCarloLight(r float32) (light.Light, float32) {
 	numLights := len(scene.Lights)
 	num := float32(numLights + 1)
 	l := int(num * r)

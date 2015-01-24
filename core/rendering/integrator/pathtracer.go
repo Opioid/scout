@@ -47,7 +47,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 
-	l, probability := worker.Scene.RandomLight(pt.rng.RandomFloat32())
+	l, probability := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon

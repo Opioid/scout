@@ -24,5 +24,5 @@ func (g *Gaussian) Evaluate(p math.Vector2) float32 {
 }
 
 func (g *Gaussian) gaussian(d, exp float32) float32 {
-	return math32.Max(0, math.Exp(-g.alpha * d * d) - exp)
+	return math32.Max(0.0, math.Exp(-g.alpha * d * d) - exp)
 }
