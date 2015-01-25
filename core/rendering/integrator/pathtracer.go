@@ -45,7 +45,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	}
 
 	v := ray.Direction.Scale(-1.0)
-	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
+	materialSample := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 
 	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
@@ -60,27 +60,27 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 		pt.secondaryRay.SetDirection(ls.L)
 
-		if !worker.Shadow(&pt.secondaryRay) {	
-			r := brdf.Evaluate(ls.L)
+		if !worker.Shadow(&pt.secondaryRay) {
+			r := materialSample.Evaluate(ls.L)
 
 			result.AddAssign(ls.Energy.Mul(r))
 		}
 
 	} else {
-		values := brdf.Values()
+	//	values := materialSample.Values()
 
-		basis := math.Matrix3x3{}
-		basis.SetBasis(values.N)
+	//	basis := math.Matrix3x3{}
+	//	basis.SetBasis(values.N)
 
 	//	sample := pt.sampler.GenerateSample(0, ray.Depth + subsample * pt.maxBounces) 
 	//	hs := math.HemisphereSample_cos(sample.X, sample.Y)
 
-		bxdf, bp := brdf.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		bxdf, bp := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 		hs := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		v := basis.TransformVector3(hs)
-	//	v := intersection.Geo.TangentToWorld(s)
+	//	v := basis.TransformVector3(hs)
+		v := materialSample.TangentToWorld(hs)
 
 		pt.secondaryRay.SetDirection(v)
 
@@ -93,7 +93,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 	result.DivAssign(lp)
 
-	material.Free(brdf, pt.id)
+	material.Free(materialSample, pt.id)
 
 	return result
 }

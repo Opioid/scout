@@ -82,13 +82,14 @@ type buildNode struct {
 }
 
 func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, maxPrimitives, depth int, 
-						   outTriangles *[]primitive.Triangle) {
+						  outTriangles *[]primitive.Triangle) {
 	n.aabb = subMeshAabb(primitiveIndices, triangles, vertices)
 
 	if len(primitiveIndices) < maxPrimitives || depth > 18 {
 		n.assign(primitiveIndices, triangles, vertices, outTriangles)
 	} else {
-		sp, axis := chooseSplittingPlane(&n.aabb)
+	//	sp, axis := chooseSplittingPlaneMiddle(&n.aabb)
+		sp, axis := chooseSplittingPlaneAverage(&n.aabb, primitiveIndices, triangles, vertices)
 
 		n.axis = axis
 
@@ -263,23 +264,8 @@ func triangleSide(a, b, c math.Vector3, p math.Plane) int {
 	}
 }
 
-func splittingPlane(aabb *bounding.AABB) (int8, float32) {
-	position := aabb.Position()
-	halfsize := aabb.Halfsize()
 
-	if halfsize.X >= halfsize.Y && halfsize.X >= halfsize.Z {
-		p := math.MakePlane(axis[0], position)
-		return 0, p.D
-	} else if halfsize.Y >= halfsize.X && halfsize.Y >= halfsize.Z {
-		p := math.MakePlane(axis[1], position)
-		return 1, p.D
-	} else {
-		p := math.MakePlane(axis[2], position)
-		return 2, p.D
-	}
-}
-
-func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int8) {
+func chooseSplittingPlaneMiddle(aabb *bounding.AABB) (math.Plane, int8) {
 	position := aabb.Position()
 	halfsize := aabb.Halfsize()
 
@@ -289,5 +275,26 @@ func chooseSplittingPlane(aabb *bounding.AABB) (math.Plane, int8) {
 		return math.MakePlane(math.MakeVector3(0.0, 1.0, 0.0), position), 1
 	} else {
 		return math.MakePlane(math.MakeVector3(0.0, 0.0, 1.0), position), 2
+	}
+}
+
+func chooseSplittingPlaneAverage(aabb *bounding.AABB, primitiveIndices[]uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex) (math.Plane, int8) {
+	average := math.MakeVector3(0.0, 0.0, 0.0)
+
+	for _, pi := range primitiveIndices {
+		average.AddAssign(vertices[triangles[pi].A].P.Add(vertices[triangles[pi].B].P).Add(vertices[triangles[pi].C].P))
+	}
+
+	average.DivAssign(float32(len(primitiveIndices) * 3))
+
+	position := aabb.Position()
+	halfsize := aabb.Halfsize()
+
+	if halfsize.X >= halfsize.Y && halfsize.X >= halfsize.Z {
+		return math.MakePlane(math.MakeVector3(1.0, 0.0, 0.0), math.MakeVector3(average.X, position.Y, position.Z)), 0
+	} else if halfsize.Y >= halfsize.X && halfsize.Y >= halfsize.Z {
+		return math.MakePlane(math.MakeVector3(0.0, 1.0, 0.0), math.MakeVector3(position.X, average.Y, position.Z)), 1
+	} else {
+		return math.MakePlane(math.MakeVector3(0.0, 0.0, 1.0), math.MakeVector3(position.X, position.Y, average.Z)), 2
 	}
 }

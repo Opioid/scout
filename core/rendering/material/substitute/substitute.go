@@ -52,6 +52,7 @@ func (b *base) IsLight() bool {
 }
 
 type Sample struct {
+	material.SampleBase
 	values material.Values
 
 	metallic float32
