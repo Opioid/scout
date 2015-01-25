@@ -32,6 +32,10 @@ func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vecto
 	n := dg.TangentToWorld(nm).Normalized()	
 
 	s := m.pool.Get(workerId)
+
+	s.N = n
+	s.T, s.B = math.CalculateTangentAndBitangent(n)
+
 	s.values.Set(m.color, 1.0, m.roughness, m.metallic, n, v)
 	return s	
 }
