@@ -63,3 +63,7 @@ func (u *Uniform) GenerateSamples(iteration uint32, buffer []math.Vector2) []mat
 func (u *Uniform) GenerateSample(index, iteration uint32) math.Vector2 {
 	return u.samples2d[index]
 }
+
+func (u *Uniform) GenerateSample1D(index, iteration uint32) float32 {
+	return 0.5
+}

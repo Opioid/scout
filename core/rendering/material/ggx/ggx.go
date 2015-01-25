@@ -73,12 +73,12 @@ float g_smith(float roughness, float n_dot_l, float n_dot_v)
 */
 
 func g1(n_dot_v, k float32) float32 {
-	return n_dot_v / (n_dot_v * (1 - k) + k)
+	return n_dot_v / (n_dot_v * (1.0 - k) + k)
 }
 
 func G_smith(roughness, n_dot_l, n_dot_v float32) float32 {
-	r1 := roughness + 1
-	k  := (r1 + r1) / 8
+	r1 := roughness + 1.0
+	k  := (r1 + r1) / 8.0
 
 	return g1(n_dot_l, k) * g1(n_dot_v, k)
 }

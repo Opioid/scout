@@ -94,8 +94,8 @@ func intefrateBrdf(roughness, n_dot_v float32, numSamples uint32) math.Vector2 {
 	v.Y = 0.0
 	v.Z = n_dot_v // cos
 
-	a := float32(0)
-	b := float32(0)
+	a := float32(0.0)
+	b := float32(0.0)
 
 	for i := uint32(0); i < numSamples; i++ {
 		xi := math.Hammersley(i, numSamples)

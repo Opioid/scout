@@ -47,7 +47,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
 
-	l, probability := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
+	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon
@@ -60,7 +60,6 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 		pt.secondaryRay.SetDirection(ls.L)
 
-	//	if !scene.IntersectP(&pt.secondaryRay) {
 		if !worker.Shadow(&pt.secondaryRay) {	
 			r := brdf.Evaluate(ls.L)
 
@@ -73,8 +72,12 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		basis := math.Matrix3x3{}
 		basis.SetBasis(values.N)
 
-		sample := pt.sampler.GenerateSample(0, ray.Depth + subsample * pt.maxBounces) 
-		hs := math.HemisphereSample_cos(sample.X, sample.Y)
+	//	sample := pt.sampler.GenerateSample(0, ray.Depth + subsample * pt.maxBounces) 
+	//	hs := math.HemisphereSample_cos(sample.X, sample.Y)
+
+		bxdf, bp := brdf.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+
+		hs := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 		v := basis.TransformVector3(hs)
 	//	v := intersection.Geo.TangentToWorld(s)
@@ -83,10 +86,12 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 		environment := worker.Li(subsample, &pt.secondaryRay)
 
-		result.AddAssign(values.DiffuseColor.Mul(environment))
+		r := bxdf.Evaluate(v)
+
+		result.AddAssign(r.Mul(environment).Div(bp))
 	}
 
-	result.DivAssign(probability)
+	result.DivAssign(lp)
 
 	material.Free(brdf, pt.id)
 

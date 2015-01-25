@@ -68,3 +68,7 @@ func (s *EMS) GenerateSample(index, iteration uint32) math.Vector2 {
 	i := index + iteration * s.numSamplesPerIteration
 	return math.MakeVector2(math.ScrambledRadicalInverse_vdC(i, s.randomBits), math.RadicalInverse_S(i, s.randomBits))
 }
+
+func (s *EMS) GenerateSample1D(index, iteration uint32) float32 {
+	return 0.5
+}

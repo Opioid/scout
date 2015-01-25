@@ -3,6 +3,7 @@ package light
 import (
 	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/core/rendering/material"
+	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	_ "fmt"
 )
@@ -35,3 +36,6 @@ func (s *Sample) Values() *material.Values {
 	return &s.values
 }
 
+func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (material.Bxdf, float32) {
+	return nil, 1.0
+}

@@ -59,3 +59,7 @@ func (s *Random) GenerateSamples(iteration uint32, buffer []math.Vector2) []math
 func (s *Random) GenerateSample(index, iteration uint32) math.Vector2 {
 	return math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
 }
+
+func (s *Random) GenerateSample1D(index, iteration uint32) float32 {
+	return s.rng.RandomFloat32()
+}

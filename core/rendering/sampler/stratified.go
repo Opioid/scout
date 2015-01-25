@@ -82,6 +82,10 @@ func (s *Stratified) GenerateSample(index, iteration uint32) math.Vector2 {
 	return s.sample(index)
 }
 
+func (s *Stratified) GenerateSample1D(index, iteration uint32) float32 {
+	return 0.5
+}
+
 func (s *Stratified) sample(id uint32) math.Vector2 {
 	sample := s.offsets[id]
 	sample.X += s.area.X * (s.rng.RandomFloat32() - 0.5)
