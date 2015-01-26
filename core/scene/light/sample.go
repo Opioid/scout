@@ -8,4 +8,5 @@ import (
 type Sample struct {
 	Energy math.Vector3
 	L math.Vector3
+	T float32
 }

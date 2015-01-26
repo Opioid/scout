@@ -22,6 +22,7 @@ func (l *Directional) Samples(transformation *math.ComposedTransformation, p mat
 
 	s.L = transformation.Rotation.Direction().Scale(-1.0)
 	s.Energy = l.color
+	s.T = 1000.0
 
 	samples = append(samples, s)
 
@@ -31,7 +32,7 @@ func (l *Directional) Samples(transformation *math.ComposedTransformation, p mat
 func (l *Directional) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
 	l.prop.TransformationAt(time, transformation)
 
-	result := Sample{Energy: l.color, L: transformation.Rotation.Direction().Scale(-1.0)}
+	result := Sample{Energy: l.color, L: transformation.Rotation.Direction().Scale(-1.0), T: 1000.0}
 
 	return result
 }

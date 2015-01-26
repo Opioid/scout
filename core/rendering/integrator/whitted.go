@@ -45,7 +45,6 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 
 	w.shadowRay.Origin = intersection.Geo.P
 	w.shadowRay.MinT = intersection.Geo.Epsilon
-	w.shadowRay.MaxT = 1000.0
 	w.shadowRay.Time = ray.Time
 
 	material := intersection.Material()
@@ -65,6 +64,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 
 		for _, s := range w.lightSamples {
 			w.shadowRay.SetDirection(s.L)
+			w.shadowRay.MaxT = s.T
 
 			if !worker.Shadow(&w.shadowRay) {
 				r := brdf.Evaluate(s.L)

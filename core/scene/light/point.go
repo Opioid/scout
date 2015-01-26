@@ -25,9 +25,11 @@ func (l *Point) Samples(transformation *math.ComposedTransformation, p math.Vect
 
 	d := v.SquaredLength()
 	i := 1.0 / d
+	t := math32.Sqrt(d)
 
-	result.L = v.Div(math32.Sqrt(d))
+	result.L = v.Div(t)
 	result.Energy = l.color.Scale(i * l.lumen)
+	result.T = t
 
 	samples = append(samples, result)
 
@@ -41,8 +43,9 @@ func (l *Point) Sample(transformation *math.ComposedTransformation, p math.Vecto
 
 	d := v.SquaredLength()
 	i := 1.0 / d
+	t := math32.Sqrt(d)
 
-	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(math32.Sqrt(d))}
+	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(t), T: t}
 
 	return result
 }

@@ -51,7 +51,6 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon
-	pt.secondaryRay.MaxT = 1000.0
 	pt.secondaryRay.Time = ray.Time
 	pt.secondaryRay.Depth = nextDepth
 
@@ -59,6 +58,7 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		ls := l.Sample(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
 
 		pt.secondaryRay.SetDirection(ls.L)
+		pt.secondaryRay.MaxT = ls.T
 
 		if !worker.Shadow(&pt.secondaryRay) {
 			r := materialSample.Evaluate(ls.L)
@@ -67,6 +67,8 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		}
 
 	} else {
+		pt.secondaryRay.MaxT = 1000.0
+
 	//	values := materialSample.Values()
 
 	//	basis := math.Matrix3x3{}

@@ -48,6 +48,7 @@ func (l *Disk) Samples(transformation *math.ComposedTransformation, p math.Vecto
 
 		result.L = v.Normalized()
 		result.Energy = l.color
+		result.T = 1000.0
 
 		samples = append(samples, result)		
 	}
@@ -65,7 +66,7 @@ func (l *Disk) Sample(transformation *math.ComposedTransformation, p math.Vector
 
 	v := transformation.Rotation.Direction().Scale(-1.0).Add(ws)
 
-	result := Sample{Energy: l.color, L: v.Normalized()}
+	result := Sample{Energy: l.color, L: v.Normalized(), T: 1000.0}
 
 	return result
 }

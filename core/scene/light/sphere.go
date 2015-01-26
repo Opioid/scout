@@ -53,9 +53,11 @@ func (l *Sphere) Samples(transformation *math.ComposedTransformation, p math.Vec
 
 		d := v.SquaredLength()
 		i := 1.0 / d
+		t := math32.Sqrt(d)
 
-		result.L = v.Div(math32.Sqrt(d))
+		result.L = v.Div(t)
 		result.Energy = l.color.Scale(i * l.lumen)
+		result.T = t
 
 		samples = append(samples, result)		
 	}
@@ -75,8 +77,9 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 
 	d := v.SquaredLength()
 	i := 1.0 / d
+	t := math32.Sqrt(d)
 
-	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(math32.Sqrt(d))}
+	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(t), T: t}
 
 	return result
 }
