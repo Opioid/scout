@@ -7,6 +7,7 @@ import (
 	"github.com/Opioid/scout/core/scene/material"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
+	_ "fmt"
 )
 
 type Prop struct {
@@ -18,14 +19,17 @@ type Prop struct {
 
 	Materials []material.Material
 
-	CastsShadow bool	
+	CastsShadow bool
+
+	visibility uint8
 }
 
 func NewProp() *Prop {
-	p := new(Prop)
+	p := Prop{visibility: Primary | Secondary}
 //	a.transformation.ObjectToWorld.SetIdentity()
 	p.CastsShadow = true
-	return p
+
+	return &p
 }
 
 func (p *Prop) SetTransformation(position, scale math.Vector3, rotation math.Quaternion) {
@@ -72,4 +76,16 @@ func (p *Prop) IntersectP(ray *math.OptimizedRay, transformation *math.ComposedT
 	p.TransformationAt(ray.Time, transformation)
 
 	return p.Shape.IntersectP(transformation, ray, boundingMinT, boundingMaxT) 
+}
+
+func (p *Prop) IsVisible(flags uint8) bool {
+	return p.visibility & flags != 0
+}
+
+func (p *Prop) SetVisible(flag uint8, visible bool) {
+	if visible {
+		p.visibility |= flag
+	} else {
+		p.visibility &= ^flag
+	}
 }

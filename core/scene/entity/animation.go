@@ -14,23 +14,8 @@ func (a *Animation) empty() bool {
 	return len(a.keyframes) < 2
 }
 
-func (a *Animation) at(time float32) math.ComposedTransformation {
-	f0 := &a.keyframes[0]
-	f1 := &a.keyframes[1]
 
-//	d := f1.time - f0.time
-
-	fi := f0.transformation.Lerp(&f1.transformation, time)
-
-	t := math.ComposedTransformation{}
-	t.SetFromTransformation(&fi)
-	return t
-	
-
-//	return MakeComposedTransformation(&fi)
-} 
-
-func (a *Animation) at1(time float32, transformation *math.ComposedTransformation)  {
+func (a *Animation) at(time float32, transformation *math.ComposedTransformation)  {
 	f0 := &a.keyframes[0]
 	f1 := &a.keyframes[1]
 

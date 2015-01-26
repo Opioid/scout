@@ -13,16 +13,16 @@ type Tree struct {
 	infinitePropsEnd   uint32
 }
 
-func (t *Tree) Intersect(ray *math.OptimizedRay, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
+func (t *Tree) Intersect(ray *math.OptimizedRay, visibility uint8, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
 	hit := false
 
-	if t.root.intersect(ray, props, transformation, intersection) {
+	if t.root.intersect(ray, visibility, props, transformation, intersection) {
 		hit = true
 	}
 
 	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
 		p := props[i]
-		if p.Intersect(ray, transformation, &intersection.Geo) {
+		if p.IsVisible(visibility) && p.Intersect(ray, transformation, &intersection.Geo) {
 			intersection.Prop = p
 			hit = true
 		}

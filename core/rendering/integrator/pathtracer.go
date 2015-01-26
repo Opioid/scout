@@ -31,11 +31,11 @@ func (pt *pathtracer) StartNewPixel(numSamples uint32) {
 
 func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
 	material := intersection.Material()
-/*
+
 	if material.IsLight() {
 		return material.Energy()
 	}
-*/
+
 	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	nextDepth := ray.Depth + 1
@@ -44,54 +44,35 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		return result
 	}
 
-	v := ray.Direction.Scale(-1.0)
-	materialSample := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
-
-	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon
-	pt.secondaryRay.MaxT = 1000.0
 	pt.secondaryRay.Time = ray.Time
 	pt.secondaryRay.Depth = nextDepth
 
-	if l != nil {
-		ls := l.Sample(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
+//	fmt.Println(pt.secondaryRay.Depth)
 
-		pt.secondaryRay.SetDirection(ls.L)
 
-		if !worker.Shadow(&pt.secondaryRay) {
-			r := materialSample.Evaluate(ls.L)
+	eye := ray.Direction.Scale(-1.0)
+	materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
-			result.AddAssign(ls.Energy.Mul(r))
-		}
+	bxdf, bp := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-	} else {
-	//	values := materialSample.Values()
-
-	//	basis := math.Matrix3x3{}
-	//	basis.SetBasis(values.N)
-
-	//	sample := pt.sampler.GenerateSample(0, ray.Depth + subsample * pt.maxBounces) 
-	//	hs := math.HemisphereSample_cos(sample.X, sample.Y)
-
-		bxdf, bp := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
-
-		hs := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	hs := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 	//	v := basis.TransformVector3(hs)
 		v := materialSample.TangentToWorld(hs)
 
-		pt.secondaryRay.SetDirection(v)
+	pt.secondaryRay.SetDirection(v)
+	pt.secondaryRay.MaxT = 1000.0
 
-		environment := worker.Li(subsample, &pt.secondaryRay)
+	environment := worker.Li(subsample, &pt.secondaryRay)
 
-		r := bxdf.Evaluate(v)
+	r := bxdf.Evaluate(v)
 
-		result.AddAssign(r.Mul(environment).Div(bp))
-	}
+	result.AddAssign(r.Mul(environment).Div(bp))
 
-	result.DivAssign(lp)
+//	result.DivAssign(lp)
 
 	material.Free(materialSample, pt.id)
 

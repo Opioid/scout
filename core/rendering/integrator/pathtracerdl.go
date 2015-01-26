@@ -44,15 +44,15 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		return result
 	}
 
-	v := ray.Direction.Scale(-1.0)
-	materialSample := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
-
-	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
-
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon
 	pt.secondaryRay.Time = ray.Time
 	pt.secondaryRay.Depth = nextDepth
+
+	v := ray.Direction.Scale(-1.0)
+	materialSample := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
+
+	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
 	if l != nil {
 		ls := l.Sample(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)

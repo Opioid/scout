@@ -1,6 +1,7 @@
 package light
 
 import (
+	"github.com/Opioid/scout/core/scene/prop"
 	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
@@ -13,6 +14,7 @@ type Sphere struct {
 
 func NewSphere(shape shape.Shape) *Sphere {
 	l := Sphere{}
+	l.prop.SetVisible(prop.Secondary, true)
 	l.prop.Shape = shape
 	return &l
 }

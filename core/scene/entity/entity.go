@@ -15,7 +15,7 @@ func NewEntity() *Entity {
 
 func (e *Entity) TransformationAt(time float32, transformation *math.ComposedTransformation)  {
 	if !e.Animation.empty() {
-		e.Animation.at1(time, transformation)
+		e.Animation.at(time, transformation)
 	} else {
 		*transformation = e.Transformation
 	}

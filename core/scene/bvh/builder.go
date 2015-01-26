@@ -35,9 +35,9 @@ func (b *Builder) Build(props []*prop.Prop, maxShapes int, tree *Tree, outProps 
 	tree.infinitePropsBegin = uint32(len(*outProps))
 	tree.infinitePropsEnd   = uint32(len(props))
 
-	for _, e := range props {
-		if !e.Shape.IsFinite() {
-			*outProps = append(*outProps, e)
+	for _, p := range props {
+		if !p.Shape.IsFinite() {
+			*outProps = append(*outProps, p)
 		}
 	}
 
@@ -149,6 +149,8 @@ func (n *buildNode) assign(props []*prop.Prop, outProps *[]*prop.Prop) {
 		if p.Shape.IsFinite() {
 			*outProps = append(*outProps, p)
 		}
+
+		p.IsVisible(1)
 	}	
 
 	n.propsEnd = uint32(len(*outProps))
@@ -163,7 +165,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 	}
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, visibility uint8, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -173,17 +175,17 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, props []*prop.Prop, transf
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersect(ray, props, transformation, intersection) {
+		if n.children[c].intersect(ray, visibility, props, transformation, intersection) {
 			hit = true
 		} 
 
-		if n.children[1 - c].intersect(ray, props, transformation, intersection) {
+		if n.children[1 - c].intersect(ray, visibility, props, transformation, intersection) {
 			hit = true
 		}
 	} else {
 		for i := n.offset; i < n.propsEnd; i++ {
 			p := props[i]
-			if p.Intersect(ray, transformation, &intersection.Geo) {
+			if p.IsVisible(visibility) && p.Intersect(ray, transformation, &intersection.Geo) {
 				intersection.Prop = p
 				hit = true
 			}

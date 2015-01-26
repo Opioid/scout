@@ -33,6 +33,7 @@ func (scene *Scene) Init() {
 func (scene *Scene) Compile() {
 	builder := bvh.Builder{}
 	var outProps []*prop.Prop
+
 	builder.Build(scene.StaticProps, 4, &scene.bvh, &outProps)
 
 	scene.StaticProps = outProps
@@ -44,10 +45,10 @@ func (scene *Scene) Compile() {
 	*/
 }
 
-func (scene *Scene) Intersect(ray *math.OptimizedRay, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
+func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
 	hit := false
 
-	if scene.bvh.Intersect(ray, scene.StaticProps, transformation, intersection) {
+	if scene.bvh.Intersect(ray, visibility, scene.StaticProps, transformation, intersection) {
 		hit = true
 	}
 
@@ -101,7 +102,7 @@ func (scene *Scene) CreateComplex(typename string) Complex {
 func (scene *Scene) MonteCarloLight(r float32) (light.Light, float32) {
 	numLights := len(scene.Lights)
 	num := float32(numLights)
-	l := int(num * r)
+	l := int(num * r - 0.001)
 
 	probability := 1.0 / num
 
