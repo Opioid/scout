@@ -79,7 +79,7 @@ func (s *Sample) Values() *material.Values {
 }
 
 func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (material.Bxdf, float32) {
-	if s.metallic == 1.0 {
+/*	if s.metallic == 1.0 {
 		s.ggx.set(s.values.V, s.values.N, s.values.F0, s.values.A2)
 		return &s.ggx, 1.0
 	} else {
@@ -94,6 +94,10 @@ func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (mate
 			return &s.ggx, 0.5
 		}
 	}
+*/
+
+	s.lambert.set(s.values.DiffuseColor)
+	return &s.lambert, 1.0
 }
 
 type LambertBxdf struct {

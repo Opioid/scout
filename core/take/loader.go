@@ -311,8 +311,10 @@ func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 			return loadWhittedIntegrator(value)
 		case "AO":
 			return loadAoIntegrator(value)
-		case "Pathtracer":
+		case "PT":
 			return loadPathtracerIntegrator(value)
+		case "PTDL":
+			return loadPathtracerDlIntegrator(value)
 		}
 	}
 
@@ -377,4 +379,22 @@ func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
 	}
 
 	return integrator.NewPathtracerFactory(maxBounces)
+}
+
+func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
+	integratorNode, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	maxBounces := uint32(2)
+
+	for key, value := range integratorNode {
+		switch key {
+		case "max_bounces":
+			maxBounces = uint32(value.(float64))
+		}
+	}
+
+	return integrator.NewPathtracerDlFactory(maxBounces)
 }
