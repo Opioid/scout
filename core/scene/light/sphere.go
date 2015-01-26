@@ -1,6 +1,7 @@
 package light
 
 import (
+	"github.com/Opioid/scout/core/scene/shape"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
@@ -10,8 +11,9 @@ type Sphere struct {
 	light
 }
 
-func NewSphere() *Sphere {
+func NewSphere(shape shape.Shape) *Sphere {
 	l := Sphere{}
+	l.prop.Shape = shape
 	return &l
 }
 

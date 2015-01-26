@@ -183,8 +183,7 @@ func (loader *Loader) loadLight(e *jsonEntity) {
 	case "Point":
 		l = light.NewPoint()
 	case "Sphere":
-		l = light.NewSphere()
-		l.Prop().Shape = loader.shape(e.Shape.Type)
+		l = light.NewSphere(loader.shape(e.Shape.Type))
 	}
 
 	if l == nil {
