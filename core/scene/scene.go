@@ -100,7 +100,7 @@ func (scene *Scene) CreateComplex(typename string) Complex {
 
 func (scene *Scene) MonteCarloLight(r float32) (light.Light, float32) {
 	numLights := len(scene.Lights)
-	num := float32(numLights + 1)
+	num := float32(numLights)
 	l := int(num * r)
 
 	probability := 1.0 / num

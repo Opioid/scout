@@ -63,10 +63,12 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		if !worker.Shadow(&pt.secondaryRay) {
 			r := materialSample.Evaluate(ls.L)
 
-			result.AddAssign(ls.Energy.Mul(r))
+			result.AddAssign(ls.Energy.Mul(r).Div(lp))
 		}
 
-	} else {
+	} 
+
+	/*else*/ {
 		pt.secondaryRay.MaxT = 1000.0
 
 	//	values := materialSample.Values()
@@ -93,7 +95,7 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		result.AddAssign(r.Mul(environment).Div(bp))
 	}
 
-	result.DivAssign(lp)
+//	result.DivAssign(lp)
 
 	material.Free(materialSample, pt.id)
 
