@@ -23,8 +23,8 @@ func NewProvider() *Provider {
 	p := Provider{}
 	p.materials = make(map[string]Material)
 
-	p.glassPool 	 = glass.NewPool(6)
-	p.substitutePool = substitute.NewPool(6)
+	p.glassPool 	 = glass.NewPool(12)
+	p.substitutePool = substitute.NewPool(12)
 
 	return &p
 }
