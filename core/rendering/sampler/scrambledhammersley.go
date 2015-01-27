@@ -63,7 +63,7 @@ func (s *ScrambledHammersley) GenerateSamples(iteration uint32, buffer []math.Ve
 	return buffer
 }
 
-func (s *ScrambledHammersley) GenerateSample(index, iteration uint32) math.Vector2 {
+func (s *ScrambledHammersley) GenerateSample2D(index, iteration uint32) math.Vector2 {
 	return math.ScrambledHammersley(index + iteration * s.numSamplesPerIteration, s.numTotalSamples, s.randomBits)
 }
 

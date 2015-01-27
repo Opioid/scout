@@ -82,11 +82,11 @@ func (scene *Scene) AddProp(p *prop.Prop) {
 
 func (scene *Scene) AddLight(l light.Light) {
 	scene.Lights = append(scene.Lights, l)
-/*
+
 	if p := l.Prop(); p.Shape != nil {
 		p.CastsShadow = false
 		scene.AddProp(p)
-	}*/
+	}
 }
 
 func (scene *Scene) CreateComplex(typename string) Complex {

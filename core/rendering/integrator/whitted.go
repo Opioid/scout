@@ -105,6 +105,14 @@ func (w *whitted) MaxBounces() uint32 {
 	return w.maxBounces
 }
 
+func (w *whitted) PrimaryVisibility() uint8 {
+	return prop.Primary
+}
+
+func (w *whitted) SecondaryVisibility() uint8 {
+	return prop.Secondary
+}
+
 type whittedFactory struct {
 	whittedSettings
 }

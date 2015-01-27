@@ -186,7 +186,13 @@ func (loader *Loader) loadLight(e *jsonEntity) {
 		l = light.NewSphere(loader.shape(e.Shape.Type))
 	}
 
+	if l == nil && len(e.Shape.File) > 0 {
+		// It probably is a mesh light
+		l = light.NewMesh(loader.resourceManager.LoadShape(e.Shape.File))
+	}
+
 	if l == nil {
+		// We didn't find any light
 		return
 	}
 

@@ -16,7 +16,7 @@ type Sampler interface {
 
 	GenerateSamples(iteration uint32, buffer []math.Vector2) []math.Vector2
 
-	GenerateSample(index, iteration uint32) math.Vector2
+	GenerateSample2D(index, iteration uint32) math.Vector2
 
 	GenerateSample1D(index, iteration uint32) float32
 }

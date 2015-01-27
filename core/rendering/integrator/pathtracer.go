@@ -83,6 +83,15 @@ func (pt *pathtracer) MaxBounces() uint32 {
 	return pt.maxBounces
 }
 
+func (pt *pathtracer) PrimaryVisibility() uint8 {
+	return prop.Primary
+}
+
+func (pt *pathtracer) SecondaryVisibility() uint8 {
+	return prop.Secondary | prop.IsLight
+}
+
+
 type pathtracerFactory struct {
 	pathtracerSettings
 }

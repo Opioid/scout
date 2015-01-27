@@ -39,7 +39,7 @@ func (l *Disk) Samples(transformation *math.ComposedTransformation, p math.Vecto
 */
 	
 	for s := uint32(0); s < maxSamples; s++ {
-		sample := sampler.GenerateSample(s, subsample)
+		sample := sampler.GenerateSample2D(s, subsample)
 
 		ls := math.DiskSample_uniform(sample.X, sample.Y)
 		ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
@@ -59,7 +59,7 @@ func (l *Disk) Samples(transformation *math.ComposedTransformation, p math.Vecto
 func (l *Disk) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
 	l.prop.TransformationAt(time, transformation)
 
-	sample := sampler.GenerateSample(0, subsample)
+	sample := sampler.GenerateSample2D(0, subsample)
 
 	ls := math.DiskSample_uniform(sample.X, sample.Y)
 	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)

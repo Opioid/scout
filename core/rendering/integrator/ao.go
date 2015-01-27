@@ -59,6 +59,14 @@ func (a *ao) MaxBounces() uint32 {
 	return 0
 }
 
+func (a *ao) PrimaryVisibility() uint8 {
+	return prop.Primary
+}
+
+func (a *ao) SecondaryVisibility() uint8 {
+	return prop.Secondary
+}
+
 type aoFactory struct {
 	aoSettings
 }

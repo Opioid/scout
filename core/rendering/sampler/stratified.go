@@ -78,7 +78,7 @@ func (s *Stratified) GenerateSamples(iteration uint32, buffer []math.Vector2) []
 	return buffer
 }
 
-func (s *Stratified) GenerateSample(index, iteration uint32) math.Vector2 {
+func (s *Stratified) GenerateSample2D(index, iteration uint32) math.Vector2 {
 	return s.sample(index)
 }
 

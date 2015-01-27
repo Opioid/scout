@@ -72,7 +72,7 @@ func (p *Provider) Load(filename string, tp *texture.Provider) Material {
 	if material != nil {
 		p.materials[filename] = material
 	} else {
-		fmt.Printf("Load material \"%v\": Couldn't find known material.\n", filename, err)
+		fmt.Printf("Load material \"%v\": Couldn't find known material type.\n", filename)
 	}
 
 	return material

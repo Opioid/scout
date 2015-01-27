@@ -17,6 +17,10 @@ type Tree struct {
 	Triangles []primitive.Triangle
 }
 
+func (t *Tree) NumTriangles() uint32 {
+	return uint32(len(t.Triangles))
+}
+
 func (t *Tree) AABB() bounding.AABB {
 	return t.nodes[0].aabb
 }
@@ -94,7 +98,6 @@ func (t *Tree) intersectNodeP(n uint32, ray *math.OptimizedRay) bool {
 	}
 
 	return false
-
 }
 
 func (t *Tree) allocateNodes(numNodes uint32) []node {

@@ -14,7 +14,7 @@ type Sphere struct {
 
 func NewSphere(shape shape.Shape) *Sphere {
 	l := Sphere{}
-	l.prop.SetVisible(prop.Secondary, true)
+	l.prop.SetVisible(prop.IsLight, true)
 	l.prop.Shape = shape
 	return &l
 }
@@ -46,7 +46,7 @@ func (l *Sphere) Samples(transformation *math.ComposedTransformation, p math.Vec
 */
 
 	for s := uint32(0); s < maxSamples; s++ {
-		sample := sampler.GenerateSample(s, subsample)
+		sample := sampler.GenerateSample2D(s, subsample)
 
 		ls := math.HemisphereSample_uniform(sample.X, sample.Y)
 		ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
@@ -70,7 +70,7 @@ func (l *Sphere) Samples(transformation *math.ComposedTransformation, p math.Vec
 func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
 	l.prop.TransformationAt(time, transformation)
 
-	sample := sampler.GenerateSample(0, subsample)
+	sample := sampler.GenerateSample2D(0, subsample)
 
 	ls := math.HemisphereSample_uniform(sample.X, sample.Y)
 	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)

@@ -111,7 +111,7 @@ func (b *LambertBxdf) set(color math.Vector3) {
 } 
 
 func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
-	sample := sampler.GenerateSample(0, subsample) 
+	sample := sampler.GenerateSample2D(0, subsample) 
 	hs := math.HemisphereSample_cos(sample.X, sample.Y)
 	return hs
 }
@@ -134,7 +134,7 @@ func (b *GgxBxdf) set(v, n math.Vector3, f0 math.Vector3, a2 float32) {
 } 
 
 func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
-	xi := sampler.GenerateSample(0, subsample) 
+	xi := sampler.GenerateSample2D(0, subsample) 
 
 	phi := 2.0 * gomath.Pi * xi.X
 

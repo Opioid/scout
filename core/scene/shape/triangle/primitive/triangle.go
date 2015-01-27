@@ -96,3 +96,9 @@ func (t *Triangle) Interpolate(u, v float32) (math.Vector3, math.Vector3, math.V
 		   t.A.T.Scale(w). Add(t.B.T.Scale(u)). Add(t.C.T.Scale(v)).Normalized(),
 		   t.A.UV.Scale(w).Add(t.B.UV.Scale(u)).Add(t.C.UV.Scale(v))
 }
+
+func (t *Triangle) InterpolatePosition(u, v float32) math.Vector3 {
+	w := 1.0 - u - v
+
+	return t.A.P.Scale(w).Add(t.B.P.Scale(u)).Add(t.C.P.Scale(v))
+}

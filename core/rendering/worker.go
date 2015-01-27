@@ -60,10 +60,12 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 	intersection := &w.intersections[ray.Depth]
 
-	visibility := uint8(prop.Primary)
+	var visibility uint8
 
-	if ray.Depth > 0 {
-		visibility = prop.Secondary
+	if ray.Depth == 0 {
+		visibility = w.integrator.PrimaryVisibility()
+	} else {
+		visibility = w.integrator.SecondaryVisibility()
 	}
 
 	if w.Scene.Intersect(ray, visibility, &w.Transformation, intersection) {

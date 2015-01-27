@@ -58,7 +58,7 @@ func (h *Hammersley) GenerateSamples(iteration uint32, buffer []math.Vector2) []
 	return buffer
 }
 
-func (h *Hammersley) GenerateSample(index, iteration uint32) math.Vector2 {
+func (h *Hammersley) GenerateSample2D(index, iteration uint32) math.Vector2 {
 	return math.Hammersley(index + iteration * h.numSamplesPerIteration, h.numTotalSamples)
 }
 

@@ -73,6 +73,14 @@ func (m *Mesh) IsFinite() bool {
 	return true
 }
 
+func (m *Mesh) NumTriangles() uint32 {
+	return m.tree.NumTriangles()
+}
+
+func (m *Mesh) InterpolatedPosition(triangleIndex uint32, u, v float32) math.Vector3 {
+	return m.tree.Triangles[triangleIndex].InterpolatePosition(u, v)
+}
+
 func intersectTriangleP(v0, v1, v2 math.Vector3, ray *math.OptimizedRay) bool {
 	e1 := v1.Sub(v0)
 	e2 := v2.Sub(v0)
