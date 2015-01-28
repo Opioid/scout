@@ -142,70 +142,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 		n.children[1].numSubNodes(num);
 	}
 }
-/*
-func (n *buildNode) intersect(ray *math.OptimizedRay, triangles []primitive.Triangle, intersection *primitive.Intersection) bool {
-	if !n.aabb.IntersectP(ray) {
-		return false
-	}
 
-	hit := false
-
-	if n.children[0] != nil {
-		c := ray.Sign[n.axis]
-
-		if n.children[c].intersect(ray, triangles, intersection) {
-			hit = true
-		} 
-
-		if n.children[1 - c].intersect(ray, triangles, intersection) {
-			hit = true
-		}
-	} else {
-		ti := primitive.Intersection{}
-		ti.T = ray.MaxT
-
-		for i := n.startIndex; i < n.endIndex; i++ {
-			if h, c := triangles[i].Intersect(ray); h && c.T < ti.T {
-				ti.Coordinates = c
-				ti.Index = i
-				hit = true
-			}
-		}
-
-		if hit {
-			// the idea was not to write these pointers in the loop... Don't know whether it makes a difference
-			*intersection = ti
-			ray.MaxT = ti.T
-		}
-	}
-
-	return hit
-}
-
-func (n *buildNode) intersectP(ray *math.OptimizedRay, triangles []primitive.Triangle) bool {
-	if !n.aabb.IntersectP(ray) {
-		return false
-	}
-
-	if n.children[0] != nil {
-		c := ray.Sign[n.axis]
-
-		if n.children[c].intersectP(ray, triangles) {
-			return true
-		} 
-
-		return n.children[1 - c].intersectP(ray, triangles)
-	}
-
-	for i := n.startIndex; i < n.endIndex; i++ {
-		if triangles[i].IntersectP(ray) {
-			return true
-		}
-	}
-
-	return false
-}
-*/
 const (
 	epsilon = 0.000000001
 )
