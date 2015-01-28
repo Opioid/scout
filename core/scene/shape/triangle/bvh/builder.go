@@ -142,7 +142,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 		n.children[1].numSubNodes(num);
 	}
 }
-
+/*
 func (n *buildNode) intersect(ray *math.OptimizedRay, triangles []primitive.Triangle, intersection *primitive.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
@@ -205,7 +205,7 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, triangles []primitive.Tri
 
 	return false
 }
-
+*/
 const (
 	epsilon = 0.000000001
 )
