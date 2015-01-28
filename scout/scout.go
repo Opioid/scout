@@ -47,6 +47,8 @@ func main() {
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
+	numWorkers := uint32(runtime.NumCPU())
+
 	take := take.Take{}
 
 	takename := "../data/takes/cornell.take"
@@ -56,7 +58,7 @@ func main() {
 		return
 	}
 
-	resourceManager := resource.NewManager()
+	resourceManager := resource.NewManager(numWorkers)
 
 	scene := pkgscene.Scene{}
 	scene.Init()
@@ -84,7 +86,7 @@ func main() {
 	renderStart := time.Now()
 
 	progressor := progress.NewStdout()
-	renderer.Render(&scene, &take.Context, uint32(runtime.NumCPU()) - 1, progressor)
+	renderer.Render(&scene, &take.Context, numWorkers, progressor)
 
 	renderDuration := time.Since(renderStart)
 	seconds = float64(renderDuration.Nanoseconds()) / 1000000000.0

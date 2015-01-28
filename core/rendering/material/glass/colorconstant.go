@@ -13,15 +13,15 @@ type ColorConstant struct {
 	color math.Vector3
 }
 
-func NewColorConstant(color math.Vector3, pool *Pool) *ColorConstant {
+func NewColorConstant(color math.Vector3, stack *BinnedStack) *ColorConstant {
 	m := new(ColorConstant)
-	m.pool = pool
+	m.stack = stack
 	m.color = color
 	return m
 }
 
 func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
-	s := m.pool.Get(workerId)
+	s := m.stack.Pop(workerId)
 	s.values.Set(m.color, 1.0, 0.0, 0.0, dg.N, v)
 	return s
 }

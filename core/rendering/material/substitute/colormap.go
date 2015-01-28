@@ -15,9 +15,9 @@ type ColorMap struct {
 	colorMap *texture.Texture2D
 }
 
-func NewColorMap(roughness, metallic float32, colorMap *texture.Texture2D, pool *Pool) *ColorMap {
+func NewColorMap(roughness, metallic float32, colorMap *texture.Texture2D, stack *BinnedStack) *ColorMap {
 	m := new(ColorMap)
-	m.pool = pool
+	m.stack = stack
 	m.metallic = metallic
 	m.roughness = math32.Max(roughness, minRoughness)
 	m.colorMap = colorMap
@@ -26,7 +26,7 @@ func NewColorMap(roughness, metallic float32, colorMap *texture.Texture2D, pool 
 
 func (m *ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
 	cs := sampler.Sample(m.colorMap, dg.UV)
-	s := m.pool.Get(workerId)
+	s := m.stack.Pop(workerId)
 	s.T = dg.T
 	s.B = dg.B
 	s.N = dg.N	

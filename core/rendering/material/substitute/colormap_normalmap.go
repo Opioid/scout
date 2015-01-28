@@ -15,9 +15,9 @@ type ColorMap_NormalMap struct {
 	colorMap, normalMap *texture.Texture2D
 }
 
-func NewColorMap_NormalMap(roughness, metallic float32, colorMap, normalMap *texture.Texture2D, pool *Pool) *ColorMap_NormalMap {
+func NewColorMap_NormalMap(roughness, metallic float32, colorMap, normalMap *texture.Texture2D, stack *BinnedStack) *ColorMap_NormalMap {
 	m := new(ColorMap_NormalMap)
-	m.pool = pool
+	m.stack = stack
 	m.metallic = metallic
 	m.roughness = math32.Max(roughness, minRoughness)
 	m.colorMap = colorMap
@@ -32,7 +32,7 @@ func (m *ColorMap_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, s
 
 	n := dg.TangentToWorld(nm).Normalized()
 
-	s := m.pool.Get(workerId)
+	s := m.stack.Pop(workerId)
 
 	s.N = n
 	s.T, s.B = math.CalculateTangentAndBitangent(n)

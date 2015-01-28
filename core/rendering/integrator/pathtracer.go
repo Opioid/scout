@@ -63,18 +63,19 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	//	v := basis.TransformVector3(hs)
 		v := materialSample.TangentToWorld(hs)
 
+	r := bxdf.Evaluate(v)
+
+	material.Free(materialSample, pt.id)
+
 	pt.secondaryRay.SetDirection(v)
 	pt.secondaryRay.MaxT = 1000.0
 
 	environment := worker.Li(subsample, &pt.secondaryRay)
 
-	r := bxdf.Evaluate(v)
-
 	result.AddAssign(r.Mul(environment).Div(bp))
 
 //	result.DivAssign(lp)
 
-	material.Free(materialSample, pt.id)
 
 	return result
 }

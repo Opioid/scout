@@ -12,11 +12,11 @@ type Manager struct {
 	materialProvider *material.Provider
 }
 
-func NewManager() *Manager {
+func NewManager(numWorkers uint32) *Manager {
 	manager := new(Manager)
 
 	manager.shapeProvider = shape.NewProvider()
-	manager.materialProvider = material.NewProvider()
+	manager.materialProvider = material.NewProvider(numWorkers)
 
 	return manager
 }

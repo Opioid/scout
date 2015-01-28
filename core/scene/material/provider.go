@@ -15,16 +15,16 @@ import (
 type Provider struct {
 	materials map[string]Material
 
-	glassPool 		*glass.Pool
-	substitutePool 	*substitute.Pool
+	glassStack 		*glass.BinnedStack
+	substituteStack	*substitute.BinnedStack
 }
 
-func NewProvider() *Provider {
+func NewProvider(numWorkers uint32) *Provider {
 	p := Provider{}
 	p.materials = make(map[string]Material)
 
-	p.glassPool 	 = glass.NewPool(12)
-	p.substitutePool = substitute.NewPool(12)
+	p.glassStack 	  = glass.NewBinnedStack(numWorkers)
+	p.substituteStack = substitute.NewBinnedStack(numWorkers)
 
 	return &p
 }
@@ -112,9 +112,9 @@ func (p *Provider) loadGlass(i interface{}, tp *texture.Provider) Material {
 	var material Material
 
 	if normalMap != nil {
-		material = glass.NewColorConstant_NormalMap(color, normalMap, p.glassPool)
+		material = glass.NewColorConstant_NormalMap(color, normalMap, p.glassStack)
 	} else {		
-		material = glass.NewColorConstant(color, p.glassPool)
+		material = glass.NewColorConstant(color, p.glassStack)
 	}
 
 	return material
@@ -164,15 +164,15 @@ func (p *Provider) loadSubstitute(i interface{}, tp *texture.Provider) Material 
 
 	if colorMap != nil {
 		if normalMap != nil {
-			material = substitute.NewColorMap_NormalMap(roughness, metallic, colorMap, normalMap, p.substitutePool)
+			material = substitute.NewColorMap_NormalMap(roughness, metallic, colorMap, normalMap, p.substituteStack)
 		} else {
-			material = substitute.NewColorMap(roughness, metallic, colorMap, p.substitutePool)
+			material = substitute.NewColorMap(roughness, metallic, colorMap, p.substituteStack)
 		}
 	} else {
 		if normalMap != nil {
-			material = substitute.NewColorConstant_NormalMap(color, roughness, metallic, normalMap, p.substitutePool)
+			material = substitute.NewColorConstant_NormalMap(color, roughness, metallic, normalMap, p.substituteStack)
 		} else {		
-			material = substitute.NewColorConstant(color, roughness, metallic, p.substitutePool)
+			material = substitute.NewColorConstant(color, roughness, metallic, p.substituteStack)
 		}
 	}
 

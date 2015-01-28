@@ -10,11 +10,11 @@ import (
 )
 
 type base struct {
-	pool *Pool
+	stack *BinnedStack
 }
 
 func (b *base) Free(sample material.Sample, workerId uint32) {
-	b.pool.Put(sample, workerId)
+	b.stack.Push(workerId)
 }
 
 func (b *base) Energy() math.Vector3 {

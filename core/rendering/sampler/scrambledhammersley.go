@@ -68,5 +68,5 @@ func (s *ScrambledHammersley) GenerateSample2D(index, iteration uint32) math.Vec
 }
 
 func (s *ScrambledHammersley) GenerateSample1D(index, iteration uint32) float32 {
-	return 0.5
+	return math.ScrambledRadicalInverse_vdC(index + iteration * s.numSamplesPerIteration, s.randomBits)
 }

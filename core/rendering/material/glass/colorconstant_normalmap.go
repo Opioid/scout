@@ -14,9 +14,9 @@ type ColorConstant_NormalMap struct {
 	normalMap *texture.Texture2D
 }
 
-func NewColorConstant_NormalMap(color math.Vector3, normalMap *texture.Texture2D, pool *Pool) *ColorConstant_NormalMap {
+func NewColorConstant_NormalMap(color math.Vector3, normalMap *texture.Texture2D, stack *BinnedStack) *ColorConstant_NormalMap {
 	m := new(ColorConstant_NormalMap)
-	m.pool = pool
+	m.stack = stack
 	m.color = color
 	m.normalMap = normalMap
 	return m
@@ -29,7 +29,7 @@ func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vecto
 
 	n := tangentToWorldSpace.TransformVector3(nm).Normalized()
 
-	s := m.pool.Get(workerId)
+	s := m.stack.Pop(workerId)
 	s.values.Set(m.color, 1.0, 0.0, 0.0, n, v)
 	return s
 }
