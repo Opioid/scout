@@ -18,8 +18,8 @@ func NewSphere() *Sphere {
 }
 
 // Won't work from the inside!
-func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32,
-						   intersection *geometry.Intersection) (bool, float32) {
+func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray, tray *math.OptimizedRay,
+						   boundingMinT, boundingMaxT float32, intersection *geometry.Intersection) (bool, float32) {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
 	radius := transformation.Scale.X
@@ -47,7 +47,8 @@ func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray *mat
 	return false, 0.0
 }
 
-func (s *Sphere) IntersectP(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
+func (s *Sphere) IntersectP(transformation *math.ComposedTransformation, ray, tray *math.OptimizedRay,
+						    boundingMinT, boundingMaxT float32) bool {
 	v := ray.Origin.Sub(transformation.Position)
 	b := -v.Dot(ray.Direction)
 	radius := transformation.Scale.X

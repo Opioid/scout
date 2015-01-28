@@ -55,7 +55,7 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
 	if l != nil {
-		ls := l.Sample(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
+		ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
 
 		pt.secondaryRay.SetDirection(ls.L)
 		pt.secondaryRay.MaxT = ls.T

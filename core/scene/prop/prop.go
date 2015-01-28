@@ -40,7 +40,7 @@ func (p *Prop) SetTransformation(position, scale math.Vector3, rotation math.Qua
 	}
 }
 
-func (p *Prop) Intersect(ray *math.OptimizedRay, transformation *math.ComposedTransformation, intersection *geometry.Intersection) bool {
+func (p *Prop) Intersect(ray *math.OptimizedRay, scratch *ScratchBuffer, intersection *geometry.Intersection) bool {
 	var hit bool
 	var boundingMinT, boundingMaxT float32
 
@@ -51,9 +51,9 @@ func (p *Prop) Intersect(ray *math.OptimizedRay, transformation *math.ComposedTr
 		}
 	}
 
-	p.TransformationAt(ray.Time, transformation)
+	p.TransformationAt(ray.Time, &scratch.Transformation)
 
-	if hit, thit := p.Shape.Intersect(transformation, ray, boundingMinT, boundingMaxT, intersection); hit {
+	if hit, thit := p.Shape.Intersect(&scratch.Transformation, ray, &scratch.Ray, boundingMinT, boundingMaxT, intersection); hit {
 		ray.MaxT = thit
 
 		return true		
@@ -62,7 +62,7 @@ func (p *Prop) Intersect(ray *math.OptimizedRay, transformation *math.ComposedTr
 	return false
 }
 
-func (p *Prop) IntersectP(ray *math.OptimizedRay, transformation *math.ComposedTransformation) bool {
+func (p *Prop) IntersectP(ray *math.OptimizedRay, scratch *ScratchBuffer) bool {
 	var hit bool
 	var boundingMinT, boundingMaxT float32
 
@@ -73,9 +73,9 @@ func (p *Prop) IntersectP(ray *math.OptimizedRay, transformation *math.ComposedT
 		}
 	}
 
-	p.TransformationAt(ray.Time, transformation)
+	p.TransformationAt(ray.Time, &scratch.Transformation)
 
-	return p.Shape.IntersectP(transformation, ray, boundingMinT, boundingMaxT) 
+	return p.Shape.IntersectP(&scratch.Transformation, ray, &scratch.Ray, boundingMinT, boundingMaxT) 
 }
 
 func (p *Prop) IsVisible(flags uint8) bool {

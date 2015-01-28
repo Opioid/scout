@@ -45,15 +45,15 @@ func (scene *Scene) Compile() {
 	*/
 }
 
-func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
+func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, scratch *prop.ScratchBuffer, intersection *prop.Intersection) bool {
 	hit := false
 
-	if scene.bvh.Intersect(ray, visibility, scene.StaticProps, transformation, intersection) {
+	if scene.bvh.Intersect(ray, visibility, scene.StaticProps, scratch, intersection) {
 		hit = true
 	}
 
 	for _, p := range scene.DynamicProps {
-		if p.Intersect(ray, transformation, &intersection.Geo) {
+		if p.Intersect(ray, scratch, &intersection.Geo) {
 			intersection.Prop = p
 			hit = true
 		}
@@ -62,13 +62,13 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, transfor
 	return hit
 }
 
-func (scene *Scene) IntersectP(ray *math.OptimizedRay, transformation *math.ComposedTransformation) bool {
-	if scene.bvh.IntersectP(ray, scene.StaticProps, transformation) {
+func (scene *Scene) IntersectP(ray *math.OptimizedRay, scratch *prop.ScratchBuffer) bool {
+	if scene.bvh.IntersectP(ray, scene.StaticProps, scratch) {
 		return true
 	}
 
 	for _, p := range scene.DynamicProps {
-		if p.IntersectP(ray, transformation) {
+		if p.IntersectP(ray, scratch) {
 			return true
 		}
 	}

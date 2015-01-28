@@ -58,7 +58,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	values := brdf.Values()
 
 	for _, l := range worker.Scene.Lights {
-		w.lightSamples = l.Samples(&worker.Transformation, intersection.Geo.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
+		w.lightSamples = l.Samples(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
 
 		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
 

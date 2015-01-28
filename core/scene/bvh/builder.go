@@ -165,7 +165,7 @@ func (n *buildNode) numSubNodes(num *uint32) {
 	}
 }
 
-func (n *buildNode) intersect(ray *math.OptimizedRay, visibility uint8, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
+func (n *buildNode) intersect(ray *math.OptimizedRay, visibility uint8, props []*prop.Prop, scratch *prop.ScratchBuffer, intersection *prop.Intersection) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -175,17 +175,17 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, visibility uint8, props []
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersect(ray, visibility, props, transformation, intersection) {
+		if n.children[c].intersect(ray, visibility, props, scratch, intersection) {
 			hit = true
 		} 
 
-		if n.children[1 - c].intersect(ray, visibility, props, transformation, intersection) {
+		if n.children[1 - c].intersect(ray, visibility, props, scratch, intersection) {
 			hit = true
 		}
 	} else {
 		for i := n.offset; i < n.propsEnd; i++ {
 			p := props[i]
-			if p.IsVisible(visibility) && p.Intersect(ray, transformation, &intersection.Geo) {
+			if p.IsVisible(visibility) && p.Intersect(ray, scratch, &intersection.Geo) {
 				intersection.Prop = p
 				hit = true
 			}
@@ -195,7 +195,7 @@ func (n *buildNode) intersect(ray *math.OptimizedRay, visibility uint8, props []
 	return hit
 }
 
-func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop, transformation *math.ComposedTransformation) bool {
+func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop, scratch *prop.ScratchBuffer) bool {
 	if !n.aabb.IntersectP(ray) {
 		return false
 	}
@@ -203,15 +203,15 @@ func (n *buildNode) intersectP(ray *math.OptimizedRay, props []*prop.Prop, trans
 	if n.children[0] != nil {
 		c := ray.Sign[n.axis]
 
-		if n.children[c].intersectP(ray, props, transformation) {
+		if n.children[c].intersectP(ray, props, scratch) {
 			return true
 		} 
 
-		return n.children[1 - c].intersectP(ray, props, transformation)
+		return n.children[1 - c].intersectP(ray, props, scratch)
 	}
 
 	for i := n.offset; i < n.propsEnd; i++ {
-		if props[i].CastsShadow && props[i].IntersectP(ray, transformation) {
+		if props[i].CastsShadow && props[i].IntersectP(ray, scratch) {
 			return true
 		}
 	}

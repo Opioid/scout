@@ -13,16 +13,16 @@ type Tree struct {
 	infinitePropsEnd   uint32
 }
 
-func (t *Tree) Intersect(ray *math.OptimizedRay, visibility uint8, props []*prop.Prop, transformation *math.ComposedTransformation, intersection *prop.Intersection) bool {
+func (t *Tree) Intersect(ray *math.OptimizedRay, visibility uint8, props []*prop.Prop, scratch *prop.ScratchBuffer, intersection *prop.Intersection) bool {
 	hit := false
 
-	if t.root.intersect(ray, visibility, props, transformation, intersection) {
+	if t.root.intersect(ray, visibility, props, scratch, intersection) {
 		hit = true
 	}
 
 	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
 		p := props[i]
-		if p.IsVisible(visibility) && p.Intersect(ray, transformation, &intersection.Geo) {
+		if p.IsVisible(visibility) && p.Intersect(ray, scratch, &intersection.Geo) {
 			intersection.Prop = p
 			hit = true
 		}
@@ -70,13 +70,13 @@ func (t *Tree) Intersect(ray *math.OptimizedRay, visibility uint8, props []*prop
 }
 
 
-func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.Prop, transformation *math.ComposedTransformation) bool {
-	if t.root.intersectP(ray, props, transformation) {
+func (t *Tree) IntersectP(ray *math.OptimizedRay, props []*prop.Prop, scratch *prop.ScratchBuffer) bool {
+	if t.root.intersectP(ray, props, scratch) {
 		return true
 	}
 
 	for i := t.infinitePropsBegin; i < t.infinitePropsEnd; i++ {
-		if  props[i].CastsShadow && props[i].IntersectP(ray, transformation) {
+		if  props[i].CastsShadow && props[i].IntersectP(ray, scratch) {
 			return true
 		}
 	}	

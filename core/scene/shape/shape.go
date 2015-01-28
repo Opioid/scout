@@ -7,10 +7,11 @@ import (
 )
 
 type Shape interface {
-	Intersect(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-			  intersection *geometry.Intersection) (bool, float32)
+	Intersect(transformation *math.ComposedTransformation, ray, tray *math.OptimizedRay,
+			  boundingMinT, boundingMaxT float32, intersection *geometry.Intersection) (bool, float32)
 
-	IntersectP(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool
+	IntersectP(transformation *math.ComposedTransformation, ray, tray *math.OptimizedRay,
+			   boundingMinT, boundingMaxT float32) bool
 
 	AABB() *bounding.AABB
 

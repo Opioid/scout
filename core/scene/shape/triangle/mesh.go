@@ -22,16 +22,17 @@ func NewMesh(aabb bounding.AABB, tree bvh.Tree) *Mesh {
 	return &m
 }
 
-func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32, 
-						 intersection *geometry.Intersection) (bool, float32) {
-	oray := *ray
-	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
+func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray, tray *math.OptimizedRay,
+						 boundingMinT, boundingMaxT float32, intersection *geometry.Intersection) (bool, float32) {
+	tray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
+	tray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
+	tray.MinT = ray.MinT
+	tray.MaxT = ray.MaxT
 
 	pi := primitive.Intersection{}
 //	pi.T = ray.MaxT
 
-	hit := m.tree.Intersect(&oray, boundingMinT, boundingMaxT, &pi)
+	hit := m.tree.Intersect(tray, boundingMinT, boundingMaxT, &pi)
 
 	if hit {
 		thit := pi.T
@@ -53,12 +54,14 @@ func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray *math.
 	return false, 0.0
 }
 
-func (m *Mesh) IntersectP(transformation *math.ComposedTransformation, ray *math.OptimizedRay, boundingMinT, boundingMaxT float32) bool {
-	oray := *ray
-	oray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
-	oray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
+func (m *Mesh) IntersectP(transformation *math.ComposedTransformation, ray, tray *math.OptimizedRay,
+					      boundingMinT, boundingMaxT float32) bool {
+	tray.Origin = transformation.WorldToObject.TransformPoint(ray.Origin)
+	tray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
+	tray.MinT = ray.MinT
+	tray.MaxT = ray.MaxT
 
-	return m.tree.IntersectP(&oray, boundingMinT, boundingMaxT)
+	return m.tree.IntersectP(tray, boundingMinT, boundingMaxT)
 }
 
 func (m *Mesh) AABB() *bounding.AABB {

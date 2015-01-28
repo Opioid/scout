@@ -101,8 +101,8 @@ func (m *Matrix4x4) Scale(v Vector3) {
 
 func (m *Matrix4x4) TransformPoint(v Vector3) Vector3 {
 	return MakeVector3(
-		v.X * m.m00 + v.Y * m.m10 + v.Z * m.m20  + m.m30,
-		v.X * m.m01 + v.Y * m.m11 + v.Z * m.m21  + m.m31,
+		v.X * m.m00 + v.Y * m.m10 + v.Z * m.m20 + m.m30,
+		v.X * m.m01 + v.Y * m.m11 + v.Z * m.m21 + m.m31,
 		v.X * m.m02 + v.Y * m.m12 + v.Z * m.m22 + m.m32,
 	)
 }
