@@ -42,6 +42,11 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		return math.MakeVector3(0.0, 0.0, 0.0)
 	}
 
+	// No handling of geometry from the "inside" for now
+	if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
+		return math.MakeVector3(0.0, 0.0, 0.0)
+	}
+
 	eye := ray.Direction.Scale(-1.0)
 	materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 

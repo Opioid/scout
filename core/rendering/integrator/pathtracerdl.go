@@ -36,13 +36,19 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		return material.Energy()
 	}
 */
-	result := math.MakeVector3(0.0, 0.0, 0.0)
-
+	
 	nextDepth := ray.Depth + 1
 
 	if nextDepth > pt.maxBounces {
-		return result
+		return math.MakeVector3(0.0, 0.0, 0.0)
 	}
+
+	// No handling of geometry from the "inside" for now
+	if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
+		return math.MakeVector3(0.0, 0.0, 0.0)
+	}
+
+	result := math.MakeVector3(0.0, 0.0, 0.0)
 
 	pt.secondaryRay.Origin = intersection.Geo.P
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon

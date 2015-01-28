@@ -53,10 +53,6 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, scratch 
 		}
 	}
 
-	// If the ray hit the inside of a shape we need to flip the normal, otherwise we will shade the outside at this point
-	if hit && ray.Direction.Dot(intersection.Geo.N) > 0.0 {
-		intersection.Geo.N.ScaleAssign(-1.0)
-	}
 
 	return hit
 }
