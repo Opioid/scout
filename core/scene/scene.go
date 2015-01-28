@@ -37,12 +37,6 @@ func (scene *Scene) Compile() {
 	builder.Build(scene.StaticProps, 4, &scene.bvh, &outProps)
 
 	scene.StaticProps = outProps
-
-	/*
-	buffer := texture.Buffer{}
-	buffer.Resize(math.MakeVector2i(512, 256))
-	surrounding.BakeSphereMap(scene.Surrounding, &buffer)
-	*/
 }
 
 func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, scratch *prop.ScratchBuffer, intersection *prop.Intersection) bool {
@@ -57,6 +51,11 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, scratch 
 			intersection.Prop = p
 			hit = true
 		}
+	}
+
+	// If the ray hit the inside of a shape we need to flip the normal, otherwise we will shade the outside at this point
+	if hit && ray.Direction.Dot(intersection.Geo.N) > 0.0 {
+		intersection.Geo.N.ScaleAssign(-1.0)
 	}
 
 	return hit
