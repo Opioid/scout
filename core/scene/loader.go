@@ -175,10 +175,10 @@ func (loader *Loader) loadLight(e *jsonEntity) {
 	switch e.Shape.Type {
 	case "Directional":
 		l = light.NewDirectional()
-	case "Disk":
-		l = light.NewDisk()
+	case "Cone":
+		l = light.NewCone()
 	case "Sun":
-		l = light.NewDisk()
+		l = light.NewCone()
 		scale = math.MakeVector3FromScalar(0.0125)
 	case "Point":
 		l = light.NewPoint()
@@ -187,7 +187,7 @@ func (loader *Loader) loadLight(e *jsonEntity) {
 	}
 
 	if l == nil && len(e.Shape.File) > 0 {
-		// It probably is a mesh light
+		// It is a mesh light
 		l = light.NewMesh(loader.resourceManager.LoadShape(e.Shape.File))
 	}
 
