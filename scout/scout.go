@@ -47,7 +47,7 @@ func main() {
 	fmt.Printf("#Cores %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	numWorkers := uint32(runtime.NumCPU())
+	numWorkers := /*uint32(1)//*/uint32(runtime.NumCPU())
 
 	take := take.Take{}
 

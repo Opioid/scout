@@ -26,9 +26,10 @@ func (ni *normal) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, ni.linearSampler_repeat, ni.id)
-	values := brdf.Values()
 
-	result := values.N
+	_, _, n := brdf.CoordinateSystem()
+
+	result := n.AddS(1.0).Scale(0.5)
 
 	material.Free(brdf, ni.id)
 
@@ -53,7 +54,7 @@ type normalFactory struct {
 
 func NewNormalFactory() *normalFactory {
 	f := new(normalFactory)
-	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat)) 
+	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat))
 	return f
 }
 
@@ -63,7 +64,6 @@ func (f *normalFactory) New(id uint32, rng *random.Generator) rendering.Integrat
 	ni.id = id
 	ni.rng = rng
 	ni.linearSampler_repeat = f.linearSampler_repeat
-
 
 	return ni
 }

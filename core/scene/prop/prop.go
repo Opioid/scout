@@ -51,6 +51,7 @@ func (p *Prop) Intersect(ray *math.OptimizedRay, scratch *ScratchBuffer, interse
 		}
 	}
 
+/*
 	p.TransformationAt(ray.Time, &scratch.Transformation)
 
 	if hit, thit := p.Shape.Intersect(&scratch.Transformation, ray, &scratch.Ray, boundingMinT, boundingMaxT, intersection); hit {
@@ -58,7 +59,14 @@ func (p *Prop) Intersect(ray *math.OptimizedRay, scratch *ScratchBuffer, interse
 
 		return true		
 	}
-	
+	*/
+
+	if hit, thit := p.Shape.Intersect(&p.Transformation, ray, &scratch.Ray, boundingMinT, boundingMaxT, intersection); hit {
+		ray.MaxT = thit
+
+		return true		
+	}
+
 	return false
 }
 

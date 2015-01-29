@@ -43,6 +43,7 @@ func (take *Take) Load(filename string) bool {
 	} 
 
 	if (take.IntegratorFactory == nil) {
+		fmt.Println("hep")
 		take.IntegratorFactory = integrator.NewWhittedFactory(1, 16)
 	}
 
@@ -315,6 +316,8 @@ func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 			return loadPathtracerIntegrator(value)
 		case "PTDL":
 			return loadPathtracerDlIntegrator(value)
+		case "Normal":
+			return loadNormalIntegrator(value)
 		}
 	}
 
@@ -397,4 +400,13 @@ func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
 	}
 
 	return integrator.NewPathtracerDlFactory(maxBounces)
+}
+
+func loadNormalIntegrator(i interface{}) rendering.IntegratorFactory {
+	_/*integratorNode*/, ok := i.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	return integrator.NewNormalFactory()
 }

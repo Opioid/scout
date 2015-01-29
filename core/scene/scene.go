@@ -53,7 +53,6 @@ func (scene *Scene) Intersect(ray *math.OptimizedRay, visibility uint8, scratch 
 		}
 	}
 
-
 	return hit
 }
 

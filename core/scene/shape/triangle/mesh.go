@@ -28,6 +28,8 @@ func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray, tray 
 	tray.SetDirection(transformation.WorldToObject.TransformVector3(ray.Direction))
 	tray.MinT = ray.MinT
 	tray.MaxT = ray.MaxT
+	tray.Time = ray.Time
+	tray.Depth = ray.Depth
 
 	pi := primitive.Intersection{}
 //	pi.T = ray.MaxT
@@ -43,8 +45,12 @@ func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray, tray 
 		intersection.MaterialId = m.tree.Triangles[pi.Index].MaterialId
 		n, t, uv := m.tree.Triangles[pi.Index].Interpolate(pi.U, pi.V)
 
-		intersection.N = transformation.WorldToObject.TransposedTransformVector3(n)
-		intersection.T = transformation.WorldToObject.TransposedTransformVector3(t)
+	//	intersection.N = transformation.WorldToObject.TransposedTransformVector3(n).Normalized()
+	//	intersection.T = transformation.WorldToObject.TransposedTransformVector3(t).Normalized()
+
+		intersection.N = transformation.Rotation.TransformVector3(n)
+		intersection.T = transformation.Rotation.TransformVector3(t)
+
 		intersection.B = intersection.N.Cross(intersection.T)
 		intersection.UV = uv
 
