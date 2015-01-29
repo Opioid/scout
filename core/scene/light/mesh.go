@@ -30,38 +30,6 @@ func NewMesh(shape shape.Shape) *Mesh {
 	return &l
 }
 
-func (l *Mesh) Samples(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample, maxSamples uint32, sampler sampler.Sampler, samples []Sample) []Sample {
-	samples = samples[:0]
-
-	l.prop.TransformationAt(time, transformation)
-
-	result := Sample{}
-
-	for s := uint32(0); s < maxSamples; s++ {
-		sample1d := sampler.GenerateSample1D(0, subsample)
-		sample2d := sampler.GenerateSample2D(0, subsample)
-
-		index := uint32(l.numTriangles * sample1d - 0.00001)
-
-		ls := l.mesh.InterpolatedPosition(index, sample2d.X, sample2d.Y)
-		ws := transformation.ObjectToWorld.TransformPoint(ls)
-
-		v := ws.Sub(p)
-
-		d := v.SquaredLength()
-		i := 1.0 / d
-		t := math32.Sqrt(d)
-
-		result.L = v.Div(t)
-		result.Energy = l.color.Scale(i * l.lumen)
-		result.T = t
-
-		samples = append(samples, result)		
-	}
-
-	return samples	
-}
-
 func (l *Mesh) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
 	l.prop.TransformationAt(time, transformation)
 

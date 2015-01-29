@@ -44,7 +44,7 @@ func (take *Take) Load(filename string) bool {
 
 	if (take.IntegratorFactory == nil) {
 		fmt.Println("hep")
-		take.IntegratorFactory = integrator.NewWhittedFactory(1, 16)
+		take.IntegratorFactory = integrator.NewWhittedFactory(1)
 	}
 
 	if take.Context.Camera == nil {
@@ -331,18 +331,15 @@ func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
 	}
 
 	maxBounces := uint32(1)
-	maxLightSamples := uint32(16)
 
 	for key, value := range integratorNode {
 		switch key {
 		case "max_bounces":
 			maxBounces = uint32(value.(float64))
-		case "max_light_samples":
-			maxLightSamples = uint32(value.(float64))
 		}
 	}
 
-	return integrator.NewWhittedFactory(maxBounces, maxLightSamples)
+	return integrator.NewWhittedFactory(maxBounces)
 }
 
 func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {

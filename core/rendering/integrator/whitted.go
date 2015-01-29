@@ -7,7 +7,6 @@ import (
 	"github.com/Opioid/scout/core/rendering/texture/buffer"
 	"github.com/Opioid/scout/core/rendering/ibl"
 	"github.com/Opioid/scout/core/scene/prop"
-	"github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
 	_ "fmt"
@@ -15,8 +14,6 @@ import (
 
 type whittedSettings struct {
 	maxBounces uint32
-
-	maxLightSamples uint32
 
 	shadowRay math.OptimizedRay
 	secondaryRay math.OptimizedRay
@@ -32,8 +29,6 @@ type whitted struct {
 	whittedSettings
 
 	sampler pkgsampler.Sampler
-
-	lightSamples []light.Sample
 }
 
 func (w *whitted) StartNewPixel(numSamples uint32) {
@@ -58,19 +53,15 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	values := brdf.Values()
 
 	for _, l := range worker.Scene.Lights {
-		w.lightSamples = l.Samples(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, w.maxLightSamples, w.sampler, w.lightSamples)
+		ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, w.sampler)
 
-		numSamplesReciprocal := 1.0 / float32(len(w.lightSamples))
+		w.shadowRay.SetDirection(ls.L)
+		w.shadowRay.MaxT = ls.T
 
-		for _, s := range w.lightSamples {
-			w.shadowRay.SetDirection(s.L)
-			w.shadowRay.MaxT = s.T
+		if !worker.Shadow(&w.shadowRay) {
+			r := brdf.Evaluate(ls.L)
 
-			if !worker.Shadow(&w.shadowRay) {
-				r := brdf.Evaluate(s.L)
-
-				result.AddAssign(s.Energy.Mul(r).Scale(numSamplesReciprocal))
-			}
+			result.AddAssign(ls.Energy.Mul(r))
 		}
 	}
 
@@ -117,11 +108,10 @@ type whittedFactory struct {
 	whittedSettings
 }
 
-func NewWhittedFactory(maxBounces, maxLightSamples uint32) *whittedFactory {
+func NewWhittedFactory(maxBounces uint32) *whittedFactory {
 	f := new(whittedFactory)
 
 	f.maxBounces = maxBounces
-	f.maxLightSamples = maxLightSamples
 
 	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat)) 
 	f.linearSampler_clamp = texture.NewSampler2D_linear(new(texture.AddressMode_clamp)) 
@@ -138,10 +128,7 @@ func (f *whittedFactory) New(id uint32, rng *random.Generator) rendering.Integra
 	w.id = id
 	w.rng = rng
 	w.maxBounces = f.maxBounces
-	w.maxLightSamples = f.maxLightSamples
 	w.sampler = pkgsampler.NewRandom(1024, rng)
-	w.lightSamples = make([]light.Sample, 0, w.maxLightSamples)
-
 	w.linearSampler_repeat = f.linearSampler_repeat
 	w.linearSampler_clamp = f.linearSampler_clamp
 	w.brdf = f.brdf
