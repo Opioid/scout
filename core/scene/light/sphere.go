@@ -24,7 +24,7 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 
 	sample := sampler.GenerateSample2D(0, subsample)
 
-	ls := math.HemisphereSample_uniform(sample.X, sample.Y)
+	ls := math.SampleHemisphere_uniform(sample.X, sample.Y)
 	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
 
 	v := transformation.Position.Add(ws).Sub(p)

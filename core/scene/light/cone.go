@@ -19,7 +19,7 @@ func (l *Cone) Sample(transformation *math.ComposedTransformation, p math.Vector
 
 	sample := sampler.GenerateSample2D(0, subsample)
 
-	ls := math.DiskSample_uniform(sample.X, sample.Y)
+	ls := math.SampleDisk_uniform(sample.X, sample.Y)
 	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
 
 	v := transformation.Rotation.Direction().Scale(-1.0).Add(ws)

@@ -40,7 +40,7 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedR
 	samples := a.sampler.GenerateSamples(subsample, a.samples) 
 
 	for _, sample := range samples {
-		s := math.HemisphereSample_cos(sample.X, sample.Y)
+		s := math.SampleHemisphere_cos(sample.X, sample.Y)
 
 	//	v := basis.TransformVector3(s)
 		v := intersection.Geo.TangentToWorld(s)
