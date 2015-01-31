@@ -51,7 +51,8 @@ func (p *Perspective) GenerateRay(sample *sampler.CameraSample, shutterOpen, shu
 	r := math.Ray{math.MakeVector3(0.0, 0.0, 0.0), direction, 0.0, 1000.0}
 
 	if p.lensRadius > 0.0 {
-		lensUv := math.SampleDisk_uniform(sample.LensUv.X, sample.LensUv.Y).Scale(p.lensRadius)
+		lensU, lensV := math.SampleDisk_uniform(sample.LensUv.X, sample.LensUv.Y)
+		lensUv := math.MakeVector3(lensU * p.lensRadius, lensV * p.lensRadius, 0.0)
 
 		ft := p.focalDistance / r.Direction.Z
 		focus := r.Point(ft)

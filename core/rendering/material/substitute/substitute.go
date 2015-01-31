@@ -112,7 +112,7 @@ func (b *LambertBxdf) set(color math.Vector3) {
 
 func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
 	sample := sampler.GenerateSample2D(0, subsample) 
-	hs := math.SampleHemisphere_cos(sample.X, sample.Y)
+	hs := math.SampleHemisphere_cos1(sample.X, sample.Y)
 	return hs
 }
 

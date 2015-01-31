@@ -43,7 +43,6 @@ func (take *Take) Load(filename string) bool {
 	} 
 
 	if (take.IntegratorFactory == nil) {
-		fmt.Println("hep")
 		take.IntegratorFactory = integrator.NewWhittedFactory(1)
 	}
 
