@@ -104,7 +104,7 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 
 	numTriangles := uint32(len(mesh.Geometry.Indices)) / 3
 
-	triangles := make([]primitive.IndexTriangle, numTriangles)
+	triangles := make([]primitive.IndexTriangle, 0, numTriangles)
 
 	maxMaterialId := uint32(len(mesh.Geometry.Groups) - 1)
 
@@ -117,7 +117,7 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 			b := mesh.Geometry.Indices[i * 3 + 1]
 			c := mesh.Geometry.Indices[i * 3 + 2]
 
-			triangles[i] = primitive.MakeIndexTriangle(a, b, c, math.Minui(p.Material_index, maxMaterialId))
+			triangles = append(triangles, primitive.MakeIndexTriangle(a, b, c, math.Minui(p.Material_index, maxMaterialId)))
 		}
 	}
 
