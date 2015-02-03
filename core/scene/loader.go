@@ -289,7 +289,6 @@ func (loader *Loader) loadComplex(e *jsonEntity) {
 func (loader *Loader) loadProp(e *jsonEntity) {
 	shape := loader.loadShape(&e.Shape)
 	if shape == nil {
-		
 		return
 	}
 
