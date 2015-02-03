@@ -44,7 +44,7 @@ func (p *Plane) Intersect(transformation *math.ComposedTransformation, ray, tray
 		v := transformation.ObjectToWorld.Up().Dot(intersection.P)
 		intersection.UV.Y = v - math32.Floor(v)
 
-		intersection.MaterialId = 0
+		intersection.MaterialIndex = 0
 
 		return true, thit
 	} 

@@ -42,7 +42,7 @@ func (m *Mesh) Intersect(transformation *math.ComposedTransformation, ray, tray 
 
 		intersection.P = ray.Point(thit)
 
-		intersection.MaterialId = m.tree.Triangles[pi.Index].MaterialId
+		intersection.MaterialIndex = m.tree.Triangles[pi.Index].MaterialIndex
 		n, t, uv := m.tree.Triangles[pi.Index].Interpolate(pi.U, pi.V)
 
 	//	intersection.N = transformation.WorldToObject.TransposedTransformVector3(n).Normalized()

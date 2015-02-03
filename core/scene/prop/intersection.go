@@ -11,5 +11,5 @@ type Intersection struct {
 }
 
 func (i *Intersection) Material() material.Material {
-	return i.Prop.Materials[i.Geo.MaterialId]
+	return i.Prop.Materials[i.Geo.MaterialIndex]
 }

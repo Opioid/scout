@@ -11,7 +11,7 @@ import (
 	_ "os"
 	"encoding/json"
 	"runtime"
-	_ "fmt"
+	"fmt"
 )
 
 type Provider struct {
@@ -34,6 +34,7 @@ func (p *Provider) Load(filename string) Shape {
 	runtime.GC()
 
 	if triangles == nil || vertices == nil {
+		fmt.Printf("Load shape \"%v\": Couldn't parse data.\n", filename)
 		return nil
 	}
 
@@ -48,27 +49,27 @@ func (p *Provider) Load(filename string) Shape {
 }
 
 type jsonMesh struct {
-	Geometry Geometry
+	Geometry jsonGeometry
 }
 
-type Geometry struct {
-	Groups []group
+type jsonGeometry struct {
+	Groups []jsonGroup
 
-	Primitive_topology string
+	PrimitiveTopology string	`json:"primitive_topology"`
 
 	Indices []uint32
 
 	Positions [][3]float32
 	Normals   [][3]float32
-	Tangents_and_bitangent_signs [][4]float32
+	TangentsAndBitangentSigns [][4]float32	`json:"tangents_and_bitangent_signs"`
 
-	Texture_coordinates_0 [][2]float32
+	TextureCoordinates0 [][2]float32	`json:"texture_coordinates_0"`
 }
 
-type group struct {
-	Material_index uint32
-	Start_index    uint32
-	Num_indices    uint32
+type jsonGroup struct {
+	MaterialIndex uint32	`json:"material_index"`
+	StartIndex    uint32	`json:"start_index"`
+	NumIndices    uint32	`json:"num_indices"`
 }
 
 func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex) {
@@ -98,7 +99,7 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 	}
 	*/
 
-	if mesh.Geometry.Primitive_topology != "triangle_list" {
+	if mesh.Geometry.PrimitiveTopology != "triangle_list" {
 		return nil, nil
 	}
 
@@ -106,18 +107,18 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 
 	triangles := make([]primitive.IndexTriangle, 0, numTriangles)
 
-	maxMaterialId := uint32(len(mesh.Geometry.Groups) - 1)
+	maxMaterialIndex := uint32(len(mesh.Geometry.Groups) - 1)
 
 	for _, p := range mesh.Geometry.Groups {
-		trianglesStart := p.Start_index / 3
-		trianglesEnd := (p.Start_index + p.Num_indices) / 3
+		trianglesStart := p.StartIndex / 3
+		trianglesEnd := (p.StartIndex + p.NumIndices) / 3
 
 		for i := trianglesStart; i < trianglesEnd; i++ {
 			a := mesh.Geometry.Indices[i * 3 + 0]
 			b := mesh.Geometry.Indices[i * 3 + 1]
 			c := mesh.Geometry.Indices[i * 3 + 2]
 
-			triangles = append(triangles, primitive.MakeIndexTriangle(a, b, c, math.Minui(p.Material_index, maxMaterialId)))
+			triangles = append(triangles, primitive.MakeIndexTriangle(a, b, c, math.Minui(p.MaterialIndex, maxMaterialIndex)))
 		}
 	}
 
@@ -137,19 +138,19 @@ func loadMeshData(filename string) ([]primitive.IndexTriangle, []geometry.Vertex
 		vertices[i].N = math.MakeVector3(mesh.Geometry.Normals[i][0], mesh.Geometry.Normals[i][1], mesh.Geometry.Normals[i][2])
 	}
 
-	for i := range mesh.Geometry.Tangents_and_bitangent_signs {
-		vertices[i].T = math.MakeVector3(mesh.Geometry.Tangents_and_bitangent_signs[i][0], 
-										 mesh.Geometry.Tangents_and_bitangent_signs[i][1], 
-										 mesh.Geometry.Tangents_and_bitangent_signs[i][2])
+	for i := range mesh.Geometry.TangentsAndBitangentSigns {
+		vertices[i].T = math.MakeVector3(mesh.Geometry.TangentsAndBitangentSigns[i][0], 
+										 mesh.Geometry.TangentsAndBitangentSigns[i][1], 
+										 mesh.Geometry.TangentsAndBitangentSigns[i][2])
 
-		vertices[i].BitangentSign = mesh.Geometry.Tangents_and_bitangent_signs[i][3]
+		vertices[i].BitangentSign = mesh.Geometry.TangentsAndBitangentSigns[i][3]
 	}
 
-	for i := range mesh.Geometry.Texture_coordinates_0 {
-		vertices[i].UV = math.MakeVector2(mesh.Geometry.Texture_coordinates_0[i][0], mesh.Geometry.Texture_coordinates_0[i][1])
+	for i := range mesh.Geometry.TextureCoordinates0 {
+		vertices[i].UV = math.MakeVector2(mesh.Geometry.TextureCoordinates0[i][0], mesh.Geometry.TextureCoordinates0[i][1])
 	}
 
-	if len(mesh.Geometry.Normals) > 0 && len(mesh.Geometry.Tangents_and_bitangent_signs) == 0 {
+	if len(mesh.Geometry.Normals) > 0 && len(mesh.Geometry.TangentsAndBitangentSigns) == 0 {
 		// If normals but no tangents were loaded, compute the tangent space manually
 
 		basis := math.Matrix3x3{}

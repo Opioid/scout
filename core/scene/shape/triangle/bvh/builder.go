@@ -121,14 +121,14 @@ func (n *buildNode) split(primitiveIndices []uint32, triangles []primitive.Index
 }
 
 func (n *buildNode) assign(primitiveIndices []uint32, triangles []primitive.IndexTriangle, vertices []geometry.Vertex, 
-							outTriangles *[]primitive.Triangle) {
+						   outTriangles *[]primitive.Triangle) {
 	n.startIndex = uint32(len(*outTriangles))
 
 	for _, pi := range primitiveIndices {
 		*outTriangles = append(*outTriangles, primitive.MakeTriangle(&vertices[triangles[pi].A], 
 											   						 &vertices[triangles[pi].B], 
 																	 &vertices[triangles[pi].C], 
-																	 triangles[pi].MaterialId))
+																	 triangles[pi].MaterialIndex))
 	}
 
 	n.endIndex = uint32(len(*outTriangles))

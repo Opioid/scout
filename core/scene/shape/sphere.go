@@ -38,7 +38,7 @@ func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray, tra
 			intersection.T = t
 			intersection.B = b
 
-			intersection.MaterialId = 0
+			intersection.MaterialIndex = 0
 
 			return true, thit
 		} 
