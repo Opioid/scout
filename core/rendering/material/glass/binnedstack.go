@@ -30,14 +30,14 @@ func NewBinnedStack(numBins uint32) *BinnedStack {
 	return &s
 }    
 
-func (s *BinnedStack) Pop(binId uint32) *Sample {
-	stack := &s.stacks[binId]
+func (s *BinnedStack) Pop(binID uint32) *Sample {
+	stack := &s.stacks[binID]
     sample := stack.samples[stack.top]
     stack.top++
     return sample
 }
 
-func (s *BinnedStack) Push(binId uint32) {
-    s.stacks[binId].top--
+func (s *BinnedStack) Push(binID uint32) {
+    s.stacks[binID].top--
 }
 

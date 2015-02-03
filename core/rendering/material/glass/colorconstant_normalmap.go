@@ -22,14 +22,14 @@ func NewColorConstant_NormalMap(color math.Vector3, normalMap *texture.Texture2D
 	return m
 }
 
-func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
+func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerID uint32) material.Sample {
 	nm := sampler.Sample(m.normalMap, dg.UV).Vector3()
 
 	tangentToWorldSpace := math.MakeMatrix3x3FromAxes(dg.T, dg.B, dg.N)
 
 	n := tangentToWorldSpace.TransformVector3(nm).Normalized()
 
-	s := m.stack.Pop(workerId)
+	s := m.stack.Pop(workerID)
 	s.values.Set(m.color, 1.0, 0.0, 0.0, n, v)
 	return s
 }

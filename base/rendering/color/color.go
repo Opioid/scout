@@ -12,9 +12,9 @@ func LinearToSrgb(c float32) float32 {
 		return 12.92 * c
 	} else if c < 1.0 {
 		return 1.055 * math.Pow(c, 0.41666) - 0.055
-	} else {
-		return 1.0
-	}
+	} 
+		
+	return 1.0
 }
 
 // convert sRGB gamma value to sRGB linear value
@@ -25,7 +25,7 @@ func SrgbToLinear(c float32) float32 {
 		return c / 12.92
 	} else if c < 1.0 {
 		return math.Pow((c + 0.055) / 1.055, 2.4) 
-	} else {
-		return 1.0
 	}
+		
+	return 1.0
 }

@@ -24,9 +24,9 @@ func NewColorMap(roughness, metallic float32, colorMap *texture.Texture2D, stack
 	return m
 }
 
-func (m *ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
+func (m *ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerID uint32) material.Sample {
 	cs := sampler.Sample(m.colorMap, dg.UV)
-	s := m.stack.Pop(workerId)
+	s := m.stack.Pop(workerID)
 	s.T = dg.T
 	s.B = dg.B
 	s.N = dg.N	

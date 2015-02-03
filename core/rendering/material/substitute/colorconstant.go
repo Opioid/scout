@@ -25,8 +25,8 @@ func NewColorConstant(color math.Vector3, roughness, metallic float32, stack *Bi
 	return m
 }
 
-func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
-	s := m.stack.Pop(workerId)
+func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerID uint32) material.Sample {
+	s := m.stack.Pop(workerID)
 	s.T = dg.T
 	s.B = dg.B
 	s.N = dg.N

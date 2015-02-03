@@ -26,12 +26,12 @@ func NewColorConstant_NormalMap(color math.Vector3, roughness, metallic float32,
 	return m
 }
 
-func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerId uint32) material.Sample {
+func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerID uint32) material.Sample {
 	nm := sampler.Sample3(m.normalMap, dg.UV)
 
 	n := dg.TangentToWorld(nm).Normalized()	
 
-	s := m.stack.Pop(workerId)
+	s := m.stack.Pop(workerID)
 
 	s.N = n
 	s.T, s.B = math.CalculateTangentAndBitangent(n)

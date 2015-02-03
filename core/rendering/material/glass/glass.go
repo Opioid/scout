@@ -13,8 +13,8 @@ type base struct {
 	stack *BinnedStack
 }
 
-func (b *base) Free(sample material.Sample, workerId uint32) {
-	b.stack.Push(workerId)
+func (b *base) Free(sample material.Sample, workerID uint32) {
+	b.stack.Push(workerID)
 }
 
 func (b *base) Energy() math.Vector3 {

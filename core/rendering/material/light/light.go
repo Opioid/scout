@@ -12,8 +12,8 @@ type base struct {
 	light light.Light
 }
 
-func (b *base) Free(sample material.Sample, workerId uint32) {
-	// b.pool.Put(sample, workerId)
+func (b *base) Free(sample material.Sample, workerID uint32) {
+	// b.pool.Put(sample, workerID)
 }
 
 func (b *base) IsMirror() bool {
