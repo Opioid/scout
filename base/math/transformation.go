@@ -6,14 +6,14 @@ type Transformation struct {
 	Rotation Quaternion
 }
 
-func (this *Transformation) Lerp(other *Transformation, t float32) Transformation {
+func (trans *Transformation) Lerp(other *Transformation, t float32) Transformation {
 	r := Transformation{}
-	r.Position = this.Position.Lerp(other.Position, t)
-	r.Scale = this.Scale.Lerp(other.Scale, t)
+	r.Position = trans.Position.Lerp(other.Position, t)
+	r.Scale = trans.Scale.Lerp(other.Scale, t)
 
-//	r.Position = Vector3Lerp(this.Position, other.Position, t)
-//	r.Scale = Vector3Lerp(this.Scale, other.Scale, t)
+//	r.Position = Vector3Lerp(trans.Position, other.Position, t)
+//	r.Scale = Vector3Lerp(trans.Scale, other.Scale, t)
 
-	r.Rotation = this.Rotation.Slerp(other.Rotation, t)
+	r.Rotation = trans.Rotation.Slerp(other.Rotation, t)
 	return r
 }
