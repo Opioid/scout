@@ -6,6 +6,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
+	gomath "math"
 )
 
 type Sphere struct {
@@ -19,21 +20,37 @@ func NewSphere(shape shape.Shape) *Sphere {
 	return &l
 }
 
+const (
+	hemispherePdf = 1.0 / (2.0 * gomath.Pi)
+	hemisphereArea = 2.0 / gomath.Pi
+)
+
 func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
 	l.prop.TransformationAt(time, transformation)
 
 	sample := sampler.GenerateSample2D(0, subsample)
-
 	ls := math.SampleHemisphere_uniform(sample.X, sample.Y)
-	ws := transformation.Rotation.TransformVector3(ls).Scale(transformation.Scale.X)
 
-	v := transformation.Position.Add(ws).Sub(p)
+	z := p.Sub(transformation.Position).Normalized()
+	cs := math.MakeCoordinateSystemMatrix3x3(z)
+
+	n := cs.TransformVector3(ls)
+
+	ws := transformation.Position.Add(n.Scale(transformation.Scale.X))
+
+	v := ws.Sub(p)
 
 	d := v.SquaredLength()
-	i := 1.0 / d
 	t := math32.Sqrt(d)
 
-	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(t), T: t}
+	nDotV := n.Dot(v)
+
+	if nDotV > 0.0 {
+		// In this case no light will reach p, so we could make an early out
+		d = 0.0
+	}
+
+	result := Sample{Energy: l.color, L: v.Div(t), T: t, Pdf: d / (math32.Abs(nDotV) * hemisphereArea)}
 
 	return result
 }

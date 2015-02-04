@@ -23,7 +23,7 @@ func (l *Point) Sample(transformation *math.ComposedTransformation, p math.Vecto
 	i := 1.0 / d
 	t := math32.Sqrt(d)
 
-	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(t), T: t}
+	result := Sample{Energy: l.color.Scale(i * l.lumen), L: v.Div(t), T: t, Pdf: 1.0}
 
 	return result
 }

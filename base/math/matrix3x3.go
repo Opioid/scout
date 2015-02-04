@@ -20,6 +20,28 @@ func MakeIdentityMatrix3x3() Matrix3x3 {
 	}
 }
 
+
+func MakeCoordinateSystemMatrix3x3(v Vector3) Matrix3x3 {
+	var r1 Vector3
+
+	if v.X < 0.6 && v.X > -0.6 {
+		r1 = MakeVector3(1.0, 0.0, 0.0)
+	} else if v.Y < 0.6 && v.Y > -0.6 {
+		r1 = MakeVector3(0.0, 1.0, 0.0)
+	} else {
+		r1 = MakeVector3(0.0, 0.0, 1.0)
+	}
+
+	r0 := v.Cross(r1).Normalized()
+	r1 = r0.Cross(v)
+
+	return Matrix3x3{
+		r0.X, r0.Y, r0.Z,
+		r1.X, r1.Y, r1.Z,
+		 v.X,  v.Y,  v.Z,
+	}
+}
+
 func MakeMatrix3x3FromAxes(x, y, z Vector3) Matrix3x3 {
 	return Matrix3x3{
 		x.X, x.Y, x.Z,

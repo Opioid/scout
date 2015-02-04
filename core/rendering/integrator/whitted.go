@@ -55,13 +55,15 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	for _, l := range worker.Scene.Lights {
 		ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, w.sampler)
 
-		w.shadowRay.SetDirection(ls.L)
-		w.shadowRay.MaxT = ls.T
+		if ls.Pdf > 0.0 {
+			w.shadowRay.SetDirection(ls.L)
+			w.shadowRay.MaxT = ls.T
 
-		if !worker.Shadow(&w.shadowRay) {
-			r := brdf.Evaluate(ls.L)
+			if !worker.Shadow(&w.shadowRay) {
+				r := brdf.Evaluate(ls.L)
 
-			result.AddAssign(ls.Energy.Mul(r))
+				result.AddAssign(ls.Energy.Mul(r).Div(ls.Pdf))
+			}
 		}
 	}
 

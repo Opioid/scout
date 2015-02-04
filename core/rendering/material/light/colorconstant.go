@@ -19,7 +19,7 @@ func NewColorConstant(l light.Light) *ColorConstant {
 }
 
 func (m *ColorConstant) Energy() math.Vector3 {
-	return m.light.Color().Scale(m.light.Lumen())
+	return m.light.Color();//.Scale(m.light.Lumen())
 }
 
 func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerID uint32) material.Sample {

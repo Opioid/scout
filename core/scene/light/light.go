@@ -43,3 +43,4 @@ func (l *light) Lumen() float32 {
 func (l *light) SetLumen(lumen float32) {
 	l.lumen = lumen
 }
+

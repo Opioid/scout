@@ -163,6 +163,10 @@ func vector3Lerp(a, b Vector3, t float32) Vector3 {
 	return MakeVector3(t, t, t)
 }
 
+func (a Vector3) IsZero() bool {
+	return a.X == 0.0 && a.Y == 0.0 && a.Z == 0.0	
+}
+
 func (a Vector3) ContainsNaN() bool {
 	return math32.IsNaN(a.X) || math32.IsNaN(a.Y) || math32.IsNaN(a.Z)
 }
