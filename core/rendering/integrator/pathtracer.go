@@ -34,10 +34,17 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	material := intersection.Material()
 
 	if material.IsLight() {
-	//	eye := ray.Direction.Scale(-1.0)
-	//	nDotL := intersection.Geo.N.Dot(eye)
+		
+		wo := ray.Direction.Scale(-1.0)
+		nDotL := intersection.Geo.N.Dot(wo)
 
-		return material.Energy()//.Scale(math32.Abs(nDotL))
+		if nDotL > 0.0 {
+			return material.Energy()
+		} else {
+			return math.MakeVector3(0.0, 0.0, 0.0)
+		}
+		
+	//	material.Energy()
 	}
 
 	nextDepth := ray.Depth + 1

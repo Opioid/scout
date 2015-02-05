@@ -22,7 +22,7 @@ func NewSphere(shape shape.Shape) *Sphere {
 
 const (
 	hemispherePdf = 1.0 / (2.0 * gomath.Pi)
-	hemisphereArea = 2.0 / gomath.Pi
+	hemisphereArea = 2.0 * gomath.Pi
 )
 
 func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
@@ -42,15 +42,20 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 
 	d := v.SquaredLength()
 	t := math32.Sqrt(d)
+	w := v.Div(t)
 
-	nDotV := n.Dot(v.Scale(-1.0).Normalized())
+	nDotW := n.Dot(w.Scale(-1.0))
 
-	if n.Dot(v.Normalized()) > 0.0 {
-		// In this case no light will reach p, so we could make an early out
+	if nDotW < 0.0 {
+		// In this case no light will reach p, so we could make an early out.
+		// I think it also means the sample we picked was bad, 
+		// so this could probably be optimized away with the cone thingy described in pbrt.
 		d = 0.0
 	}
 
-	result := Sample{Energy: l.color.Scale(l.lumen), L: v.Div(t), T: t, Pdf: d / (math32.Abs(nDotV) * hemisphereArea)}
+	radiusSquare := transformation.Scale.X * transformation.Scale.X
+
+	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: d / (math32.Abs(nDotW) * (radiusSquare * hemisphereArea) )}
 
 	return result
 }
