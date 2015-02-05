@@ -8,6 +8,7 @@ import (
 	_ "github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
+	_ "github.com/Opioid/math32"
 	_ "fmt"
 )
 
@@ -33,7 +34,10 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	material := intersection.Material()
 
 	if material.IsLight() {
-		return material.Energy()
+	//	eye := ray.Direction.Scale(-1.0)
+	//	nDotL := intersection.Geo.N.Dot(eye)
+
+		return material.Energy()//.Scale(math32.Abs(nDotL))
 	}
 
 	nextDepth := ray.Depth + 1
@@ -60,9 +64,6 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	material.Free(materialSample, pt.id)
 
 	pt.secondaryRay.Origin = intersection.Geo.P
-
-//	fmt.Println(intersection.Geo.P)
-//	panic("ja")
 
 	pt.secondaryRay.SetDirection(v)
 	pt.secondaryRay.MinT = intersection.Geo.Epsilon

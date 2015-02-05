@@ -43,14 +43,14 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 	d := v.SquaredLength()
 	t := math32.Sqrt(d)
 
-	nDotV := n.Dot(v)
+	nDotV := n.Dot(v.Scale(-1.0).Normalized())
 
-	if nDotV > 0.0 {
+	if n.Dot(v.Normalized()) > 0.0 {
 		// In this case no light will reach p, so we could make an early out
 		d = 0.0
 	}
 
-	result := Sample{Energy: l.color, L: v.Div(t), T: t, Pdf: d / (math32.Abs(nDotV) * hemisphereArea)}
+	result := Sample{Energy: l.color.Scale(l.lumen), L: v.Div(t), T: t, Pdf: d / (math32.Abs(nDotV) * hemisphereArea)}
 
 	return result
 }
