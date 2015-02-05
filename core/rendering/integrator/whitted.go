@@ -50,7 +50,6 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 
 	v := ray.Direction.Scale(-1.0)
 	brdf := material.Sample(&intersection.Geo.Differential, v, w.linearSampler_repeat, w.id)
-	values := brdf.Values()
 
 	for _, l := range worker.Scene.Lights {
 		ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, w.sampler)
@@ -66,7 +65,8 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 			}
 		}
 	}
-
+/*
+	values := brdf.Values()
 	ambientColor := worker.Scene.Surrounding.SampleDiffuse(values.N)
 	result.AddAssign(ambientColor.Mul(values.DiffuseColor))
 
@@ -88,7 +88,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	pi_brdf := w.linearSampler_clamp.Sample(w.brdf, math.MakeVector2(values.Roughness, values.N_dot_v))
 
 	result.AddAssign(environment.Mul(values.F0.Scale(pi_brdf.X).AddS(pi_brdf.Y)))
-
+*/
 	material.Free(brdf, w.id)
 
 	return result

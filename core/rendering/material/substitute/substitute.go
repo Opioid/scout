@@ -62,18 +62,25 @@ type Sample struct {
 }
 
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
-	n_dot_l := math32.Max(s.values.N.Dot(l), 0.00001)
+	nDotL := math32.Max(s.values.N.Dot(l), 0.00001)
+
+//	if nDotL == 0.0 {
+
+//		fmt.Println(s.values.N)
+
+	//	panic("ja")
+//	}
 /*
 	h := s.values.V.Add(l).Normalized()
 
 	n_dot_h := s.values.N.Dot(h)
 	v_dot_h := s.values.V.Dot(h)
 
-	specular := specular_f(v_dot_h, s.values.F0).Scale(specular_d(n_dot_h, s.values.A2)).Scale(specular_g(n_dot_l, s.values.N_dot_v, s.values.A2))
+	specular := specular_f(v_dot_h, s.values.F0).Scale(specular_d(n_dot_h, s.values.A2)).Scale(specular_g(nDotL, s.values.N_dot_v, s.values.A2))
 
-	return s.values.DiffuseColor.Add(specular).Scale(n_dot_l)
+	return s.values.DiffuseColor.Add(specular).Scale(nDotL)
 */
-	return s.values.DiffuseColor.Scale(n_dot_l)
+	return s.values.DiffuseColor.Scale(nDotL)
 }
 
 func (s *Sample) Values() *material.Values {
@@ -112,7 +119,8 @@ func (b *LambertBxdf) set(color math.Vector3) {
 
 func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
 	sample := sampler.GenerateSample2D(0, subsample) 
-	hs := math.SampleHemisphere_cos1(sample.X, sample.Y)
+//	hs := math.SampleHemisphere_cos1(sample.X, sample.Y)
+	hs := math.SampleHemisphereUniform(sample.X, sample.Y)
 	return hs
 }
 

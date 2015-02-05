@@ -29,7 +29,7 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 	l.prop.TransformationAt(time, transformation)
 
 	sample := sampler.GenerateSample2D(0, subsample)
-	ls := math.SampleHemisphere_uniform(sample.X, sample.Y)
+	ls := math.SampleHemisphereUniform(sample.X, sample.Y)
 
 	z := p.Sub(transformation.Position).Normalized()
 	cs := math.MakeCoordinateSystemMatrix3x3(z)
@@ -55,7 +55,8 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 
 	radiusSquare := transformation.Scale.X * transformation.Scale.X
 
-	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: d / (math32.Abs(nDotW) * (radiusSquare * hemisphereArea) )}
+	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: d / (math32.Abs(nDotW) * (radiusSquare * hemisphereArea))}
 
 	return result
+	
 }

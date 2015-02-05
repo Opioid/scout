@@ -53,7 +53,7 @@ func SampleDisk_concentric(u, v float32) (float32, float32) {
 	return costheta * r, sintheta * r
 }
 
-func SampleHemisphere_uniform(u, v float32) Vector3 {
+func SampleHemisphereUniform(u, v float32) Vector3 {
 	z := 1.0 - u
 	r := math32.Sqrt(1.0 - z * z)
 	phi := v * 2.0 * math.Pi

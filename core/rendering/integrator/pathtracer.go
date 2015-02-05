@@ -10,6 +10,7 @@ import (
 	"github.com/Opioid/scout/base/math/random"
 	_ "github.com/Opioid/math32"
 	_ "fmt"
+	gomath "math"
 )
 
 type pathtracerSettings struct {
@@ -34,17 +35,14 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	material := intersection.Material()
 
 	if material.IsLight() {
-		
-		wo := ray.Direction.Scale(-1.0)
-		nDotL := intersection.Geo.N.Dot(wo)
+		l := ray.Direction.Scale(-1.0)
+		nDotL := intersection.Geo.N.Dot(l)
 
 		if nDotL > 0.0 {
 			return material.Energy()
 		} else {
 			return math.MakeVector3(0.0, 0.0, 0.0)
 		}
-		
-	//	material.Energy()
 	}
 
 	nextDepth := ray.Depth + 1
@@ -53,20 +51,23 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		return math.MakeVector3(0.0, 0.0, 0.0)
 	}
 
+	eye := ray.Direction.Scale(-1.0)
+
 	// No handling of geometry from the "inside" for now
-	if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
+	if eye.Dot(intersection.Geo.N) < 0.0 {
 		return math.MakeVector3(0.0, 0.0, 0.0)
 	}
 
-	eye := ray.Direction.Scale(-1.0)
 	materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
-	bxdf, bp := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	bxdf, _ := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 	hs := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 	v := materialSample.TangentToWorld(hs)
 
 	r := bxdf.Evaluate(v)
+
+	nDotL := intersection.Geo.N.Dot(v)
 
 	material.Free(materialSample, pt.id)
 
@@ -80,7 +81,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 	environment := worker.Li(subsample, &pt.secondaryRay)
 
-	return r.Mul(environment).Div(bp)
+	return r.Mul(environment).Scale(nDotL).Div(1.0 / (2.0 * gomath.Pi))//.Div(bp)
 }
 
 func (pt *pathtracer) MaxBounces() uint32 {
