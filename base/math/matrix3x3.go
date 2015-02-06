@@ -20,7 +20,6 @@ func MakeIdentityMatrix3x3() Matrix3x3 {
 	}
 }
 
-
 func MakeCoordinateSystemMatrix3x3(v Vector3) Matrix3x3 {
 	var r1 Vector3
 
@@ -145,7 +144,7 @@ func (m *Matrix3x3) SetBasis(v Vector3) {
 	m.m20 =  v.X; m.m21 =  v.Y; m.m22 =  v.Z
 }
 
-func CalculateTangentAndBitangent(v Vector3) (Vector3, Vector3) {
+func CoordinateSystem(v Vector3) (Vector3, Vector3) {
 	var r1 Vector3
 
 	if v.X < 0.6 && v.X > -0.6 {

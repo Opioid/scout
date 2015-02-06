@@ -34,7 +34,7 @@ func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vecto
 	s := m.stack.Pop(workerID)
 
 	s.N = n
-	s.T, s.B = math.CalculateTangentAndBitangent(n)
+	s.T, s.B = math.CoordinateSystem(n)
 
 	s.values.Set(m.color, 1.0, m.roughness, m.metallic, n, v)
 	return s	

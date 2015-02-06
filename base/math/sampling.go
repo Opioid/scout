@@ -81,3 +81,41 @@ func SampleHemisphereCosine(u, v float32) Vector3 {
 
 	return MakeVector3(x, y, z)
 }
+
+func SampleConeUniform(u, v, costhetamax float32) Vector3 {
+	/*	
+	float costheta = (1.f - u1) + u1 * costhetamax;
+	float sintheta = sqrtf(1.f - costheta*costheta);
+	float phi = u2 * 2.f * M_PI;
+	return Vector(cosf(phi) * sintheta, sinf(phi) * sintheta, costheta);
+	*/
+
+	costheta := (1.0 - u) + u * costhetamax
+	sintheta := math32.Sqrt(1.0 - costheta * costheta)
+	phi := v * 2.0 * math32.Pi
+
+	sinphi, cosphi := Sincos(phi)
+
+	return MakeVector3(cosphi * sintheta, sinphi * sintheta, costheta)
+}
+
+func SampleOrientedConeUniform(u, v, costhetamax float32, x, y, z Vector3) Vector3 {
+	/*
+	float costheta = (1.f - u1) + u1 * costhetamax;
+	float sintheta = sqrtf(1.f - costheta*costheta);
+	float phi = u2 * 2.f * M_PI;
+	return cosf(phi) * sintheta * x + sinf(phi) * sintheta * y + costheta * z;
+	*/
+
+	costheta := (1.0 - u) + u * costhetamax
+	sintheta := math32.Sqrt(1.0 - costheta * costheta)
+	phi := v * 2.0 * math32.Pi
+
+	sinphi, cosphi := Sincos(phi)
+
+	return x.Scale(cosphi * sintheta).Add(y.Scale(sinphi * sintheta)).Add(z.Scale(costheta))
+}
+
+func ConePdfUniform(costhetamax float32) float32 {
+	return 1.0 / (2.0 * math32.Pi * (1.0 - costhetamax))
+}
