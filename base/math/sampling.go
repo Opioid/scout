@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-func SampleDisk_uniform(u, v float32) (float32, float32) {
+func SampleDiskUniform(u, v float32) (float32, float32) {
 	r := math32.Sqrt(u)
 	theta := v * 2.0 * math.Pi
 	
@@ -14,7 +14,7 @@ func SampleDisk_uniform(u, v float32) (float32, float32) {
 	return costheta * r, sintheta * r
 }
 
-func SampleDisk_concentric(u, v float32) (float32, float32) {
+func SampleDiskConcentric(u, v float32) (float32, float32) {
 	sx := 2.0 * u - 1.0
 	sy := 2.0 * v - 1.0
 
@@ -63,6 +63,7 @@ func SampleHemisphereUniform(u, v float32) Vector3 {
 	return MakeVector3(cosphi * r, sinphi * r, z)
 }
 
+/*
 func SampleHemisphere_cos(u, v float32) Vector3 {
 	z := math32.Sqrt(1.0 - u)
 	r := math32.Sqrt(1.0 - z * z)
@@ -72,9 +73,10 @@ func SampleHemisphere_cos(u, v float32) Vector3 {
 
 	return MakeVector3(cosphi * r, sinphi * r, z)
 }
+*/
 
-func SampleHemisphere_cos1(u, v float32) Vector3 {
-	x, y := SampleDisk_concentric(u, v)
+func SampleHemisphereCosine(u, v float32) Vector3 {
+	x, y := SampleDiskConcentric(u, v)
 	z := math32.Sqrt(math32.Max(0.0, 1.0 - x * x - y * y))
 
 	return MakeVector3(x, y, z)

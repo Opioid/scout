@@ -6,7 +6,7 @@ import (
 )
 
 type Bxdf interface {
-	ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3
+	ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32)
 
 	Evaluate(l math.Vector3) math.Vector3
 }

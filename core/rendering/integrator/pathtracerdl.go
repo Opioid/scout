@@ -87,7 +87,7 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 
 		bxdf, bp := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		hs := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		hs, _ := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 	//	v := basis.TransformVector3(hs)
 		v := materialSample.TangentToWorld(hs)

@@ -133,7 +133,7 @@ func integrateHemisphereSphereMapTask(surrounding surrounding.Surrounding, numSa
 		for i := uint32(0); i < numSamples; i++ {
 			sample := math.ScrambledHammersley(i, numSamples, rn)
 
-			s := math.SampleHemisphere_cos(sample.X, sample.Y)
+			s := math.SampleHemisphereCosine(sample.X, sample.Y)
 
 			v := basis.TransformVector3(s)
 			ray.SetDirection(v)

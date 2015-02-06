@@ -5,7 +5,6 @@ import (
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
-	gomath "math"
 	_ "fmt"
 )
 
@@ -26,7 +25,7 @@ func specular_f(v_dot_h float32, f0 math.Vector3) math.Vector3 {
 func specular_d(n_dot_h, a2 float32) float32 {
 	d := n_dot_h * n_dot_h * (a2 - 1.0) + 1.0
 //	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
-	return a2 / (gomath.Pi * d * d)
+	return a2 / (math32.Pi * d * d)
 }
 
 func specular_g(n_dot_l, n_dot_v, a2 float32) float32 {
@@ -80,7 +79,7 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 
 	return s.values.DiffuseColor.Add(specular).Scale(nDotL)
 */
-	return s.values.DiffuseColor.Scale(nDotL)
+	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(nDotL)
 }
 
 func (s *Sample) Values() *material.Values {
@@ -117,14 +116,19 @@ func (b *LambertBxdf) set(color math.Vector3) {
 	b.color = color
 } 
 
-func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
+func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 	sample := sampler.GenerateSample2D(0, subsample) 
-//	hs := math.SampleHemisphere_cos1(sample.X, sample.Y)
-	hs := math.SampleHemisphereUniform(sample.X, sample.Y)
-	return hs
+
+	hs := math.SampleHemisphereCosine(sample.X, sample.Y)
+	pdf := float32(1.0)
+
+	return hs, pdf
 }
 
 func (b *LambertBxdf) Evaluate(l math.Vector3) math.Vector3 {
+	// Div by Pi is not neccessary because it is implicitly handled by the cosine distributed importance sample!
+//	return b.color.Div(gomath.Pi)
+
 	return b.color
 }
 
@@ -144,7 +148,7 @@ func (b *GgxBxdf) set(v, n math.Vector3, f0 math.Vector3, a2 float32) {
 func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
-	phi := 2.0 * gomath.Pi * xi.X
+	phi := 2.0 * math32.Pi * xi.X
 
 	cos_theta := math32.Sqrt((1.0 - xi.Y) / (1.0 + (b.a2 - 1.0) * xi.Y))
 
