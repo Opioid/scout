@@ -27,7 +27,7 @@ const (
 )
 
 func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
-
+/*
 	l.prop.TransformationAt(time, transformation)
 
 	sample := sampler.GenerateSample2D(0, subsample)
@@ -48,54 +48,57 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 
 	nDotW := n.Dot(w.Scale(-1.0))
 
-	if nDotW < 0.0 {
-		// In this case no light will reach p, so we could make an early out.
-		// I think it also means the sample we picked was bad, 
-		// so this could probably be optimized away with the cone thingy described in pbrt.
-		d = 0.0
-	}
-
 	radiusSquare := transformation.Scale.X * transformation.Scale.X
 
 	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: d / (math32.Abs(nDotW) * (radiusSquare * hemisphereArea))}
 
 	return result
+*/
 
-/*
+
 	l.prop.TransformationAt(time, transformation)
 
-	z := p.Sub(transformation.Position).Normalized()
+	axis := transformation.Position.Sub(p)
+	axisSquaredLength := axis.SquaredLength()
+	axisrl := math32.Rsqrt(axisSquaredLength)
+
+	z := axis.Scale(axisrl)
 	x, y := math.CoordinateSystem(z)
 
 	radiusSquare := transformation.Scale.X * transformation.Scale.X
 
-	sinThetaMax2 := radiusSquare / p.Sub(transformation.Position).SquaredLength()
+	sinThetaMax2 := radiusSquare / axisSquaredLength
 	cosThetaMax := math32.Sqrt(math32.Max(0.0, 1.0 - sinThetaMax2))
 
 	sample := sampler.GenerateSample2D(0, subsample)
-	n := math.SampleOrientedConeUniform(sample.X, sample.Y, cosThetaMax, x, y, z)
+	dir := math.SampleOrientedConeUniform(sample.X, sample.Y, cosThetaMax, x, y, z)
 
-	ws := transformation.Position.Add(n.Scale(transformation.Scale.X))
+/*
+	w := dir.Normalized()
+	thit := axis.Dot(w)
+	v := dir.Scale(thit)
+	t := v.Length()
+*/
 
-	v := ws.Sub(p)
+	t := dir.Dot(dir) * axis.Dot(dir)
 
-	d := v.SquaredLength()
-	t := math32.Sqrt(d)
-	w := v.Div(t)
+	w := dir
 
+	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: math.ConePdfUniform(cosThetaMax)}
+
+	return result
+	
+}
+
+/*
 	nDotW := n.Dot(w.Scale(-1.0))
 
 	if nDotW < 0.0 {
 		// In this case no light will reach p, so we could make an early out.
 		// I think it also means the sample we picked was bad, 
 		// so this could probably be optimized away with the cone thingy described in pbrt.
-		result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: 0.0}
+		result := Sample{Energy: l.color.Scale(0.0), L: w, T: t, Pdf: 0.0}
 
 		return result
 	}
-
-	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: math.ConePdfUniform(cosThetaMax)}
-
-	return result
-		*/
-}
+*/
