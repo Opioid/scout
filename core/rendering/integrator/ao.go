@@ -47,7 +47,7 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedR
 
 		occlusionRay.SetDirection(v)
 
-		if !worker.Shadow(&occlusionRay) {
+		if worker.Visibility(&occlusionRay) {
 			result += a.numSamplesReciprocal
 		}
 	}

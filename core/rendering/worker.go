@@ -78,6 +78,6 @@ func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 	}
 }
 
-func (w *Worker) Shadow(ray *math.OptimizedRay) bool {
-	return w.Scene.IntersectP(ray, &w.ScratchBuffer)
+func (w *Worker) Visibility(ray *math.OptimizedRay) bool {
+	return !w.Scene.IntersectP(ray, &w.ScratchBuffer)
 }

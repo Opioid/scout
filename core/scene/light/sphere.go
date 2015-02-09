@@ -27,7 +27,7 @@ const (
 )
 
 func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
-/*
+
 	l.prop.TransformationAt(time, transformation)
 
 	sample := sampler.GenerateSample2D(0, subsample)
@@ -60,8 +60,8 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: d / (math32.Abs(nDotW) * (radiusSquare * hemisphereArea))}
 
 	return result
-*/
 
+/*
 	l.prop.TransformationAt(time, transformation)
 
 	z := p.Sub(transformation.Position).Normalized()
@@ -75,7 +75,7 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 	sample := sampler.GenerateSample2D(0, subsample)
 	n := math.SampleOrientedConeUniform(sample.X, sample.Y, cosThetaMax, x, y, z)
 
-	ws := transformation.Position.Add(n/*.Scale(transformation.Scale.X)*/)
+	ws := transformation.Position.Add(n.Scale(transformation.Scale.X))
 
 	v := ws.Sub(p)
 
@@ -83,7 +83,7 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 	t := math32.Sqrt(d)
 	w := v.Div(t)
 
-/*	nDotW := n.Dot(w.Scale(-1.0))
+	nDotW := n.Dot(w.Scale(-1.0))
 
 	if nDotW < 0.0 {
 		// In this case no light will reach p, so we could make an early out.
@@ -93,9 +93,9 @@ func (l *Sphere) Sample(transformation *math.ComposedTransformation, p math.Vect
 
 		return result
 	}
-*/
+
 	result := Sample{Energy: l.color.Scale(l.lumen), L: w, T: t, Pdf: math.ConePdfUniform(cosThetaMax)}
 
 	return result
-		
+		*/
 }

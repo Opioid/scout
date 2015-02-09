@@ -66,7 +66,7 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		pt.secondaryRay.SetDirection(ls.L)
 		pt.secondaryRay.MaxT = ls.T
 
-		if !worker.Shadow(&pt.secondaryRay) {
+		if worker.Visibility(&pt.secondaryRay) {
 			r := materialSample.Evaluate(ls.L)
 
 			result.AddAssign(ls.Energy.Mul(r).Div(lp))

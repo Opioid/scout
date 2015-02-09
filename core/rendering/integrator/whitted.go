@@ -58,7 +58,7 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 			w.shadowRay.SetDirection(ls.L)
 			w.shadowRay.MaxT = ls.T
 
-			if !worker.Shadow(&w.shadowRay) {
+			if worker.Visibility(&w.shadowRay) {
 				r := brdf.Evaluate(ls.L)
 
 				result.AddAssign(ls.Energy.Mul(r).Div(ls.Pdf))
