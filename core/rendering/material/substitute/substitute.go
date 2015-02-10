@@ -62,22 +62,15 @@ type Sample struct {
 
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	nDotL := math32.Max(s.values.N.Dot(l), 0.00001)
-
-//	if nDotL == 0.0 {
-
-//		fmt.Println(s.values.N)
-
-	//	panic("ja")
-//	}
 /*
 	h := s.values.V.Add(l).Normalized()
 
-	n_dot_h := s.values.N.Dot(h)
-	v_dot_h := s.values.V.Dot(h)
+	nDotH := s.values.N.Dot(h)
+	vDotH := s.values.V.Dot(h)
 
-	specular := specular_f(v_dot_h, s.values.F0).Scale(specular_d(n_dot_h, s.values.A2)).Scale(specular_g(nDotL, s.values.N_dot_v, s.values.A2))
+	specular := specular_f(vDotH, s.values.F0).Scale(specular_d(nDotH, s.values.A2)).Scale(specular_g(nDotL, s.values.N_dot_v, s.values.A2))
 
-	return s.values.DiffuseColor.Add(specular).Scale(nDotL)
+	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(nDotL)
 */
 	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(nDotL)
 }
@@ -145,7 +138,7 @@ func (b *GgxBxdf) set(v, n math.Vector3, f0 math.Vector3, a2 float32) {
 	b.a2 = a2
 } 
 
-func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) math.Vector3 {
+func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
 	phi := 2.0 * math32.Pi * xi.X
@@ -158,7 +151,7 @@ func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) ma
 
 	h := math.MakeVector3(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta)	
 
-	return h
+	return h, 1.0
 }
 
 func (b *GgxBxdf) Evaluate(l math.Vector3) math.Vector3 {

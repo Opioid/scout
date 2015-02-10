@@ -59,9 +59,9 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 	materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
-	bxdf, _ := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-	hs, pdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	hs, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 	v := materialSample.TangentToWorld(hs)
 
 	r := bxdf.Evaluate(v)
@@ -78,7 +78,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 	environment := worker.Li(subsample, &pt.secondaryRay)
 
-	return r.Mul(environment).Div(pdf)
+	return r.Mul(environment).Div(samplePdf * bxdfPdf)
 }
 
 func (pt *pathtracer) MaxBounces() uint32 {
