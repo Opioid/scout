@@ -31,6 +31,65 @@ func (pt *pathtracer) StartNewPixel(numSamples uint32) {
 }
 
 func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
+
+	throughput := math.MakeVector3(1.0, 1.0, 1.0)
+	result := math.MakeVector3(0.0, 0.0, 0.0)
+	hit := true
+
+	for i := uint32(0); i <= pt.maxBounces; i++ {
+		material := intersection.Material()
+
+		if material.IsLight() {
+			l := ray.Direction.Scale(-1.0)
+			nDotL := intersection.Geo.N.Dot(l)
+
+			if nDotL > 0.0 {
+				result.AddAssign(throughput.Mul(material.Energy()))
+			} 
+
+			break
+		}
+
+		nextDepth := ray.Depth + 1
+
+		if nextDepth > pt.maxBounces {
+			break
+		}
+
+		eye := ray.Direction.Scale(-1.0)
+
+		// No handling of geometry from the "inside" for now
+		if eye.Dot(intersection.Geo.N) < 0.0 {
+			break
+		}
+
+		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
+
+		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+
+		hs, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		v := materialSample.TangentToWorld(hs)
+
+		r := bxdf.Evaluate(v)
+
+		material.Free(materialSample, pt.id)
+
+		throughput.MulAssign(r.Div(samplePdf * bxdfPdf))
+
+		ray.Origin = intersection.Geo.P
+		ray.SetDirection(v)
+		ray.MinT = intersection.Geo.Epsilon
+		ray.MaxT = 1000.0
+		ray.Depth = nextDepth
+
+		if hit, intersection = worker.Intersect(ray); !hit {
+			break
+		}
+	}
+
+	return result
+
+/*
 	material := intersection.Material()
 
 	if material.IsLight() {
@@ -79,6 +138,7 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	environment := worker.Li(subsample, &pt.secondaryRay)
 
 	return r.Mul(environment).Div(samplePdf * bxdfPdf)
+	*/
 }
 
 func (pt *pathtracer) MaxBounces() uint32 {

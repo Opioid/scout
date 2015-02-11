@@ -59,6 +59,16 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 }
 
 func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
+	if hit, intersection := w.Intersect(ray); hit {
+		c := w.integrator.Li(w, subsample, ray, intersection) 
+		return c
+	} else {
+		c := w.Scene.Surrounding.Sample(ray)
+		return c		
+	}
+}
+
+func (w *Worker) Intersect(ray *math.OptimizedRay) (bool, *prop.Intersection) {
 	intersection := &w.intersections[ray.Depth]
 
 	var visibility uint8
@@ -69,13 +79,9 @@ func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 		visibility = w.integrator.SecondaryVisibility()
 	}
 
-	if w.Scene.Intersect(ray, visibility, &w.ScratchBuffer, intersection) {
-		c := w.integrator.Li(w, subsample, ray, intersection) 
-		return c
-	} else {
-		c := w.Scene.Surrounding.Sample(ray)
-		return c
-	}
+	hit := w.Scene.Intersect(ray, visibility, &w.ScratchBuffer, intersection)
+
+	return hit, intersection
 }
 
 func (w *Worker) Visibility(ray *math.OptimizedRay) bool {
