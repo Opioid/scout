@@ -16,7 +16,7 @@ func NewDirectional() *Directional {
 func (l *Directional) Sample(transformation *math.ComposedTransformation, p math.Vector3, time float32, subsample uint32, sampler sampler.Sampler) Sample {
 	l.prop.TransformationAt(time, transformation)
 
-	result := Sample{Energy: l.color, L: transformation.Rotation.Direction().Scale(-1.0), T: 1000.0}
+	result := Sample{Energy: l.color, L: transformation.Rotation.Direction().Scale(-1.0), T: 1000.0, Pdf: 1.0}
 
 	return result
 }

@@ -26,7 +26,7 @@ func (l *Cone) Sample(transformation *math.ComposedTransformation, p math.Vector
 
 	v := transformation.Rotation.Direction().Scale(-1.0).Add(ws)
 
-	result := Sample{Energy: l.color, L: v.Normalized(), T: 1000.0}
+	result := Sample{Energy: l.color, L: v.Normalized(), T: 1000.0, Pdf: 1.0}
 
 	return result
 }

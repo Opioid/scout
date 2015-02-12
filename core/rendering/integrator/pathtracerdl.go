@@ -8,7 +8,6 @@ import (
 	_ "github.com/Opioid/scout/core/scene/light"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/random"
-	_ "fmt"
 )
 
 type pathtracerDlSettings struct {

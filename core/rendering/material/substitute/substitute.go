@@ -74,18 +74,16 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 
 	nDotH := s.values.N.Dot(h)
 	woDotH := s.values.Wo.Dot(h)
-/*
+
 	specular := specular_f(woDotH, s.values.F0).Scale(specular_d(nDotH, s.values.A2)).Scale(specular_g(nDotL, s.values.NdotWo, s.values.A2))
 
 	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(nDotL)
-*/
-//	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(nDotL)
 
+/*
 	specular := specular_f(woDotH, s.values.F0).Scale(specular_d(nDotH, s.values.A2)).Scale(specular_g(nDotL, s.values.NdotWo, s.values.A2))
 
 	return specular.Scale(nDotL)
-
-//	return s.values.F0.Scale(specular_d(nDotH, s.values.A2)).Scale(nDotL)
+	*/
 }
 
 func (s *Sample) Values() *material.Values {
@@ -93,10 +91,9 @@ func (s *Sample) Values() *material.Values {
 }
 
 func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (material.Bxdf, float32) {
-/*	if s.metallic == 1.0 {
+	if s.metallic == 1.0 {
 		return &s.ggx, 1.0
 	} else {
-
 		p := sampler.GenerateSample1D(0, 0)
 
 		if p < 0.5 {
@@ -105,11 +102,11 @@ func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (mate
 			return &s.ggx, 0.5
 		}
 	}
-*/
+
 
 //	return &s.lambert, 1.0
 
-	return &s.ggx, 1.0
+//	return &s.ggx, 1.0
 }
 
 type LambertBxdf struct {
@@ -150,7 +147,7 @@ func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 
 	wi := ws.Scale(2.0 * b.sample.values.Wo.Dot(ws)).Sub(b.sample.values.Wo).Normalized()
 
-	return wi, 1.0
+	return wi, costheta / (math32.Pi * b.sample.values.Wo.Dot(ws))
 }
 
 func (b *GgxBxdf) Evaluate(l math.Vector3) math.Vector3 {
@@ -163,7 +160,7 @@ func (b *GgxBxdf) Evaluate(l math.Vector3) math.Vector3 {
 
 	specular := specular_f(v_dot_h, b.sample.values.F0).Scale(specular_g(nDotL, n_dot_v,  b.sample.values.A2))
 
-	return specular//.Scale(nDotL)
+	return specular.Scale(nDotL)
 	
 //	return b.sample.values.F0.Scale(nDotL).Scale(specular_g(nDotL, n_dot_v, b.sample.values.A2))
 
