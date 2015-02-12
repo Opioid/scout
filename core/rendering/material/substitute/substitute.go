@@ -60,19 +60,32 @@ type Sample struct {
 	ggx     GgxBxdf
 }
 
+func NewSample() *Sample {
+	s := &Sample{}
+	s.lambert.sample = s
+	s.ggx.sample = s
+	return s
+}
+
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	nDotL := math32.Max(s.values.N.Dot(l), 0.00001)
-/*
-	h := s.values.V.Add(l).Normalized()
+
+	h := s.values.Wo.Add(l).Normalized()
 
 	nDotH := s.values.N.Dot(h)
-	vDotH := s.values.V.Dot(h)
-
-	specular := specular_f(vDotH, s.values.F0).Scale(specular_d(nDotH, s.values.A2)).Scale(specular_g(nDotL, s.values.N_dot_v, s.values.A2))
+	woDotH := s.values.Wo.Dot(h)
+/*
+	specular := specular_f(woDotH, s.values.F0).Scale(specular_d(nDotH, s.values.A2)).Scale(specular_g(nDotL, s.values.NdotWo, s.values.A2))
 
 	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(nDotL)
 */
-	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(nDotL)
+//	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(nDotL)
+
+	specular := specular_f(woDotH, s.values.F0).Scale(specular_d(nDotH, s.values.A2)).Scale(specular_g(nDotL, s.values.NdotWo, s.values.A2))
+
+	return specular.Scale(nDotL)
+
+//	return s.values.F0.Scale(specular_d(nDotH, s.values.A2)).Scale(nDotL)
 }
 
 func (s *Sample) Values() *material.Values {
@@ -81,88 +94,78 @@ func (s *Sample) Values() *material.Values {
 
 func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (material.Bxdf, float32) {
 /*	if s.metallic == 1.0 {
-		s.ggx.set(s.values.V, s.values.N, s.values.F0, s.values.A2)
 		return &s.ggx, 1.0
 	} else {
 
 		p := sampler.GenerateSample1D(0, 0)
 
 		if p < 0.5 {
-			s.lambert.set(s.values.DiffuseColor)
 			return &s.lambert, 0.5
 		} else {
-			s.ggx.set(s.values.V, s.values.N, s.values.F0, s.values.A2)
 			return &s.ggx, 0.5
 		}
 	}
 */
 
-	s.lambert.set(s.values.DiffuseColor)
-	return &s.lambert, 1.0
+//	return &s.lambert, 1.0
+
+	return &s.ggx, 1.0
 }
 
 type LambertBxdf struct {
-	color math.Vector3
+	sample *Sample
 }
-
-func (b *LambertBxdf) set(color math.Vector3) {
-	b.color = color
-} 
 
 func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 	sample := sampler.GenerateSample2D(0, subsample) 
 
 	hs := math.SampleHemisphereCosine(sample.X, sample.Y)
-	pdf := float32(1.0)
+	ws := b.sample.TangentToWorld(hs)
 
-	return hs, pdf
+	return ws, 1.0
 }
 
 func (b *LambertBxdf) Evaluate(l math.Vector3) math.Vector3 {
 	// Div by Pi is not neccessary because it is implicitly handled by the cosine distributed importance sample!
-//	return b.color.Div(gomath.Pi)
+//	return b.sample.values.DiffuseColor.Div(gomath.Pi)
 
-	return b.color
+	return b.sample.values.DiffuseColor
 }
 
 type GgxBxdf struct {
-	v, n math.Vector3
-	f0 math.Vector3
-	a2 float32
+	sample *Sample
 }
-
-func (b *GgxBxdf) set(v, n math.Vector3, f0 math.Vector3, a2 float32) {
-	b.v = v
-	b.n = n
-	b.f0 = f0
-	b.a2 = a2
-} 
 
 func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
 	phi := 2.0 * math32.Pi * xi.X
 
-	cos_theta := math32.Sqrt((1.0 - xi.Y) / (1.0 + (b.a2 - 1.0) * xi.Y))
+	costheta := math32.Sqrt((1.0 - xi.Y) / (1.0 + (b.sample.values.A2 - 1.0) * xi.Y))
+	sintheta := math32.Sqrt(1.0 - costheta * costheta)
+	sinphi, cosphi := math.Sincos(phi)
 
-	sin_theta := math32.Sqrt(1.0 - cos_theta * cos_theta)
+	hs := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, costheta)	
+	ws := b.sample.TangentToWorld(hs)
 
-	sin_phi, cos_phi := math.Sincos(phi)
+	wi := ws.Scale(2.0 * b.sample.values.Wo.Dot(ws)).Sub(b.sample.values.Wo).Normalized()
 
-	h := math.MakeVector3(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta)	
-
-	return h, 1.0
+	return wi, 1.0
 }
 
 func (b *GgxBxdf) Evaluate(l math.Vector3) math.Vector3 {
-	n_dot_l := math32.Max(b.n.Dot(l), 0.00001)
-	n_dot_v := math32.Max(b.n.Dot(b.v), 0.0)
+	nDotL := math32.Max(b.sample.values.N.Dot(l), 0.00001)
+	n_dot_v := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
 
-	h := b.v.Add(l).Normalized()
+	h := b.sample.values.Wo.Add(l).Normalized()
 
-	v_dot_h := b.v.Dot(h)
+	v_dot_h := b.sample.values.Wo.Dot(h)
 
-	specular := specular_f(v_dot_h, b.f0).Scale(specular_g(n_dot_l, n_dot_v, b.a2))
+	specular := specular_f(v_dot_h, b.sample.values.F0).Scale(specular_g(nDotL, n_dot_v,  b.sample.values.A2))
 
-	return specular.Scale(n_dot_l)
+	return specular//.Scale(nDotL)
+	
+//	return b.sample.values.F0.Scale(nDotL).Scale(specular_g(nDotL, n_dot_v, b.sample.values.A2))
+
+//	return b.sample.values.F0.Scale(nDotL)
 }

@@ -245,7 +245,7 @@ func integrateConeSphereMapTask(surrounding surrounding.Surrounding, roughness f
 			h  := ggx.ImportanceSample(xi, roughness, n)
 
 			// normalizing here prevents some NaN where l.Y is beyond either -1 or 1
-			l := h.Scale(2 * v.Dot(h)).Sub(v).Normalized()
+			l := h.Scale(2.0 * v.Dot(h)).Sub(v).Normalized()
 
 			n_dot_l := math.Saturate(n.Dot(l))
 

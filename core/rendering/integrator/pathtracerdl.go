@@ -73,17 +73,15 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 
 		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		hs, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
-		v := materialSample.TangentToWorld(hs)
-
-		r := bxdf.Evaluate(v)
+		wi, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		r := bxdf.Evaluate(wi)
 
 		material.Free(materialSample, pt.id)
 
 		throughput.MulAssign(r.Div(samplePdf * bxdfPdf))
 
 		ray.Origin = intersection.Geo.P
-		ray.SetDirection(v)
+		ray.SetDirection(wi)
 		ray.MinT = intersection.Geo.Epsilon
 		ray.MaxT = 1000.0
 		ray.Depth = nextDepth

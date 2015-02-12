@@ -23,7 +23,7 @@ func NewBinnedStack(numBins uint32) *BinnedStack {
 		stack.samples = make([]*Sample, 4)
 
 		for j := range stack.samples {
-			stack.samples[j] = new(Sample)
+			stack.samples[j] = NewSample()
 		}
 	}
 
