@@ -368,7 +368,7 @@ func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
-	maxBounces := uint32(2)
+	maxBounces := uint32(3)
 
 	for key, value := range integratorNode {
 		switch key {
@@ -386,7 +386,7 @@ func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
-	maxBounces := uint32(2)
+	maxBounces := uint32(3)
 
 	for key, value := range integratorNode {
 		switch key {

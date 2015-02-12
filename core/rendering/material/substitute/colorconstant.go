@@ -6,6 +6,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/material"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
+	_ "fmt"
 )
 
 type ColorConstant struct {

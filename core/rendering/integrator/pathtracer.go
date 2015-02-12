@@ -153,7 +153,6 @@ func (pt *pathtracer) SecondaryVisibility() uint8 {
 	return prop.Secondary | prop.IsLight
 }
 
-
 type pathtracerFactory struct {
 	pathtracerSettings
 }

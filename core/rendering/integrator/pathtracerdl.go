@@ -30,82 +30,68 @@ func (pt *pathtracerDl) StartNewPixel(numSamples uint32) {
 }
 
 func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3 {
-	material := intersection.Material()
-/*
-	if material.IsLight() {
-		return material.Energy()
-	}
-*/
-	
-	nextDepth := ray.Depth + 1
-
-	if nextDepth > pt.maxBounces {
-		return math.MakeVector3(0.0, 0.0, 0.0)
-	}
-
-	// No handling of geometry from the "inside" for now
-	if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
-		return math.MakeVector3(0.0, 0.0, 0.0)
-	}
-
+	throughput := math.MakeVector3(1.0, 1.0, 1.0)
 	result := math.MakeVector3(0.0, 0.0, 0.0)
+	hit := true
 
-	pt.secondaryRay.Origin = intersection.Geo.P
-	pt.secondaryRay.MinT = intersection.Geo.Epsilon
-	pt.secondaryRay.Time = ray.Time
-	pt.secondaryRay.Depth = nextDepth
-
-	v := ray.Direction.Scale(-1.0)
-	materialSample := material.Sample(&intersection.Geo.Differential, v, pt.linearSampler_repeat, pt.id)
-
-	l, lp := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
-
-	if l != nil {
-		ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
-
-		pt.secondaryRay.SetDirection(ls.L)
-		pt.secondaryRay.MaxT = ls.T
-
-		if worker.Visibility(&pt.secondaryRay) {
-			r := materialSample.Evaluate(ls.L)
-
-			result.AddAssign(ls.Energy.Mul(r).Div(lp))
+	for i := uint32(0); i < pt.maxBounces; i++ {
+		nextDepth := ray.Depth + 1
+	/*	if nextDepth > pt.maxBounces {
+			break
+		}
+*/
+		// No handling of geometry from the "inside" for now
+		if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
+			break
 		}
 
-	} 
+		pt.secondaryRay.Origin = intersection.Geo.P
+		pt.secondaryRay.MinT = intersection.Geo.Epsilon
+		pt.secondaryRay.Time = ray.Time
+		pt.secondaryRay.Depth = nextDepth
 
-	/*else*/ {
-		pt.secondaryRay.MaxT = 1000.0
+		eye := ray.Direction.Scale(-1.0)
+		material := intersection.Material()
+		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
-	//	values := materialSample.Values()
+		l, lightPdf := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
 
-	//	basis := math.Matrix3x3{}
-	//	basis.SetBasis(values.N)
+		if l != nil {
+			ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
 
-	//	sample := pt.sampler.GenerateSample(0, ray.Depth + subsample * pt.maxBounces) 
-	//	hs := math.HemisphereSample_cos(sample.X, sample.Y)
+			if ls.Pdf > 0.0 {
+				pt.secondaryRay.SetDirection(ls.L)
+				pt.secondaryRay.MaxT = ls.T
 
-		bxdf, bp := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+				if worker.Visibility(&pt.secondaryRay) {
+					r := materialSample.Evaluate(ls.L)
 
-		hs, _ := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+					result.AddAssign(throughput.Mul(ls.Energy.Mul(r).Div(lightPdf * ls.Pdf)))
+				}
+			}
+		} 
 
-	//	v := basis.TransformVector3(hs)
+		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+
+		hs, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 		v := materialSample.TangentToWorld(hs)
 
 		r := bxdf.Evaluate(v)
 
 		material.Free(materialSample, pt.id)
 
-		pt.secondaryRay.SetDirection(v)
+		throughput.MulAssign(r.Div(samplePdf * bxdfPdf))
 
-		environment := worker.Li(subsample, &pt.secondaryRay)
+		ray.Origin = intersection.Geo.P
+		ray.SetDirection(v)
+		ray.MinT = intersection.Geo.Epsilon
+		ray.MaxT = 1000.0
+		ray.Depth = nextDepth
 
-		result.AddAssign(r.Mul(environment).Div(bp))
+		if hit, intersection = worker.Intersect(ray); !hit {
+			break
+		}
 	}
-
-//	result.DivAssign(lp)
-
-
 
 	return result
 }
