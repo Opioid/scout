@@ -31,7 +31,7 @@ func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sample
 	s.T = dg.T
 	s.B = dg.B
 	s.N = dg.N
-	s.values.Set(m.color, 1.0, m.roughness, m.metallic, dg.N, v)
+	s.Set(m.color, 1.0, m.roughness, m.metallic, dg.N, v)
 	return s
 }
 

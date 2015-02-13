@@ -67,6 +67,11 @@ func NewSample() *Sample {
 	return s
 }
 
+func (s *Sample) Set(color math.Vector3, opacity, roughness, metallic float32, n, wo math.Vector3) {
+	s.metallic = metallic
+	s.values.Set(color, opacity, roughness, metallic, n, wo)
+}
+
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	nDotL := math32.Max(s.values.N.Dot(l), 0.00001)
 
@@ -117,7 +122,7 @@ func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler
 	sample := sampler.GenerateSample2D(0, subsample) 
 
 	hs := math.SampleHemisphereCosine(sample.X, sample.Y)
-	ws := b.sample.TangentToWorld(hs)
+	ws := b.sample.TangentToWorld(hs).Normalized()
 
 	return ws, 1.0
 }

@@ -81,6 +81,8 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		ray.Depth = nextDepth
 
 		if hit, intersection = worker.Intersect(ray); !hit {
+			r := worker.Scene.Surrounding.Sample(ray)
+			result.AddAssign(throughput.Mul(r))			
 			break
 		}
 	}

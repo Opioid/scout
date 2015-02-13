@@ -30,7 +30,7 @@ func (m *ColorMap) Sample(dg *geometry.Differential, v math.Vector3, sampler tex
 	s.T = dg.T
 	s.B = dg.B
 	s.N = dg.N	
-	s.values.Set(cs.Vector3(), cs.W, m.roughness, m.metallic, dg.N, v)
+	s.Set(cs.Vector3(), cs.W, m.roughness, m.metallic, dg.N, v)
 	return s	
 }
 

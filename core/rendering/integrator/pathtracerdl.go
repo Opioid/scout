@@ -64,7 +64,6 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 
 				if worker.Visibility(&pt.secondaryRay) {
 					r := materialSample.Evaluate(ls.L)
-
 					result.AddAssign(throughput.Mul(ls.Energy.Mul(r).Div(lightPdf * ls.Pdf)))
 				}
 			}
@@ -86,8 +85,10 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		ray.Depth = nextDepth
 
 		if hit, intersection = worker.Intersect(ray); !hit {
+			r := worker.Scene.Surrounding.Sample(ray)
+			result.AddAssign(throughput.Mul(r))
 			break
-		}
+		} 
 	}
 
 	return result
