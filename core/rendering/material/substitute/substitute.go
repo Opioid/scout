@@ -145,11 +145,12 @@ func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 	s := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, costheta)	
 	h := b.sample.TangentToWorld(s)
 
-	WoDotH := b.sample.values.Wo.Dot(h)
+	// trying to avoid division by zero here, doesn't seem to fix the firefly problem though
+	WoDotH := math32.Max(b.sample.values.Wo.Dot(h), 0.00001)
 
 	wi := h.Scale(2.0 * WoDotH).Sub(b.sample.values.Wo).Normalized()
 
-	return wi, costheta / (4.0 * WoDotH)
+	return wi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
 }
 
 func (b *GgxBxdf) Evaluate(l math.Vector3) math.Vector3 {
