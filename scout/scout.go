@@ -44,7 +44,7 @@ func main() {
 	// p.Stop() must be called before the program exits to
 	defer profile.Start(&cfg).Stop()
 
-	numWorkers := /*uint32(1)//*/uint32(runtime.NumCPU()) - 1
+	numWorkers := /*uint32(1)//*/uint32(runtime.NumCPU()) - 0
 
 	fmt.Printf("#Threads %d\n", numWorkers)
 	runtime.GOMAXPROCS(int(numWorkers))
@@ -52,7 +52,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/material_test.take"
+	takename := "../data/takes/cornell.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)
