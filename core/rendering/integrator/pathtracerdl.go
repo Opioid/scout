@@ -56,12 +56,8 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		eye := ray.Direction.Scale(-1.0)
 		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
-		l, lightPdf := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
-
-		if l != nil {
-			ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler)
-
-			if ls.Pdf > 0.0 {
+		if l, lightPdf := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32()); l != nil {
+			if ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler); ls.Pdf > 0.0 {
 				pt.secondaryRay.SetDirection(ls.L)
 				pt.secondaryRay.MaxT = ls.T
 

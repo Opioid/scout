@@ -84,7 +84,7 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 
 	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
 
-//	return specular.Scale(NdotL)
+//	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(NdotL)
 }
 
 func (s *Sample) Values() *material.Values {
