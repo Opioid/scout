@@ -368,16 +368,19 @@ func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
+	minBounces := uint32(3)
 	maxBounces := uint32(3)
 
 	for key, value := range integratorNode {
 		switch key {
+		case "min_bounces":
+			minBounces = uint32(value.(float64))			
 		case "max_bounces":
 			maxBounces = uint32(value.(float64))
 		}
 	}
 
-	return integrator.NewPathtracerFactory(maxBounces)
+	return integrator.NewPathtracerFactory(minBounces, maxBounces)
 }
 
 func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
@@ -386,16 +389,19 @@ func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
 		return nil
 	}
 
+	minBounces := uint32(3)
 	maxBounces := uint32(3)
 
 	for key, value := range integratorNode {
 		switch key {
+		case "min_bounces":
+			minBounces = uint32(value.(float64))		
 		case "max_bounces":
 			maxBounces = uint32(value.(float64))
 		}
 	}
 
-	return integrator.NewPathtracerDlFactory(maxBounces)
+	return integrator.NewPathtracerDlFactory(minBounces, maxBounces)
 }
 
 func loadNormalIntegrator(i interface{}) rendering.IntegratorFactory {

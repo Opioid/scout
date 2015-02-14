@@ -11,7 +11,7 @@ import (
 )
 
 type pathtracerDlSettings struct {
-	maxBounces uint32
+	minBounces, maxBounces uint32
 
 	secondaryRay math.OptimizedRay
 
@@ -35,10 +35,14 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 
 	for i := uint32(0); i < pt.maxBounces; i++ {
 		nextDepth := ray.Depth + 1
-	/*	if nextDepth > pt.maxBounces {
+
+		material := intersection.Material()
+		if material.IsLight() {
+			// The light contribution has already been added in the previous bounce because of direct lightig
+			// Actually we should reflect here, instead we just stop
 			break
 		}
-*/
+
 		// No handling of geometry from the "inside" for now
 		if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
 			break
@@ -50,7 +54,6 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		pt.secondaryRay.Depth = nextDepth
 
 		eye := ray.Direction.Scale(-1.0)
-		material := intersection.Material()
 		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
 		l, lightPdf := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32())
@@ -88,7 +91,18 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 			r := worker.Scene.Surrounding.Sample(ray)
 			result.AddAssign(throughput.Mul(r))
 			break
-		} 
+		}
+/*
+		if i >= pt.minBounces {
+			continueProbability := float32(0.5)
+
+			if pt.rng.RandomFloat32() > continueProbability {
+				break
+			}
+
+			throughput.DivAssign(continueProbability)
+		}
+		*/
 	}
 
 	return result
@@ -103,16 +117,17 @@ func (pt *pathtracerDl) PrimaryVisibility() uint8 {
 }
 
 func (pt *pathtracerDl) SecondaryVisibility() uint8 {
-	return prop.Secondary
+	return prop.Secondary | prop.IsLight
 }
 
 type pathtracerDlFactory struct {
 	pathtracerDlSettings
 }
 
-func NewPathtracerDlFactory(maxBounces uint32) *pathtracerDlFactory {
+func NewPathtracerDlFactory(minBounces, maxBounces uint32) *pathtracerDlFactory {
 	f := new(pathtracerDlFactory)
 
+	f.minBounces = minBounces
 	f.maxBounces = maxBounces
 
 	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat))
@@ -125,6 +140,7 @@ func (f *pathtracerDlFactory) New(id uint32, rng *random.Generator) rendering.In
 
 	pt.id = id
 	pt.rng = rng
+	pt.minBounces = f.minBounces
 	pt.maxBounces = f.maxBounces
 	pt.sampler = pkgsampler.NewRandom(1024, rng)
 

@@ -13,7 +13,7 @@ import (
 )
 
 type pathtracerSettings struct {
-	maxBounces uint32
+	minBounces, maxBounces uint32
 
 	secondaryRay math.OptimizedRay
 
@@ -157,9 +157,10 @@ type pathtracerFactory struct {
 	pathtracerSettings
 }
 
-func NewPathtracerFactory(maxBounces uint32) *pathtracerFactory {
+func NewPathtracerFactory(minBounces, maxBounces uint32) *pathtracerFactory {
 	f := new(pathtracerFactory)
 
+	f.minBounces = minBounces
 	f.maxBounces = maxBounces
 
 	f.linearSampler_repeat = texture.NewSampler2D_linear(new(texture.AddressMode_repeat))
@@ -172,6 +173,7 @@ func (f *pathtracerFactory) New(id uint32, rng *random.Generator) rendering.Inte
 
 	pt.id = id
 	pt.rng = rng
+	pt.minBounces = f.minBounces
 	pt.maxBounces = f.maxBounces
 	pt.sampler = pkgsampler.NewRandom(1024, rng)
 
