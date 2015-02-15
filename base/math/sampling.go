@@ -20,6 +20,10 @@ func SampleDiskConcentric(u, v float32) (float32, float32) {
 
 	var r, theta float32
 
+	if sx == 0.0 && sy == 0.0 {
+		return 0.0, 0.0
+	}
+
 	if sx >= -sy {
 		if sx > sy {
 			// handle first region of disk

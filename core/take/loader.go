@@ -267,7 +267,7 @@ func loadFilm(f interface{}) pkgfilm.Film {
 		tonemapper = tonemapping.NewIdentity()
 	}
 
-	return pkgfilm.NewFiltered(dimensions, exposure, tonemapper)
+	return pkgfilm.NewUnfiltered(dimensions, exposure, tonemapper)
 }
 
 func loadTonemapper(t interface{}) tonemapping.Tonemapper {

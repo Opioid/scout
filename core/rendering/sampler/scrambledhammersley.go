@@ -45,7 +45,7 @@ func (s *ScrambledHammersley) GenerateCameraSample(offset math.Vector2, sample *
 
 	sample.Coordinates = offset.Add(s2d)
 	sample.RelativeOffset = s2d.SubS(0.5)
-	sample.LensUv = s2d
+	sample.LensUv = math.MakeVector2(s2d.Y, s2d.X)
 	sample.Time = s2d.Y
 
 	s.currentSample++

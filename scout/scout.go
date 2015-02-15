@@ -44,7 +44,7 @@ func main() {
 	// p.Stop() must be called before the program exits to
 	defer profile.Start(&cfg).Stop()
 
-	numWorkers := /*uint32(1)//*/uint32(runtime.NumCPU()) - 0
+	numWorkers := /*uint32(1)//*/uint32(runtime.NumCPU()) - 1
 
 	fmt.Printf("#Threads %d\n", numWorkers)
 	runtime.GOMAXPROCS(int(numWorkers))

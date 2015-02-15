@@ -63,7 +63,7 @@ func (s *Stratified) GenerateCameraSample(offset math.Vector2, sample *CameraSam
 
 	sample.Coordinates = offset.Add(s2d)
 	sample.RelativeOffset = s2d.SubS(0.5)
-	sample.LensUv = s2d//math.MakeVector2(s.rng.RandomFloat32(), s.rng.RandomFloat32())
+	sample.LensUv = math.MakeVector2(s2d.Y, s2d.X)
 
 	s.currentSample++
 	
