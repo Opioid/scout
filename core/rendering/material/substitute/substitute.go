@@ -56,8 +56,8 @@ type Sample struct {
 
 	metallic float32
 
-	lambert LambertBxdf
-	ggx     GgxBxdf
+	lambert LambertBrdf
+	ggx     GgxBrdf
 }
 
 func NewSample() *Sample {
@@ -109,11 +109,11 @@ func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (mate
 //	return &s.ggx, 1.0
 }
 
-type LambertBxdf struct {
+type LambertBrdf struct {
 	sample *Sample
 }
 
-func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
+func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 	sample := sampler.GenerateSample2D(0, subsample) 
 
 	s := math.SampleHemisphereCosine(sample.X, sample.Y)
@@ -122,18 +122,18 @@ func (b *LambertBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler
 	return h, 1.0
 }
 
-func (b *LambertBxdf) Evaluate(l math.Vector3) math.Vector3 {
+func (b *LambertBrdf) Evaluate(l math.Vector3) math.Vector3 {
 	// Div by Pi is not neccessary because it is implicitly handled by the cosine distributed importance sample!
 //	return b.sample.values.DiffuseColor.Div(gomath.Pi)
 
 	return b.sample.values.DiffuseColor
 }
 
-type GgxBxdf struct {
+type GgxBrdf struct {
 	sample *Sample
 }
 
-func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
+func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
 	phi := 2.0 * math32.Pi * xi.X
@@ -153,7 +153,7 @@ func (b *GgxBxdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 	return wi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
 }
 
-func (b *GgxBxdf) Evaluate(l math.Vector3) math.Vector3 {
+func (b *GgxBrdf) Evaluate(l math.Vector3) math.Vector3 {
 	NdotL := math32.Max(b.sample.values.N.Dot(l), 0.00001)
 	NdotWo := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
 

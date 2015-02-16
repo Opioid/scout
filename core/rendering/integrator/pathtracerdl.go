@@ -42,12 +42,12 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 			// Actually we should reflect here, instead we just stop
 			break
 		}
-
+/*
 		// No handling of geometry from the "inside" for now
 		if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
 			break
 		}
-
+*/
 		pt.secondaryRay.Origin = intersection.Geo.P
 		pt.secondaryRay.MinT = intersection.Geo.Epsilon
 		pt.secondaryRay.Time = ray.Time
@@ -88,9 +88,9 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 			result.AddAssign(throughput.Mul(r))
 			break
 		}
-/*
+		/*
 		if i >= pt.minBounces {
-			continueProbability := float32(0.5)
+			continueProbability := float32(0.9)
 
 			if pt.rng.RandomFloat32() > continueProbability {
 				break
