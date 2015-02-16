@@ -4,7 +4,7 @@ import (
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering/material"
 	"github.com/Opioid/scout/base/math"
-	_ "github.com/Opioid/math32"
+	"github.com/Opioid/math32"
 	_ "math"
 	_ "fmt"
 )
@@ -63,11 +63,19 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 
 	eta := float32(1.0)
 
-	cosi := b.sample.values.Wo.Scale(-1.0).Dot(b.sample.values.N)
-//	cost2 := 1.0 - eta * eta * (1.0 - cosi * cosi)
-	t := b.sample.values.Wo.Scale(eta).Add(b.sample.values.N.Scale(eta * cosi /*- math32.Sqrt(math32.Abs(cost2))*/))
+	n := b.sample.values.N.Scale(1.0)
 
-	return t.Normalized(), 1.0
+	cosi := b.sample.values.Wo.Scale(-1.0).Dot(n)
+
+	if cosi < 0.0 {
+		cosi = -cosi
+		n.ScaleAssign(-1.0)
+	}
+
+	cost2 := 1.0 - eta * eta * (1.0 - cosi * cosi)
+	t := b.sample.values.Wo.Scale(eta).Add(n.Scale(eta * cosi - math32.Sqrt(math32.Abs(cost2))))
+
+	return t, 1.0
 
 }
 
