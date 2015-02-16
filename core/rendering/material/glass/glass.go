@@ -30,6 +30,13 @@ type Sample struct {
 	values material.Values
 }
 
+func NewSample() *Sample {
+	s := &Sample{}
+//	s.lambert.sample = s
+//	s.ggx.sample = s
+	return s
+}
+
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	return math.MakeVector3(0.3, 0.3, 0.3)
 }

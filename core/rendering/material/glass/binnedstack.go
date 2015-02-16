@@ -23,21 +23,21 @@ func NewBinnedStack(numBins uint32) *BinnedStack {
 		stack.samples = make([]*Sample, 4)
 
 		for j := range stack.samples {
-			stack.samples[j] = new(Sample)
+			stack.samples[j] = NewSample()
 		}
 	}
 
 	return &s
-}    
+}
 
 func (s *BinnedStack) Pop(binID uint32) *Sample {
 	stack := &s.stacks[binID]
-    sample := stack.samples[stack.top]
-    stack.top++
-    return sample
+	sample := stack.samples[stack.top]
+	stack.top++
+	return sample
 }
 
 func (s *BinnedStack) Push(binID uint32) {
-    s.stacks[binID].top--
+	s.stacks[binID].top--
 }
 
