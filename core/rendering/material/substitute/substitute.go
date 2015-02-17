@@ -2,6 +2,7 @@ package substitute
 
 import (
 	"github.com/Opioid/scout/core/rendering/material"
+	"github.com/Opioid/scout/core/rendering/material/ggx"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
@@ -18,21 +19,7 @@ const (
 	minRoughness = 1.0 / 255.0
 )
 
-func specular_f(WoDotH float32, f0 math.Vector3) math.Vector3 {
-	return f0.Add(math.MakeVector3(1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z).Scale(math.Exp2((-5.55473 * WoDotH - 6.98316) * WoDotH)))
-}
 
-func specular_d(n_dot_h, a2 float32) float32 {
-	d := n_dot_h * n_dot_h * (a2 - 1.0) + 1.0
-//	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
-	return a2 / (math32.Pi * d * d)
-}
-
-func specular_g(n_dot_l, NdotWo, a2 float32) float32 {
-	g_v := NdotWo + math32.Sqrt((NdotWo - NdotWo * a2) * NdotWo + a2)
-	g_l := n_dot_l + math32.Sqrt((n_dot_l - n_dot_l * a2) * n_dot_l + a2)
-	return math32.Rsqrt(g_v * g_l)
-}
 
 type base struct {
 	stack *BinnedStack
@@ -80,7 +67,7 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 	NdotH := s.values.N.Dot(h)
 	WoDotH := s.values.Wo.Dot(h)
 
-	specular := specular_f(WoDotH, s.values.F0).Scale(specular_d(NdotH, s.values.A2)).Scale(specular_g(NdotL, s.values.NdotWo, s.values.A2))
+	specular := ggx.SpecularF(WoDotH, s.values.F0).Scale(ggx.SpecularD(NdotH, s.values.A2)).Scale(ggx.SpecularG(NdotL, s.values.NdotWo, s.values.A2))
 
 	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
 
@@ -113,27 +100,21 @@ type LambertBrdf struct {
 	sample *Sample
 }
 
-func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
+func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
 	sample := sampler.GenerateSample2D(0, subsample) 
 
-	s := math.SampleHemisphereCosine(sample.X, sample.Y)
-	h := b.sample.TangentToWorld(s).Normalized()
+	is := math.SampleHemisphereCosine(sample.X, sample.Y)
+	is  = b.sample.TangentToWorld(is).Normalized()
 
-	return h, 1.0
-}
-
-func (b *LambertBrdf) Evaluate(l math.Vector3) math.Vector3 {
 	// Div by Pi is not neccessary because it is implicitly handled by the cosine distributed importance sample!
-//	return b.sample.values.DiffuseColor.Div(gomath.Pi)
-
-	return b.sample.values.DiffuseColor
+	return b.sample.values.DiffuseColor, is, 1.0
 }
 
 type GgxBrdf struct {
 	sample *Sample
 }
 
-func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
+func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
 	phi := 2.0 * math32.Pi * xi.X
@@ -142,15 +123,30 @@ func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 	sintheta := math32.Sqrt(1.0 - costheta * costheta)
 	sinphi, cosphi := math.Sincos(phi)
 
-	s := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, costheta)	
-	h := b.sample.TangentToWorld(s)
+	is := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, costheta)	
+	is  = b.sample.TangentToWorld(is)
 
 	// trying to avoid division by zero here, doesn't seem to fix the firefly problem though
-	WoDotH := math32.Max(b.sample.values.Wo.Dot(h), 0.00001)
+	WoDotIs := math32.Max(b.sample.values.Wo.Dot(is), 0.00001)
 
-	wi := h.Scale(2.0 * WoDotH).Sub(b.sample.values.Wo).Normalized()
+	wi := is.Scale(2.0 * WoDotIs).Sub(b.sample.values.Wo).Normalized()
 
-	return wi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
+
+
+	NdotWi := math32.Max(b.sample.values.N.Dot(wi), 0.00001)
+	NdotWo := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
+
+	h := b.sample.values.Wo.Add(wi).Normalized()
+
+	WoDotH := b.sample.values.Wo.Dot(h)
+
+	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularG(NdotWi, NdotWo, b.sample.values.A2))
+
+	r := specular.Scale(NdotWi)
+
+
+
+	return r, wi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
 }
 
 func (b *GgxBrdf) Evaluate(l math.Vector3) math.Vector3 {
@@ -161,7 +157,7 @@ func (b *GgxBrdf) Evaluate(l math.Vector3) math.Vector3 {
 
 	WoDotH := b.sample.values.Wo.Dot(h)
 
-	specular := specular_f(WoDotH, b.sample.values.F0).Scale(specular_g(NdotL, NdotWo,  b.sample.values.A2))
+	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularG(NdotL, NdotWo,  b.sample.values.A2))
 
 	return specular.Scale(NdotL)
 	

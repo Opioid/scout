@@ -48,11 +48,8 @@ func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray, tra
 	
 		dist := math32.Sqrt(det)
 		t0 := b - dist
-		t1 := b + dist
 
 		if t0 > ray.MinT && t0 < ray.MaxT {
-		//	fmt.Printf("t0 %v\n", t0)
-
 			intersection.Epsilon = 5e-4 * t0
 
 			intersection.P = ray.Point(t0)
@@ -66,10 +63,10 @@ func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray, tra
 
 			return true, t0
 		}
+
+		t1 := b + dist
 		
 		if t1 > ray.MinT && t1 < ray.MaxT {
-		//	fmt.Printf("t1 %v\n", t1)
-
 			intersection.Epsilon = 5e-4 * t1
 
 			intersection.P = ray.Point(t1)

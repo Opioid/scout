@@ -1,10 +1,28 @@
 package ggx
 
 import (
-	"github.com/Opioid/math32"
 	"github.com/Opioid/scout/base/math"
+	"github.com/Opioid/math32"
 	gomath "math"
 )
+
+
+func SpecularF(WoDotH float32, f0 math.Vector3) math.Vector3 {
+	return f0.Add(math.MakeVector3(1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z).Scale(math.Exp2((-5.55473 * WoDotH - 6.98316) * WoDotH)))
+}
+
+func SpecularD(NdotH, a2 float32) float32 {
+	d := NdotH * NdotH * (a2 - 1.0) + 1.0
+//	return a2 / math32.Max((gomath.Pi * d * d), gomath.SmallestNonzeroFloat32)
+	return a2 / (math32.Pi * d * d)
+}
+
+func SpecularG(NdotWi, NdotWo, a2 float32) float32 {
+	g_v := NdotWo + math32.Sqrt((NdotWo - NdotWo * a2) * NdotWo + a2)
+	g_l := NdotWi + math32.Sqrt((NdotWi - NdotWi * a2) * NdotWi + a2)
+	return math32.Rsqrt(g_v * g_l)
+}
+
 
 /*
 vec3 importance_sample_GGX(vec2 xi, float roughness, vec3 n)

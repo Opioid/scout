@@ -3,6 +3,7 @@ package glass
 import (
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering/material"
+	_ "github.com/Opioid/scout/core/rendering/material/ggx"
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/math32"
 	_ "math"
@@ -59,9 +60,9 @@ type Btdf struct {
 	sample *Sample
 }
 
-func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
+func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
 
-	etat := float32(2.1)
+	etat := float32(1.3)
 
 	eta := float32(1.0 / etat)
 
@@ -73,23 +74,19 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 	cosi := -incident.Dot(n)
 
 	if cosi < 0.0 {
+		// hit from the inside
 		cosi = -cosi
 		n.ScaleAssign(-1.0)
 		eta = float32(etat / 1.0)
 		
 	//	fmt.Println("From inside")
-	} else {
-	//	panic("not")
-	//	fmt.Println("From outside")
-	}
-
-
+	} 
 
 	cost2 := 1.0 - eta * eta * (1.0 - cosi * cosi)
 
 	if cost2 < 0.0 {
-	//	panic("y")
-		return math.MakeVector3(0.0, 0.0, 0.0), 1.0
+		// total inner reflection
+		return math.MakeVector3(0.0, 0.0, 0.0), math.MakeVector3(0.0, 0.0, 0.0), 0.0
 	}
 
 
@@ -97,7 +94,22 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 
 //	t := b.sample.values.Wo.Scale(eta).Add(n.Scale(eta * cosi - math32.Sqrt(math32.Abs(cost2))))
 
-	return t.Normalized(), 1.0
+	wi := t.Normalized()
+
+	return b.sample.values.DiffuseColor, wi, 1.0
+
+/*
+	f0 := math.MakeVector3(0.3, 0.3, 0.3)
+
+	h := b.sample.values.Wo.Add(wi).Normalized()
+
+	WoDotH := b.sample.values.Wo.Dot(h)
+
+	fresnel := ggx.SpecularF(WoDotH, f0)
+
+	return b.sample.values.DiffuseColor.Scale(1.0 - fresnel.X).Div(wi.Dot(n)), wi, 1.0
+*/
+	
 	
 }
 
