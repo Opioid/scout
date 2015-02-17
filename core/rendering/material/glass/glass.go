@@ -61,22 +61,44 @@ type Btdf struct {
 
 func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, float32) {
 
-	eta := float32(1.0)
+	etat := float32(2.1)
+
+	eta := float32(1.0 / etat)
 
 	n := b.sample.values.N.Scale(1.0)
 
-	cosi := b.sample.values.Wo.Scale(-1.0).Dot(n)
+
+	incident := b.sample.values.Wo.Scale(-1.0)
+
+	cosi := -incident.Dot(n)
 
 	if cosi < 0.0 {
 		cosi = -cosi
 		n.ScaleAssign(-1.0)
+		eta = float32(etat / 1.0)
+		
+	//	fmt.Println("From inside")
+	} else {
+	//	panic("not")
+	//	fmt.Println("From outside")
 	}
 
+
+
 	cost2 := 1.0 - eta * eta * (1.0 - cosi * cosi)
-	t := b.sample.values.Wo.Scale(eta).Add(n.Scale(eta * cosi - math32.Sqrt(math32.Abs(cost2))))
 
-	return t, 1.0
+	if cost2 < 0.0 {
+	//	panic("y")
+		return math.MakeVector3(0.0, 0.0, 0.0), 1.0
+	}
 
+
+	t := incident.Scale(eta).Add(n.Scale(eta * cosi - math32.Sqrt(cost2)))
+
+//	t := b.sample.values.Wo.Scale(eta).Add(n.Scale(eta * cosi - math32.Sqrt(math32.Abs(cost2))))
+
+	return t.Normalized(), 1.0
+	
 }
 
 func (b *Btdf) Evaluate(l math.Vector3) math.Vector3 {
@@ -90,4 +112,16 @@ float3 refract( float3 i, float3 n, float eta )
   float cost2 = 1.0f - eta * eta * (1.0f - cosi*cosi);
   float3 t = eta*i + ((eta*cosi - sqrt(abs(cost2))) * n);
   return t * (float3)(cost2 > 0);
+}*/
+
+/*
+inline void Refract(
+  VEC3 &out, const VEC3 &incidentVec, const VEC3 &normal, float eta)
+{
+  float N_dot_I = Dot(normal, incidentVec);
+  float k = 1.f - eta * eta * (1.f - N_dot_I * N_dot_I);
+  if (k < 0.f)
+    out = VEC3(0.f, 0.f, 0.f);
+  else
+    out = eta * incidentVec - (eta * N_dot_I + sqrtf(k)) * N;
 }*/

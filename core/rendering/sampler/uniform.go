@@ -50,6 +50,7 @@ func (u *Uniform) GenerateCameraSample(offset math.Vector2, sample *CameraSample
 	sample.Coordinates = offset.Add(s2d)
 	sample.RelativeOffset = s2d.SubS(0.5)
 	sample.LensUv = math.MakeVector2(s2d.Y, s2d.X)
+	sample.Time = s2d.Y
 
 	u.currentSample++
 

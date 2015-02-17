@@ -59,10 +59,11 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		eye := ray.Direction.Scale(-1.0)
 
 		// No handling of geometry from the "inside" for now
-		if eye.Dot(intersection.Geo.N) < 0.0 {
+	/*	if eye.Dot(intersection.Geo.N) < 0.0 {
+			fmt.Println("dobdob")
 			break
-		}
-
+		}*/
+	
 		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
 		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
@@ -80,11 +81,16 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		ray.MaxT = 1000.0
 		ray.Depth = nextDepth
 
+	//	oldp := ray.Origin
+
 		if hit, intersection = worker.Intersect(ray); !hit {
 			r := worker.Scene.Surrounding.Sample(ray)
 			result.AddAssign(throughput.Mul(r))			
 			break
+		} else {
+		//	fmt.Printf("(%v, %v) -> %v\n", oldp, wi, intersection.Geo.P)
 		}
+
 	}
 
 	return result

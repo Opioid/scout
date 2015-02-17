@@ -19,7 +19,7 @@ func NewSamplerSpherical_linear() *SamplerSpherical_linear {
 func (sampler *SamplerSpherical_linear) Sample(texture *Texture2D, xyz math.Vector3) math.Vector4 {
 	// atan2(0, 0) is undefined, this is an easy way to fix this for a notorious problems with xyz == [0, 1, 0] in scenes with a ground plane
 	if xyz.X == 0.0 {
-		xyz.X = 2.0 * gomath.Pi 
+		xyz.X = 0.000001//2.0 * gomath.Pi
 	}
 
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
@@ -30,7 +30,7 @@ func (sampler *SamplerSpherical_linear) Sample(texture *Texture2D, xyz math.Vect
 func (sampler *SamplerSpherical_linear) Sample3(texture *Texture2D, xyz math.Vector3) math.Vector3 {
 	// atan2(0, 0) is undefined, this is an easy way to fix this for a notorious problems with xyz == [0, 1, 0] in scenes with a ground plane
 	if xyz.X == 0.0 {
-		xyz.X = 2.0 * gomath.Pi 
+		xyz.X = 0.000001//2.0 * gomath.Pi
 	}
 
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
@@ -41,7 +41,7 @@ func (sampler *SamplerSpherical_linear) Sample3(texture *Texture2D, xyz math.Vec
 func (sampler *SamplerSpherical_linear) SampleLod(texture *Texture2D, xyz math.Vector3, mipLevel float32) math.Vector4 {
 	// atan2(0, 0) is undefined, this is an easy way to fix this for a notorious problems with xyz == [0, 1, 0] in scenes with a ground plane
 	if xyz.X == 0.0 {
-		xyz.X = 2.0 * gomath.Pi 
+		xyz.X = 0.000001//2.0 * gomath.Pi
 	}
 
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)
@@ -60,7 +60,7 @@ func (sampler *SamplerSpherical_linear) SampleLod(texture *Texture2D, xyz math.V
 func (sampler *SamplerSpherical_linear) SampleLod3(texture *Texture2D, xyz math.Vector3, mipLevel float32) math.Vector3 {
 	// atan2(0, 0) is undefined, this is an easy way to fix this for a notorious problems with xyz == [0, 1, 0] in scenes with a ground plane
 	if xyz.X == 0.0 {
-		xyz.X = 2.0 * gomath.Pi 
+		xyz.X = 0.000001//2.0 * gomath.Pi
 	}
 
 	uv := math.MakeVector2((math32.Atan2(xyz.X, xyz.Z) / gomath.Pi + 1.0) * 0.5, math32.Acos(xyz.Y) / gomath.Pi)

@@ -74,7 +74,6 @@ func (s *sphere) SpecularTexture() *texture.Texture2D {
 	return s.specularMap
 }
 
-
 func (s *sphere) Sample(ray *math.OptimizedRay) math.Vector3 {
 	sample := s.linearSampler.Sample(s.specularMap, ray.Direction)
 	return sample.Vector3()

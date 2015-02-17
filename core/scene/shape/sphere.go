@@ -5,6 +5,7 @@ import (
 	"github.com/Opioid/scout/base/math"
 	"github.com/Opioid/scout/base/math/bounding"
 	"github.com/Opioid/math32"
+	_ "fmt"
 )
 
 type Sphere struct {
@@ -44,11 +45,14 @@ func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray, tra
 			return true, thit
 		}
 		*/
+	
 		dist := math32.Sqrt(det)
 		t0 := b - dist
 		t1 := b + dist
 
-		if (t0 > ray.MinT && t0 < ray.MaxT) || (t1 > ray.MinT && t0 < ray.MaxT) {
+		if t0 > ray.MinT && t0 < ray.MaxT {
+		//	fmt.Printf("t0 %v\n", t0)
+
 			intersection.Epsilon = 5e-4 * t0
 
 			intersection.P = ray.Point(t0)
@@ -62,6 +66,24 @@ func (s *Sphere) Intersect(transformation *math.ComposedTransformation, ray, tra
 
 			return true, t0
 		}
+		
+		if t1 > ray.MinT && t1 < ray.MaxT {
+		//	fmt.Printf("t1 %v\n", t1)
+
+			intersection.Epsilon = 5e-4 * t1
+
+			intersection.P = ray.Point(t1)
+			intersection.N = intersection.P.Sub(transformation.Position).Div(radius)
+
+			t, b := math.CoordinateSystem(intersection.N)
+			intersection.T = t
+			intersection.B = b
+
+			intersection.MaterialIndex = 0
+
+			return true, t1
+		}
+		
 	}
 
 	return false, 0.0
