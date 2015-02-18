@@ -69,9 +69,9 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 
 	specular := ggx.SpecularF(WoDotH, s.values.F0).Scale(ggx.SpecularD(NdotH, s.values.A2)).Scale(ggx.SpecularG(NdotL, s.values.NdotWo, s.values.A2))
 
-//	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
+	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
 
-	return specular.Scale(NdotL)
+//	return specular.Scale(NdotL)
 
 //	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(NdotL)
 }
@@ -111,13 +111,13 @@ func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math
 
 		r1, pdf1 := s.ggx.Evaluate(wi, NdotWi)
 
-		return r0.Add(r1), wi, (pdf0 + pdf1) * 0.5
+		return r0.Add(r1), wi, (pdf0 + pdf1)
 	} else {
 		r0, wi, NdotWi, pdf0 := s.ggx.ImportanceSample(subsample, sampler)
 
 		r1, pdf1 := s.lambert.Evaluate(wi, NdotWi)
 
-		return r0.Add(r1), wi, (pdf0 + pdf1) * 0.5
+		return r0.Add(r1), wi, (pdf0 + pdf1)
 	}
 
 
@@ -186,9 +186,7 @@ func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 
 	r := specular.Scale(NdotWi)
 
-	umpta := math32.Abs(b.sample.values.N.Dot(wi))
-
-	return r, wi, umpta, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
+	return r, wi, NdotWi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
 }
 
 func (b *GgxBrdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float32) {
