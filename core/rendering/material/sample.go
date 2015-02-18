@@ -11,6 +11,8 @@ type Sample interface {
 
 	MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (Bxdf, float32)
 
+	SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32)
+
 	TangentToWorld(v math.Vector3) math.Vector3
 
 	CoordinateSystem() (math.Vector3, math.Vector3, math.Vector3)

@@ -60,19 +60,19 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 
 		// No handling of geometry from the "inside" for now
 	/*	if eye.Dot(intersection.Geo.N) < 0.0 {
-			fmt.Println("dobdob")
 			break
-		}*/
-	
+		}
+	*/
 		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
-		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	//	bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	//	r, wi, _, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		r, wi, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		r, wi, combinedPdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 		material.Free(materialSample, pt.id)
 
-		combinedPdf := samplePdf * bxdfPdf
+	//	combinedPdf := samplePdf * bxdfPdf
 		
 		if combinedPdf == 0.0 {
 			break

@@ -42,12 +42,12 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 			// Actually we should reflect here, instead we just stop
 			break
 		}
-/*
+
 		// No handling of geometry from the "inside" for now
-		if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
+	/*	if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
 			break
 		}
-*/
+	*/
 		pt.secondaryRay.Origin = intersection.Geo.P
 		pt.secondaryRay.MinT = intersection.Geo.Epsilon
 		pt.secondaryRay.Time = ray.Time
@@ -69,8 +69,9 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		} 
 
 		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		r, wi, _, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		r, wi, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+	//	r, wi, combinedPdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 		material.Free(materialSample, pt.id)
 

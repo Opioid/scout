@@ -56,11 +56,15 @@ func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (mate
 	return &s.btdf, 1.0
 }
 
+func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
+	return math.MakeVector3(0.0, 0.0, 0.0), math.MakeVector3(0.0, 0.0, 0.0), 0.0
+}
+
 type Btdf struct {
 	sample *Sample
 }
 
-func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
+func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32, float32) {
 
 	etat := float32(1.3)
 
@@ -86,7 +90,7 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 
 	if cost2 < 0.0 {
 		// total inner reflection
-		return math.MakeVector3(0.0, 0.0, 0.0), math.MakeVector3(0.0, 0.0, 0.0), 0.0
+		return math.MakeVector3(0.0, 0.0, 0.0), math.MakeVector3(0.0, 0.0, 0.0), 0.0, 0.0
 	}
 
 
@@ -96,7 +100,7 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 
 	wi := t.Normalized()
 
-	return b.sample.values.DiffuseColor, wi, 1.0
+	return b.sample.values.DiffuseColor, wi, cosi, 1.0
 
 /*
 	f0 := math.MakeVector3(0.3, 0.3, 0.3)
@@ -113,8 +117,8 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 	
 }
 
-func (b *Btdf) Evaluate(l math.Vector3) math.Vector3 {
-	return b.sample.values.DiffuseColor
+func (b *Btdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float32) {
+	return b.sample.values.DiffuseColor, 1.0
 }
 
 /*

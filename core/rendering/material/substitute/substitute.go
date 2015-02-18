@@ -69,7 +69,9 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 
 	specular := ggx.SpecularF(WoDotH, s.values.F0).Scale(ggx.SpecularD(NdotH, s.values.A2)).Scale(ggx.SpecularG(NdotL, s.values.NdotWo, s.values.A2))
 
-	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
+//	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
+
+	return specular.Scale(NdotL)
 
 //	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(NdotL)
 }
@@ -96,25 +98,65 @@ func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (mate
 //	return &s.ggx, 1.0
 }
 
+func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
+	if s.metallic == 1.0 {
+		r, wi, _, pdf := s.ggx.ImportanceSample(subsample, sampler)
+		return r, wi, pdf
+	}
+
+	p := sampler.GenerateSample1D(0, 0)
+
+	if p < 0.5 {
+		r0, wi, NdotWi, pdf0 := s.lambert.ImportanceSample(subsample, sampler)
+
+		r1, pdf1 := s.ggx.Evaluate(wi, NdotWi)
+
+		return r0.Add(r1), wi, (pdf0 + pdf1) * 0.5
+	} else {
+		r0, wi, NdotWi, pdf0 := s.ggx.ImportanceSample(subsample, sampler)
+
+		r1, pdf1 := s.lambert.Evaluate(wi, NdotWi)
+
+		return r0.Add(r1), wi, (pdf0 + pdf1) * 0.5
+	}
+
+
+//	r0, wi, _, pdf := s.lambert.ImportanceSample(subsample, sampler)
+//	return r0, wi, pdf
+
+//	r0, wi, _, pdf := s.ggx.ImportanceSample(subsample, sampler)
+//	return r0, wi, pdf	
+}
+
+
 type LambertBrdf struct {
 	sample *Sample
 }
 
-func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
+func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32, float32) {
 	sample := sampler.GenerateSample2D(0, subsample) 
 
 	is := math.SampleHemisphereCosine(sample.X, sample.Y)
-	is  = b.sample.TangentToWorld(is).Normalized()
+	wi := b.sample.TangentToWorld(is).Normalized()
 
-	// Div by Pi is not neccessary because it is implicitly handled by the cosine distributed importance sample!
-	return b.sample.values.DiffuseColor, is, 1.0
+	NdotWi := math32.Max(b.sample.values.N.Dot(wi), 0.00001)
+
+	return b.sample.values.DiffuseColor.Scale(math32.InvPi * NdotWi), wi, NdotWi, math32.InvPi * NdotWi
+
+
+//	return b.sample.values.DiffuseColor, wi, NdotWi, 1.0
+}
+
+
+func (b *LambertBrdf) Evaluate(wi math.Vector3, NdotWi float32) (math.Vector3, float32) {
+	return b.sample.values.DiffuseColor.Scale(math32.InvPi * NdotWi), math32.InvPi * NdotWi
 }
 
 type GgxBrdf struct {
 	sample *Sample
 }
 
-func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
+func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32, float32) {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
 	phi := 2.0 * math32.Pi * xi.X
@@ -144,12 +186,12 @@ func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 
 	r := specular.Scale(NdotWi)
 
+	umpta := math32.Abs(b.sample.values.N.Dot(wi))
 
-
-	return r, wi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
+	return r, wi, umpta, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
 }
 
-func (b *GgxBrdf) Evaluate(l math.Vector3) math.Vector3 {
+func (b *GgxBrdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float32) {
 	NdotL := math32.Max(b.sample.values.N.Dot(l), 0.00001)
 	NdotWo := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
 
@@ -159,7 +201,9 @@ func (b *GgxBrdf) Evaluate(l math.Vector3) math.Vector3 {
 
 	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularG(NdotL, NdotWo,  b.sample.values.A2))
 
-	return specular.Scale(NdotL)
+	costheta := math32.Abs(b.sample.values.N.Dot(h))
+
+	return specular.Scale(NdotL), costheta / (4.0 * WoDotH)
 	
 //	return b.sample.values.F0.Scale(NdotL).Scale(specular_g(NdotL, NdotWo, b.sample.values.A2))
 
