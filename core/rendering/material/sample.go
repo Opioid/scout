@@ -9,8 +9,6 @@ type Sample interface {
 	Evaluate(l math.Vector3) math.Vector3
 	Values() *Values
 
-	MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (Bxdf, float32)
-
 	SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32)
 
 	TangentToWorld(v math.Vector3) math.Vector3

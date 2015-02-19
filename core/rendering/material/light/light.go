@@ -37,10 +37,6 @@ func (s *Sample) Values() *material.Values {
 	return &s.values
 }
 
-func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (material.Bxdf, float32) {
-	return nil, 1.0
-}
-
 func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
 	return math.MakeVector3(0.0, 0.0, 0.0), math.MakeVector3(0.0, 0.0, 0.0), 0.0
 }

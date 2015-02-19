@@ -68,20 +68,15 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 			}
 		} 
 
-		bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
-		r, wi, _, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
-
-	//	r, wi, combinedPdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
+		r, wi, pdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
 		material.Free(materialSample, pt.id)
 
-		combinedPdf := samplePdf * bxdfPdf
-		
-		if combinedPdf == 0.0 {
+		if pdf == 0.0 {
 			break
 		}
 
-		throughput.MulAssign(r.Div(combinedPdf))
+		throughput.MulAssign(r.Div(pdf))
 
 		ray.Origin = intersection.Geo.P
 		ray.SetDirection(wi)

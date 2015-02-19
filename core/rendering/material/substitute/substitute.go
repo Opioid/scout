@@ -71,35 +71,17 @@ func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
 
 	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
 
-//	return specular.Scale(NdotL)
-
 //	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(NdotL)
+
+//	return specular.Scale(NdotL)
 }
 
 func (s *Sample) Values() *material.Values {
 	return &s.values
 }
 
-func (s *Sample) MonteCarloBxdf(subsample uint32, sampler sampler.Sampler) (material.Bxdf, float32) {
-	if s.metallic == 1.0 {
-		return &s.ggx, 1.0
-	} else {
-		p := sampler.GenerateSample1D(0, 0)
-
-		if p < 0.5 {
-			return &s.lambert, 0.5
-		} else {
-			return &s.ggx, 0.5
-		}
-	}
-
-//	return &s.lambert, 1.0
-
-//	return &s.ggx, 1.0
-}
-
 func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32) {
-	if s.metallic == 1.0 {
+/*	if s.metallic == 1.0 {
 		r, wi, _, pdf := s.ggx.ImportanceSample(subsample, sampler)
 		return r, wi, pdf
 	}
@@ -119,7 +101,22 @@ func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math
 
 		return r0.Add(r1), wi, (pdf0 + pdf1)
 	}
+*/
 
+	if s.metallic == 1.0 {
+		r, wi, _, pdf := s.ggx.ImportanceSample(subsample, sampler)
+		return r, wi, pdf
+	} else {
+		p := sampler.GenerateSample1D(0, 0)
+
+		if p < 0.5 {
+			r, wi, _, pdf := s.lambert.ImportanceSample(subsample, sampler)
+			return r, wi, pdf * 0.5
+		} else {
+			r, wi, _, pdf := s.ggx.ImportanceSample(subsample, sampler)
+			return r, wi, pdf * 0.5
+		}
+	}
 
 //	r0, wi, _, pdf := s.lambert.ImportanceSample(subsample, sampler)
 //	return r0, wi, pdf
@@ -127,7 +124,6 @@ func (s *Sample) SampleEvaluate(subsample uint32, sampler sampler.Sampler) (math
 //	r0, wi, _, pdf := s.ggx.ImportanceSample(subsample, sampler)
 //	return r0, wi, pdf	
 }
-
 
 type LambertBrdf struct {
 	sample *Sample
@@ -141,10 +137,9 @@ func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler
 
 	NdotWi := math32.Max(b.sample.values.N.Dot(wi), 0.00001)
 
-	return b.sample.values.DiffuseColor.Scale(math32.InvPi * NdotWi), wi, NdotWi, math32.InvPi * NdotWi
+//	return b.sample.values.DiffuseColor.Scale(math32.InvPi * NdotWi), wi, NdotWi, math32.InvPi * NdotWi
 
-
-//	return b.sample.values.DiffuseColor, wi, NdotWi, 1.0
+	return b.sample.values.DiffuseColor, wi, NdotWi, 1.0
 }
 
 
@@ -161,19 +156,20 @@ func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 
 	phi := 2.0 * math32.Pi * xi.X
 
-	costheta := math32.Sqrt((1.0 - xi.Y) / (1.0 + (b.sample.values.A2 - 1.0) * xi.Y))
+	costheta := math32.Sqrt((1.0 - xi.Y) / ((b.sample.values.A2 - 1.0) * xi.Y + 1.0))
 	sintheta := math32.Sqrt(1.0 - costheta * costheta)
 	sinphi, cosphi := math.Sincos(phi)
 
 	is := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, costheta)	
 	is  = b.sample.TangentToWorld(is)
 
+//	is := math.SampleHemisphereUniform(xi.X, xi.Y)
+//	is  = b.sample.TangentToWorld(is).Normalized()	
+
 	// trying to avoid division by zero here, doesn't seem to fix the firefly problem though
 	WoDotIs := math32.Max(b.sample.values.Wo.Dot(is), 0.00001)
 
 	wi := is.Scale(2.0 * WoDotIs).Sub(b.sample.values.Wo).Normalized()
-
-
 
 	NdotWi := math32.Max(b.sample.values.N.Dot(wi), 0.00001)
 	NdotWo := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
@@ -183,10 +179,15 @@ func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (m
 	WoDotH := b.sample.values.Wo.Dot(h)
 
 	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularG(NdotWi, NdotWo, b.sample.values.A2))
-
 	r := specular.Scale(NdotWi)
+	return r, wi, NdotWi, costheta / (4.0 * WoDotH)
 
-	return r, wi, NdotWi, math32.Max(costheta, 0.00001) / (4.0 * WoDotH)
+
+/*	costheta := b.sample.values.N.Dot(h)
+	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularD(costheta, b.sample.values.A2)).Scale(ggx.SpecularG(NdotWi, NdotWo, b.sample.values.A2))
+
+	return specular.Scale(WoDotH / (costheta * NdotWo)), wi, NdotWi, 1.0 / (2.0 * math32.Pi)
+	*/
 }
 
 func (b *GgxBrdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float32) {
@@ -201,9 +202,7 @@ func (b *GgxBrdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float3
 
 	costheta := math32.Abs(b.sample.values.N.Dot(h))
 
-	return specular.Scale(NdotL), costheta / (4.0 * WoDotH)
+//	return specular.Scale(NdotL), costheta / (4.0 * WoDotH)
 	
-//	return b.sample.values.F0.Scale(NdotL).Scale(specular_g(NdotL, NdotWo, b.sample.values.A2))
-
-//	return b.sample.values.F0.Scale(NdotL)
+	return specular.Scale(NdotL), ggx.SpecularD(costheta, b.sample.values.A2) * costheta / (4.0 * WoDotH)
 }
