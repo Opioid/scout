@@ -7,19 +7,19 @@ import (
 )
 
 
-func SpecularF(WoDotH float32, f0 math.Vector3) math.Vector3 {
+func F(WoDotH float32, f0 math.Vector3) math.Vector3 {
 	return f0.Add(math.MakeVector3(1.0 - f0.X, 1.0 - f0.Y, 1.0 - f0.Z).Scale(math.Exp2((-5.55473 * WoDotH - 6.98316) * WoDotH)))
 }
 
-func SpecularD(NdotH, a2 float32) float32 {
+func D(NdotH, a2 float32) float32 {
 	d := NdotH * NdotH * (a2 - 1.0) + 1.0
 	return a2 / (math32.Pi * d * d)
 }
 
-func SpecularG(NdotWi, NdotWo, a2 float32) float32 {
-	gv := NdotWo + math32.Sqrt((NdotWo - NdotWo * a2) * NdotWo + a2)
-	gl := NdotWi + math32.Sqrt((NdotWi - NdotWi * a2) * NdotWi + a2)
-	return math32.Rsqrt(gv * gl)
+func G(NdotWi, NdotWo, a2 float32) float32 {
+	gwo := NdotWo + math32.Sqrt((NdotWo - NdotWo * a2) * NdotWo + a2)
+	gwi := NdotWi + math32.Sqrt((NdotWi - NdotWi * a2) * NdotWi + a2)
+	return math32.Rsqrt(gwo * gwi)
 }
 
 
@@ -95,7 +95,22 @@ func g1(n_dot_v, k float32) float32 {
 
 func G_smith(roughness, n_dot_l, n_dot_v float32) float32 {
 	r1 := roughness + 1.0
-	k  := (r1 + r1) / 8.0
+	k  := (r1 * r1) / 8.0
 
 	return g1(n_dot_l, k) * g1(n_dot_v, k)
+}
+
+func Gsmith(n_dot_l, n_dot_v, roughness float32) float32 {
+	a := roughness * roughness
+	k := 0.5 * a
+
+	return g1(n_dot_l, k) * g1(n_dot_v, k)
+}
+
+func gggx(NdotV, a2 float32) float32 {
+	return (2.0 * NdotV) / (NdotV + math32.Sqrt(a2 + (1.0 - a2) * NdotV * NdotV))
+}
+
+func Gggx(n_dot_l, n_dot_v, a2 float32) float32 {
+	return gggx(n_dot_l, a2) * gggx(n_dot_v, a2)
 }

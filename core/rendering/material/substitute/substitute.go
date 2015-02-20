@@ -60,20 +60,29 @@ func (s *Sample) Set(color math.Vector3, opacity, roughness, metallic float32, n
 }
 
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
-	NdotL := math32.Max(s.values.N.Dot(l), 0.00001)
+	NdotWi := math32.Max(s.values.N.Dot(l), 0.00001)
 
 	h := s.values.Wo.Add(l).Normalized()
 
 	NdotH := s.values.N.Dot(h)
 	WoDotH := s.values.Wo.Dot(h)
 
-	specular := ggx.SpecularF(WoDotH, s.values.F0).Scale(ggx.SpecularD(NdotH, s.values.A2)).Scale(ggx.SpecularG(NdotL, s.values.NdotWo, s.values.A2))
+	specular := ggx.F(WoDotH, s.values.F0).Scale(ggx.D(NdotH, s.values.A2) * ggx.G(NdotWi, s.values.NdotWo, s.values.A2))
 
-	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotL)
+	return s.values.DiffuseColor.Scale(math32.InvPi).Add(specular).Scale(NdotWi)
 
-//	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(NdotL)
+//	return s.values.DiffuseColor.Scale(math32.InvPi).Scale(NdotWi)
 
-//	return specular.Scale(NdotL)
+//	return specular.Scale(NdotWi)
+
+/*	f := ggx.F(WoDotH, s.values.F0)
+	d := ggx.D(NdotH, s.values.A2)
+	g := ggx.G_smith(s.values.Roughness, NdotWi, s.values.NdotWo)
+
+	specular := f.Scale(d * g).Div(4.0 * NdotWi * s.values.NdotWo)
+
+	return specular.Scale(NdotWi)
+	*/
 }
 
 func (s *Sample) Values() *material.Values {
@@ -142,7 +151,6 @@ func (b *LambertBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler
 	return b.sample.values.DiffuseColor, wi, NdotWi, 1.0
 }
 
-
 func (b *LambertBrdf) Evaluate(wi math.Vector3, NdotWi float32) (math.Vector3, float32) {
 	return b.sample.values.DiffuseColor.Scale(math32.InvPi * NdotWi), math32.InvPi * NdotWi
 }
@@ -154,55 +162,60 @@ type GgxBrdf struct {
 func (b *GgxBrdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32, float32) {
 	xi := sampler.GenerateSample2D(0, subsample) 
 
+	NdotH := math32.Sqrt((1.0 - xi.Y) / ((b.sample.values.A2 - 1.0) * xi.Y + 1.0))
+	sintheta := math32.Sqrt(1.0 - NdotH * NdotH)
 	phi := 2.0 * math32.Pi * xi.X
-
-	costheta := math32.Sqrt((1.0 - xi.Y) / ((b.sample.values.A2 - 1.0) * xi.Y + 1.0))
-	sintheta := math32.Sqrt(1.0 - costheta * costheta)
 	sinphi, cosphi := math.Sincos(phi)
 
-	is := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, costheta)	
-	is  = b.sample.TangentToWorld(is)
+	is := math.MakeVector3(sintheta * cosphi, sintheta * sinphi, NdotH)	
+	h  := b.sample.TangentToWorld(is)
 
 //	is := math.SampleHemisphereUniform(xi.X, xi.Y)
-//	is  = b.sample.TangentToWorld(is).Normalized()	
+//	h  := b.sample.TangentToWorld(is).Normalized()	
 
-	// trying to avoid division by zero here, doesn't seem to fix the firefly problem though
-	WoDotIs := math32.Max(b.sample.values.Wo.Dot(is), 0.00001)
+	WoDotH := b.sample.values.Wo.Dot(h)
 
-	wi := is.Scale(2.0 * WoDotIs).Sub(b.sample.values.Wo).Normalized()
+	wi := h.Scale(2.0 * WoDotH).Sub(b.sample.values.Wo).Normalized()
 
 	NdotWi := math32.Max(b.sample.values.N.Dot(wi), 0.00001)
 	NdotWo := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
 
-	h := b.sample.values.Wo.Add(wi).Normalized()
+	f := ggx.F(WoDotH, b.sample.values.F0)
+//	d := float32(1.0)//ggx.SpecularD(NdotH, b.sample.values.A2)
+	g := ggx.G(NdotWi, NdotWo, b.sample.values.A2)
 
-	WoDotH := b.sample.values.Wo.Dot(h)
-
-	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularG(NdotWi, NdotWo, b.sample.values.A2))
+	specular := f.Scale(g)
 	r := specular.Scale(NdotWi)
-	return r, wi, NdotWi, costheta / (4.0 * WoDotH)
+	return r, wi, NdotWi, NdotH / (4.0 * WoDotH)
 
+//	NdotH := b.sample.values.N.Dot(h)
+/*
+	f := ggx.F(WoDotH, b.sample.values.F0)
+	d := ggx.D(NdotH, b.sample.values.A2)
+//	g := ggx.G(NdotWi, NdotWo, b.sample.values.A2)
+	g := ggx.G_smith(b.sample.values.Roughness, NdotWi, NdotWo)
+//	g := ggx.Gsmith(NdotWi, NdotWo, b.sample.values.Roughness)
+//	g := ggx.Gggx(NdotWi, NdotWo, b.sample.values.A2)
 
-/*	costheta := b.sample.values.N.Dot(h)
-	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularD(costheta, b.sample.values.A2)).Scale(ggx.SpecularG(NdotWi, NdotWo, b.sample.values.A2))
-
-	return specular.Scale(WoDotH / (costheta * NdotWo)), wi, NdotWi, 1.0 / (2.0 * math32.Pi)
+	specular := f.Scale(d * g).Div(4.0 * NdotWi * NdotWo)
+	r := specular.Scale(NdotWi)
+	return r, wi, NdotWi, d * NdotH / (4.0 * WoDotH)
 	*/
 }
 
 func (b *GgxBrdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float32) {
-	NdotL := math32.Max(b.sample.values.N.Dot(l), 0.00001)
+//	NdotWi := math32.Max(b.sample.values.N.Dot(l), 0.00001)
 	NdotWo := math32.Max(b.sample.values.N.Dot(b.sample.values.Wo), 0.0)
 
 	h := b.sample.values.Wo.Add(l).Normalized()
 
 	WoDotH := b.sample.values.Wo.Dot(h)
 
-	specular := ggx.SpecularF(WoDotH, b.sample.values.F0).Scale(ggx.SpecularG(NdotL, NdotWo,  b.sample.values.A2))
+	specular := ggx.F(WoDotH, b.sample.values.F0).Scale(ggx.G(NdotWi, NdotWo, b.sample.values.A2))
 
 	costheta := math32.Abs(b.sample.values.N.Dot(h))
 
-//	return specular.Scale(NdotL), costheta / (4.0 * WoDotH)
+//	return specular.Scale(NdotWi), costheta / (4.0 * WoDotH)
 	
-	return specular.Scale(NdotL), ggx.SpecularD(costheta, b.sample.values.A2) * costheta / (4.0 * WoDotH)
+	return specular.Scale(NdotWi), ggx.D(costheta, b.sample.values.A2) * costheta / (4.0 * WoDotH)
 }

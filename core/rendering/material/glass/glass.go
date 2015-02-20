@@ -118,7 +118,7 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 	WoDotH := b.sample.values.Wo.Dot(h)
 
 	f0 := math.MakeVector3(0.03, 0.03, 0.03)
-	fresnel := ggx.SpecularF(WoDotH, f0)
+	fresnel := ggx.F(WoDotH, f0)
 
 	return b.sample.values.DiffuseColor.Mul(fresnel), wi, 1.0, 1.0
 
@@ -165,7 +165,7 @@ func (b *Brdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 	WoDotH := b.sample.values.Wo.Dot(h)
 
 	f0 := math.MakeVector3(0.03, 0.03, 0.03)
-	fresnel := ggx.SpecularF(WoDotH, f0)
+	fresnel := ggx.F(WoDotH, f0)
 
 	return b.sample.values.DiffuseColor.Mul(fresnel), wi, 1.0, 1.0
 }
