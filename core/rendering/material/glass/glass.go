@@ -41,8 +41,8 @@ func NewSample() *Sample {
 	return s
 }
 
-func (s *Sample) Set(color math.Vector3, opacity, roughness, metallic float32, n, wo math.Vector3) {
-	s.values.Set(color, opacity, roughness, metallic, n, wo)
+func (s *Sample) Set(color math.Vector3, opacity, roughness, metallic float32) {
+	s.values.Set(color, opacity, roughness, metallic)
 }
 
 func (s *Sample) Evaluate(l math.Vector3) math.Vector3 {
@@ -81,17 +81,17 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 
 	eta := float32(1.0 / etat)
 
-	n := b.sample.values.N.Scale(1.0)
+	n := b.sample.N
 
 
-	incident := b.sample.values.Wo.Scale(-1.0)
+	incident := b.sample.Wo.Scale(-1.0)
 
 	cosi := -incident.Dot(n)
 
 	if cosi < 0.0 {
 		// hit from the inside
 		cosi = -cosi
-		n.ScaleAssign(-1.0)
+		n.NegAssign()
 		eta = float32(etat / 1.0)
 		
 	//	fmt.Println("From inside")
@@ -114,13 +114,15 @@ func (b *Btdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math
 //	return b.sample.values.DiffuseColor, wi, cosi, 1.0
 
 
-	h := b.sample.values.Wo.Add(wi).Normalized()
-	WoDotH := b.sample.values.Wo.Dot(h)
+	h := b.sample.Wo.Add(wi).Normalized()
+	WoDotH := b.sample.Wo.Dot(h)
 
 	f0 := math.MakeVector3(0.03, 0.03, 0.03)
 	fresnel := ggx.F(WoDotH, f0)
 
-	return b.sample.values.DiffuseColor.Mul(fresnel), wi, 1.0, 1.0
+	transmittance := math.MakeVector3FromScalar(1.0).Sub(b.sample.values.Color)
+
+	return transmittance.Mul(fresnel), wi, 1.0, 1.0
 
 }
 
@@ -159,13 +161,19 @@ func (b *Brdf) Evaluate(l math.Vector3, NdotWi float32) (math.Vector3, float32) 
 }
 
 func (b *Brdf) ImportanceSample(subsample uint32, sampler sampler.Sampler) (math.Vector3, math.Vector3, float32, float32) {
-	wi := b.sample.values.N.Reflect(b.sample.values.Wo.Scale(-1.0)).Normalized()
+	n :=  b.sample.N
 
-	h := b.sample.values.Wo.Add(wi).Normalized()
-	WoDotH := b.sample.values.Wo.Dot(h)
+	if !b.sample.SameHemisphere(b.sample.Wo) {
+		n.NegAssign()
+	}
+
+	wi := n.Reflect(b.sample.Wo.Neg()).Normalized()
+
+	h := b.sample.Wo.Add(wi).Normalized()
+	WoDotH := b.sample.Wo.Dot(h)
 
 	f0 := math.MakeVector3(0.03, 0.03, 0.03)
 	fresnel := ggx.F(WoDotH, f0)
 
-	return b.sample.values.DiffuseColor.Mul(fresnel), wi, 1.0, 1.0
+	return fresnel, wi, 1.0, 1.0
 }

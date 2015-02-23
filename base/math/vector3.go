@@ -80,6 +80,17 @@ func (a *Vector3) ScaleAssign(s float32) Vector3 {
 	return *a
 }
 
+func (a Vector3) Neg() Vector3 {
+	return Vector3{-a.X, -a.Y, -a.Z}
+}
+
+func (a *Vector3) NegAssign() Vector3 {
+	a.X = -a.X
+	a.Y = -a.Y
+	a.Z = -a.Z
+	return *a
+}
+
 func (a Vector3) Mul(b Vector3) Vector3 {
 	return Vector3{a.X * b.X, a.Y * b.Y, a.Z * b.Z}
 }

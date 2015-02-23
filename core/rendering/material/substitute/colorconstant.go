@@ -14,7 +14,6 @@ type ColorConstant struct {
 	color math.Vector3
 	metallic float32
 	roughness float32
-
 }
 
 func NewColorConstant(color math.Vector3, roughness, metallic float32, stack *BinnedStack) *ColorConstant {
@@ -31,7 +30,8 @@ func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sample
 	s.T = dg.T
 	s.B = dg.B
 	s.N = dg.N
-	s.Set(m.color, 1.0, m.roughness, m.metallic, dg.N, v)
+	s.Wo = v
+	s.Set(m.color, 1.0, m.roughness, m.metallic)
 	return s
 }
 

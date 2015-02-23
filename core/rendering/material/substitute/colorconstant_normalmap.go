@@ -36,7 +36,9 @@ func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vecto
 	s.N = n
 	s.T, s.B = math.CoordinateSystem(n)
 
-	s.Set(m.color, 1.0, m.roughness, m.metallic, n, v)
+	s.Wo = v
+
+	s.Set(m.color, 1.0, m.roughness, m.metallic)
 	return s	
 }
 

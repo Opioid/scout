@@ -22,7 +22,11 @@ func NewColorConstant(color math.Vector3, stack *BinnedStack) *ColorConstant {
 
 func (m *ColorConstant) Sample(dg *geometry.Differential, v math.Vector3, sampler texture.Sampler2D, workerID uint32) material.Sample {
 	s := m.stack.Pop(workerID)
-	s.Set(m.color, 1.0, 0.0, 0.0, dg.N, v)
+	s.T = dg.T
+	s.B = dg.B
+	s.N = dg.N
+	s.Wo = v
+	s.Set(m.color, 1.0, 0.0, 0.0)
 	return s
 }
 

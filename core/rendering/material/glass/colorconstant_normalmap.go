@@ -30,7 +30,13 @@ func (m *ColorConstant_NormalMap) Sample(dg *geometry.Differential, v math.Vecto
 	n := tangentToWorldSpace.TransformVector3(nm).Normalized()
 
 	s := m.stack.Pop(workerID)
-	s.values.Set(m.color, 1.0, 0.0, 0.0, n, v)
+
+	s.N = n
+	s.T, s.B = math.CoordinateSystem(n)
+
+	s.Wo = v
+
+	s.values.Set(m.color, 1.0, 0.0, 0.0)
 	return s
 }
 

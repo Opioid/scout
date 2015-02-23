@@ -43,11 +43,6 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 			break
 		}
 
-		// No handling of geometry from the "inside" for now
-	/*	if ray.Direction.Dot(intersection.Geo.N) > 0.0 {
-			break
-		}
-	*/
 		pt.secondaryRay.Origin = intersection.Geo.P
 		pt.secondaryRay.MinT = intersection.Geo.Epsilon
 		pt.secondaryRay.Time = ray.Time

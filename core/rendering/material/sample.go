@@ -18,6 +18,8 @@ type Sample interface {
 
 type SampleBase struct {
 	T, B, N math.Vector3
+
+	Wo math.Vector3
 }
 
 func (s *SampleBase) TangentToWorld(v math.Vector3) math.Vector3 {
@@ -29,4 +31,12 @@ func (s *SampleBase) TangentToWorld(v math.Vector3) math.Vector3 {
 
 func (s *SampleBase) CoordinateSystem() (math.Vector3, math.Vector3, math.Vector3) {
 	return s.T, s.B, s.N
+}
+
+func (s *SampleBase) SameHemisphere(v math.Vector3) bool {
+	if s.N.Dot(v) > 0.0 {
+		return true
+	}
+
+	return false
 }

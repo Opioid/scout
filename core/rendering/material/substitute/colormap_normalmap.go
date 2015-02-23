@@ -37,7 +37,9 @@ func (m *ColorMap_NormalMap) Sample(dg *geometry.Differential, v math.Vector3, s
 	s.N = n
 	s.T, s.B = math.CoordinateSystem(n)
 
-	s.Set(color, 1.0, m.roughness, m.metallic, n, v)
+	s.Wo = v
+
+	s.Set(color, 1.0, m.roughness, m.metallic)
 	return s		
 }
 

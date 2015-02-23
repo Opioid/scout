@@ -57,12 +57,6 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		}
 
 		eye := ray.Direction.Scale(-1.0)
-
-		// No handling of geometry from the "inside" for now
-	/*	if eye.Dot(intersection.Geo.N) < 0.0 {
-			break
-		}
-	*/
 		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
 
 		r, wi, pdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
