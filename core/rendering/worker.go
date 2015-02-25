@@ -14,7 +14,7 @@ type Worker struct {
 	sample pkgsampler.CameraSample
 	ray math.OptimizedRay
 	
-	intersections []prop.Intersection
+	intersection prop.Intersection
 
 	Scene *pkgscene.Scene
 
@@ -23,10 +23,6 @@ type Worker struct {
 
 func makeWorker(integrator Integrator) Worker {
 	w := Worker{integrator: integrator}
-
-	// To reduce strain on the GC the max amount of intersection is allocated once only.
-	// I believe it would be possible to design the integrators so that only one intersection is ever needed regardless of depth.
-	w.intersections = make([]prop.Intersection, integrator.MaxBounces() + 1)
 
 	return w
 }
@@ -69,8 +65,6 @@ func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 }
 
 func (w *Worker) Intersect(ray *math.OptimizedRay) (bool, *prop.Intersection) {
-	intersection := &w.intersections[ray.Depth]
-
 	var visibility uint8
 
 	if ray.Depth == 0 {
@@ -79,9 +73,9 @@ func (w *Worker) Intersect(ray *math.OptimizedRay) (bool, *prop.Intersection) {
 		visibility = w.integrator.SecondaryVisibility()
 	}
 
-	hit := w.Scene.Intersect(ray, visibility, &w.ScratchBuffer, intersection)
+	hit := w.Scene.Intersect(ray, visibility, &w.ScratchBuffer, &w.intersection)
 
-	return hit, intersection
+	return hit, &w.intersection
 }
 
 func (w *Worker) Visibility(ray *math.OptimizedRay) bool {

@@ -36,10 +36,6 @@ func (ni *normal) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	return result
 }
 
-func (ni *normal) MaxBounces() uint32 {
-	return 0
-}
-
 func (ni *normal) PrimaryVisibility() uint8 {
 	return prop.Primary
 }

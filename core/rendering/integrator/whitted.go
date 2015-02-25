@@ -94,10 +94,6 @@ func (w *whitted) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	return result
 }
 
-func (w *whitted) MaxBounces() uint32 {
-	return w.maxBounces
-}
-
 func (w *whitted) PrimaryVisibility() uint8 {
 	return prop.Primary
 }

@@ -100,10 +100,6 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 	return result
 }
 
-func (pt *pathtracerDl) MaxBounces() uint32 {
-	return pt.maxBounces
-}
-
 func (pt *pathtracerDl) PrimaryVisibility() uint8 {
 	return prop.Primary
 }

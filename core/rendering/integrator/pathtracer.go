@@ -88,61 +88,6 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 	}
 
 	return result
-
-/*
-	material := intersection.Material()
-
-	if material.IsLight() {
-		l := ray.Direction.Scale(-1.0)
-		nDotL := intersection.Geo.N.Dot(l)
-
-		if nDotL > 0.0 {
-			return material.Energy()
-		} else {
-			return math.MakeVector3(0.0, 0.0, 0.0)
-		}
-	}
-
-	nextDepth := ray.Depth + 1
-
-	if nextDepth > pt.maxBounces {
-		return math.MakeVector3(0.0, 0.0, 0.0)
-	}
-
-	eye := ray.Direction.Scale(-1.0)
-
-	// No handling of geometry from the "inside" for now
-	if eye.Dot(intersection.Geo.N) < 0.0 {
-		return math.MakeVector3(0.0, 0.0, 0.0)
-	}
-
-	materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
-
-	bxdf, samplePdf := materialSample.MonteCarloBxdf(ray.Depth + subsample * pt.maxBounces, pt.sampler)
-
-	hs, bxdfPdf := bxdf.ImportanceSample(ray.Depth + subsample * pt.maxBounces, pt.sampler)
-	v := materialSample.TangentToWorld(hs)
-
-	r := bxdf.Evaluate(v)
-
-	material.Free(materialSample, pt.id)
-
-	pt.secondaryRay.Origin = intersection.Geo.P
-
-	pt.secondaryRay.SetDirection(v)
-	pt.secondaryRay.MinT = intersection.Geo.Epsilon
-	pt.secondaryRay.MaxT = 1000.0
-	pt.secondaryRay.Time = ray.Time
-	pt.secondaryRay.Depth = nextDepth
-
-	environment := worker.Li(subsample, &pt.secondaryRay)
-
-	return r.Mul(environment).Div(samplePdf * bxdfPdf)
-	*/
-}
-
-func (pt *pathtracer) MaxBounces() uint32 {
-	return pt.maxBounces
 }
 
 func (pt *pathtracer) PrimaryVisibility() uint8 {

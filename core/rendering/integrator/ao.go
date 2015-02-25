@@ -55,10 +55,6 @@ func (a *ao) Li(worker *rendering.Worker, subsample uint32, ray *math.OptimizedR
 	return math.MakeVector3(result, result, result)
 }
 
-func (a *ao) MaxBounces() uint32 {
-	return 0
-}
-
 func (a *ao) PrimaryVisibility() uint8 {
 	return prop.Primary
 }

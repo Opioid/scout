@@ -11,8 +11,6 @@ type Integrator interface {
 
 	Li(w *Worker, subsample uint32, ray *math.OptimizedRay, intersection *prop.Intersection) math.Vector3
 
-	MaxBounces() uint32
-
 	PrimaryVisibility() uint8
 	SecondaryVisibility() uint8
 }
