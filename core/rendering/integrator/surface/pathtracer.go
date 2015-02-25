@@ -1,6 +1,7 @@
-package integrator
+package surface
 
 import (
+	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering/texture"
@@ -21,7 +22,7 @@ type pathtracerSettings struct {
 }
 
 type pathtracer struct {
-	integrator
+	integrator.Integrator
 	sampler *pkgsampler.Random
 	pathtracerSettings
 }
@@ -57,11 +58,11 @@ func (pt *pathtracer) Li(worker *rendering.Worker, subsample uint32, ray *math.O
 		}
 
 		eye := ray.Direction.Scale(-1.0)
-		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
+		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.ID)
 
 		r, wi, pdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		material.Free(materialSample, pt.id)
+		material.Free(materialSample, pt.ID)
 
 		if pdf == 0.0 {
 			break
@@ -113,11 +114,11 @@ func NewPathtracerFactory(minBounces, maxBounces uint32) *pathtracerFactory {
 	return f
 }
 
-func (f *pathtracerFactory) New(id uint32, rng *random.Generator) rendering.Integrator {
+func (f *pathtracerFactory) New(id uint32, rng *random.Generator) rendering.SurfaceIntegrator {
 	pt := new(pathtracer)
 
-	pt.id = id
-	pt.rng = rng
+	pt.ID = id
+	pt.Rng = rng
 	pt.minBounces = f.minBounces
 	pt.maxBounces = f.maxBounces
 	pt.sampler = pkgsampler.NewRandom(1024, rng)

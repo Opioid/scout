@@ -1,6 +1,7 @@
-package integrator
+package surface
 
 import (
+	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering"
 	pkgsampler "github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering/texture"
@@ -19,7 +20,7 @@ type pathtracerDlSettings struct {
 }
 
 type pathtracerDl struct {
-	integrator
+	integrator.Integrator
 	sampler *pkgsampler.Random
 	pathtracerDlSettings
 }
@@ -49,9 +50,9 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 		pt.secondaryRay.Depth = nextDepth
 
 		eye := ray.Direction.Scale(-1.0)
-		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.id)
+		materialSample := material.Sample(&intersection.Geo.Differential, eye, pt.linearSampler_repeat, pt.ID)
 
-		if l, lightPdf := worker.Scene.MonteCarloLight(pt.rng.RandomFloat32()); l != nil {
+		if l, lightPdf := worker.Scene.MonteCarloLight(pt.Rng.RandomFloat32()); l != nil {
 			if ls := l.Sample(&worker.ScratchBuffer.Transformation, intersection.Geo.P, ray.Time, subsample, pt.sampler); ls.Pdf > 0.0 {
 				pt.secondaryRay.SetDirection(ls.L)
 				pt.secondaryRay.MaxT = ls.T
@@ -65,7 +66,7 @@ func (pt *pathtracerDl) Li(worker *rendering.Worker, subsample uint32, ray *math
 
 		r, wi, pdf := materialSample.SampleEvaluate(ray.Depth + subsample * pt.maxBounces, pt.sampler)
 
-		material.Free(materialSample, pt.id)
+		material.Free(materialSample, pt.ID)
 
 		if pdf == 0.0 {
 			break
@@ -123,11 +124,11 @@ func NewPathtracerDlFactory(minBounces, maxBounces uint32) *pathtracerDlFactory 
 	return f
 }
 
-func (f *pathtracerDlFactory) New(id uint32, rng *random.Generator) rendering.Integrator {
+func (f *pathtracerDlFactory) New(id uint32, rng *random.Generator) rendering.SurfaceIntegrator {
 	pt := new(pathtracerDl)
 
-	pt.id = id
-	pt.rng = rng
+	pt.ID = id
+	pt.Rng = rng
 	pt.minBounces = f.minBounces
 	pt.maxBounces = f.maxBounces
 	pt.sampler = pkgsampler.NewRandom(1024, rng)

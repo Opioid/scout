@@ -81,7 +81,7 @@ func main() {
 	fmt.Printf("(%fs)\n", seconds)
 
 	renderer := rendering.Renderer{}
-	renderer.IntegratorFactory = take.IntegratorFactory
+	renderer.SurfaceIntegratorFactory = take.SurfaceIntegratorFactory
 
 	fmt.Printf("Rendering...\n")
 	renderStart := time.Now()

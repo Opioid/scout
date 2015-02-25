@@ -10,7 +10,7 @@ import (
 )
 
 type Worker struct {
-	integrator Integrator
+	surfaceIntegrator SurfaceIntegrator
 	sample pkgsampler.CameraSample
 	ray math.OptimizedRay
 	
@@ -21,8 +21,8 @@ type Worker struct {
 	ScratchBuffer prop.ScratchBuffer
 } 
 
-func makeWorker(integrator Integrator) Worker {
-	w := Worker{integrator: integrator}
+func makeWorker(surfaceIntegrator SurfaceIntegrator) Worker {
+	w := Worker{surfaceIntegrator: surfaceIntegrator}
 
 	return w
 }
@@ -37,7 +37,7 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 	for y := start.Y; y < end.Y; y++ {
 		for x := start.X; x < end.X; x++ {
 			sampler.Restart(1)
-			w.integrator.StartNewPixel(numSamples)
+			w.surfaceIntegrator.StartNewPixel(numSamples)
 			sampleId := uint32(0)
 			offset := math.MakeVector2(float32(x), float32(y))
 
@@ -56,7 +56,7 @@ func (w *Worker) render(scene *pkgscene.Scene, camera camera.Camera, shutterOpen
 
 func (w *Worker) Li(subsample uint32, ray *math.OptimizedRay) math.Vector3 {
 	if hit, intersection := w.Intersect(ray); hit {
-		c := w.integrator.Li(w, subsample, ray, intersection) 
+		c := w.surfaceIntegrator.Li(w, subsample, ray, intersection) 
 		return c
 	} else {
 		c := w.Scene.Surrounding.Sample(ray)
@@ -68,9 +68,9 @@ func (w *Worker) Intersect(ray *math.OptimizedRay) (bool, *prop.Intersection) {
 	var visibility uint8
 
 	if ray.Depth == 0 {
-		visibility = w.integrator.PrimaryVisibility()
+		visibility = w.surfaceIntegrator.PrimaryVisibility()
 	} else {
-		visibility = w.integrator.SecondaryVisibility()
+		visibility = w.surfaceIntegrator.SecondaryVisibility()
 	}
 
 	hit := w.Scene.Intersect(ray, visibility, &w.ScratchBuffer, &w.intersection)

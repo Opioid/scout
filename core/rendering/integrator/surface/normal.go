@@ -1,6 +1,7 @@
-package integrator
+package surface
 
 import (
+	"github.com/Opioid/scout/core/rendering/integrator"
 	"github.com/Opioid/scout/core/rendering"
 	"github.com/Opioid/scout/core/rendering/texture"
 	"github.com/Opioid/scout/core/scene/prop"
@@ -14,7 +15,7 @@ type normalSettings struct {
 }
 
 type normal struct {
-	integrator
+	integrator.Integrator
 	normalSettings
 }
 
@@ -25,13 +26,13 @@ func (ni *normal) Li(worker *rendering.Worker, subsample uint32, ray *math.Optim
 	material := intersection.Material()
 
 	v := ray.Direction.Scale(-1.0)
-	brdf := material.Sample(&intersection.Geo.Differential, v, ni.linearSampler_repeat, ni.id)
+	brdf := material.Sample(&intersection.Geo.Differential, v, ni.linearSampler_repeat, ni.ID)
 
 	_, _, n := brdf.CoordinateSystem()
 
 	result := n.AddS(1.0).Scale(0.5)
 
-	material.Free(brdf, ni.id)
+	material.Free(brdf, ni.ID)
 
 	return result
 }
@@ -54,11 +55,11 @@ func NewNormalFactory() *normalFactory {
 	return f
 }
 
-func (f *normalFactory) New(id uint32, rng *random.Generator) rendering.Integrator {
+func (f *normalFactory) New(id uint32, rng *random.Generator) rendering.SurfaceIntegrator {
 	ni := new(normal)
 
-	ni.id = id
-	ni.rng = rng
+	ni.ID = id
+	ni.Rng = rng
 	ni.linearSampler_repeat = f.linearSampler_repeat
 
 	return ni

@@ -4,7 +4,7 @@ import (
 	"github.com/Opioid/scout/base/math/random"
 )
 
-type integrator struct {
-	id uint32
-	rng *random.Generator
+type Integrator struct {
+	ID uint32
+	Rng *random.Generator
 }

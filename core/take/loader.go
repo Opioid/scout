@@ -3,7 +3,7 @@ package take
 import (
 	pkgfilm "github.com/Opioid/scout/core/rendering/film"
 	"github.com/Opioid/scout/core/rendering/film/tonemapping"
-	"github.com/Opioid/scout/core/rendering/integrator"
+	"github.com/Opioid/scout/core/rendering/integrator/surface"
 	"github.com/Opioid/scout/core/rendering/sampler"
 	"github.com/Opioid/scout/core/rendering"
 	"github.com/Opioid/scout/core/scene/entity"
@@ -38,12 +38,12 @@ func (take *Take) Load(filename string) bool {
 		case "sampler" == key:
 			take.Context.Sampler = loadSampler(value)
 		case "integrator" == key:
-			take.IntegratorFactory = loadIntegratorFactory(value)
+			take.SurfaceIntegratorFactory = loadSurfaceIntegratorFactory(value)
 		}
 	} 
 
-	if (take.IntegratorFactory == nil) {
-		take.IntegratorFactory = integrator.NewWhittedFactory(1)
+	if (take.SurfaceIntegratorFactory == nil) {
+		take.SurfaceIntegratorFactory = surface.NewWhittedFactory(1)
 	}
 
 	if take.Context.Camera == nil {
@@ -299,7 +299,7 @@ func loadFilmicTonemapper(f interface{}) tonemapping.Tonemapper {
 	return tonemapping.NewFilmic(w)
 }
 
-func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
+func loadSurfaceIntegratorFactory(i interface{}) rendering.SurfaceIntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -323,7 +323,7 @@ func loadIntegratorFactory(i interface{}) rendering.IntegratorFactory {
 	return nil
 }
 
-func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
+func loadWhittedIntegrator(i interface{}) rendering.SurfaceIntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -338,10 +338,10 @@ func loadWhittedIntegrator(i interface{}) rendering.IntegratorFactory {
 		}
 	}
 
-	return integrator.NewWhittedFactory(maxBounces)
+	return surface.NewWhittedFactory(maxBounces)
 }
 
-func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
+func loadAoIntegrator(i interface{}) rendering.SurfaceIntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -359,10 +359,10 @@ func loadAoIntegrator(i interface{}) rendering.IntegratorFactory {
 		}
 	}
 
-	return integrator.NewAoFactory(numSamples, radius)
+	return surface.NewAoFactory(numSamples, radius)
 }
 
-func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
+func loadPathtracerIntegrator(i interface{}) rendering.SurfaceIntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -380,10 +380,10 @@ func loadPathtracerIntegrator(i interface{}) rendering.IntegratorFactory {
 		}
 	}
 
-	return integrator.NewPathtracerFactory(minBounces, maxBounces)
+	return surface.NewPathtracerFactory(minBounces, maxBounces)
 }
 
-func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
+func loadPathtracerDlIntegrator(i interface{}) rendering.SurfaceIntegratorFactory {
 	integratorNode, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
@@ -401,14 +401,14 @@ func loadPathtracerDlIntegrator(i interface{}) rendering.IntegratorFactory {
 		}
 	}
 
-	return integrator.NewPathtracerDlFactory(minBounces, maxBounces)
+	return surface.NewPathtracerDlFactory(minBounces, maxBounces)
 }
 
-func loadNormalIntegrator(i interface{}) rendering.IntegratorFactory {
+func loadNormalIntegrator(i interface{}) rendering.SurfaceIntegratorFactory {
 	_/*integratorNode*/, ok := i.(map[string]interface{})
 	if !ok {
 		return nil
 	}
 
-	return integrator.NewNormalFactory()
+	return surface.NewNormalFactory()
 }

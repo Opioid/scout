@@ -11,7 +11,7 @@ import (
 )
 
 type Renderer struct {
-	IntegratorFactory IntegratorFactory
+	SurfaceIntegratorFactory SurfaceIntegratorFactory
 
 	tileSize math.Vector2i
 	currentPixel math.Vector2i
@@ -49,7 +49,7 @@ func (r *Renderer) Render(scene *pkgscene.Scene, context *Context, numThreads ui
 		go func (index uint32) {	
 			rng := random.MakeGenerator(index + 0, index + 1, index + 2, index + 3)
 
-			worker := makeWorker(r.IntegratorFactory.New(index, &rng))
+			worker := makeWorker(r.SurfaceIntegratorFactory.New(index, &rng))
 
 			sampler := context.Sampler.Clone(&rng)
 
