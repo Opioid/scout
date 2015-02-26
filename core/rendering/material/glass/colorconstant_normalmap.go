@@ -14,10 +14,11 @@ type ColorConstant_NormalMap struct {
 	normalMap *texture.Texture2D
 }
 
-func NewColorConstant_NormalMap(color math.Vector3, normalMap *texture.Texture2D, stack *BinnedStack) *ColorConstant_NormalMap {
+func NewColorConstant_NormalMap(color math.Vector3, ior float32, normalMap *texture.Texture2D, stack *BinnedStack) *ColorConstant_NormalMap {
 	m := new(ColorConstant_NormalMap)
 	m.stack = stack
 	m.color = color
+	m.ior = ior
 	m.normalMap = normalMap
 	return m
 }

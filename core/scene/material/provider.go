@@ -84,8 +84,9 @@ func (p *Provider) loadGlass(i interface{}, tp *texture.Provider) Material {
 		return nil
 	}
 
-	color := math.MakeVector3(0.75, 0.75, 0.75)
 	var normalMap *texture.Texture2D
+	color := math.MakeVector3(0.75, 0.75, 0.75)
+	ior := float32(1.2)
 
 	for key, value := range node {
 		switch key {
@@ -106,15 +107,18 @@ func (p *Provider) loadGlass(i interface{}, tp *texture.Provider) Material {
 
 		case "color":
 			color = pkgjson.ParseVector3(value)
+
+		case "ior":
+			ior = float32(value.(float64))
 		}
 	}
 
 	var material Material
 
 	if normalMap != nil {
-		material = glass.NewColorConstant_NormalMap(color, normalMap, p.glassStack)
+		material = glass.NewColorConstant_NormalMap(color, ior, normalMap, p.glassStack)
 	} else {		
-		material = glass.NewColorConstant(color, p.glassStack)
+		material = glass.NewColorConstant(color, ior, p.glassStack)
 	}
 
 	return material

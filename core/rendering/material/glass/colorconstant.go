@@ -13,9 +13,10 @@ type ColorConstant struct {
 	color math.Vector3
 }
 
-func NewColorConstant(color math.Vector3, stack *BinnedStack) *ColorConstant {
+func NewColorConstant(color math.Vector3, ior float32, stack *BinnedStack) *ColorConstant {
 	m := new(ColorConstant)
 	m.stack = stack
+	m.ior = ior
 	m.color = color
 	return m
 }

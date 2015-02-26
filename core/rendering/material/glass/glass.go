@@ -12,6 +12,7 @@ import (
 
 type base struct {
 	stack *BinnedStack
+	ior float32
 }
 
 func (b *base) Free(sample material.Sample, workerID uint32) {
