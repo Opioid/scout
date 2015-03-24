@@ -44,6 +44,8 @@ func main() {
 	// p.Stop() must be called before the program exits to
 	defer profile.Start(&cfg).Stop()
 
+	fmt.Println("Welcome to scout!")
+
 	numWorkers := /*uint32(1)//*/uint32(runtime.NumCPU()) - 1
 
 	fmt.Printf("#Threads %d\n", numWorkers)
@@ -52,7 +54,7 @@ func main() {
 
 	take := take.Take{}
 
-	takename := "../data/takes/material_test.take"
+	takename := "../data/takes/imrod.take"
 
 	if !take.Load(takename) {
 		fmt.Printf("Take \"%v\" could not be loaded.\n", takename)
@@ -93,7 +95,7 @@ func main() {
 	seconds = float64(renderDuration.Nanoseconds()) / 1000000000.0
 	fmt.Printf("(%fs)\n", seconds)
 
-	fmt.Printf("Saving...\n")
+	fmt.Printf("Exporting...\n")
 	saveStart := time.Now()
 
 	film := take.Context.Camera.Film()

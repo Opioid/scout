@@ -19,7 +19,7 @@ type aoSettings struct {
 
 type ao struct {
 	integrator.Integrator
-	sampler *pkgsampler.ScrambledHammersley
+	sampler *pkgsampler.Random
 	aoSettings
 }
 
@@ -83,7 +83,7 @@ func (f *aoFactory) New(id uint32, rng *random.Generator) rendering.SurfaceInteg
 
 	a.ID = id
 	a.Rng = rng
-	a.sampler = pkgsampler.NewScrambledHammersley(f.numSamples, rng)
+	a.sampler = pkgsampler.NewRandom(f.numSamples, rng)
 	a.numSamples = f.numSamples	
 	a.numSamplesReciprocal = f.numSamplesReciprocal
 	a.samples = make([]math.Vector2, f.numSamples)
